@@ -21,48 +21,30 @@ unsigned int Space_Hasher_2D::construct_hash(unsigned int _x, unsigned int _y)
 
 void Space_Hasher_2D::update_border(const objects_list& _registred_objects)
 {
-	if(_registred_objects.size() == 0) return;
+    if(_registred_objects.size() == 0)
+        return;
 
-    LDS::List<const LEti::Object_2D*>::Const_Iterator model_it = _registred_objects.begin();
+    LDS::List<const Physics_Module_2D*>::Const_Iterator model_it = _registred_objects.begin();
 
-    bool rb_inited = false;
+    const LEti::Geometry_2D::Rectangular_Border* rb = &(*model_it)->rectangular_border();
 
-    float max_left = 0.0f;
-    float max_right = 0.0f;
-    float max_top = 0.0f;
-    float max_bottom = 0.0f;
+    float max_left = rb->left;
+    float max_right = rb->right;
+    float max_top = rb->top;
+    float max_bottom = rb->bottom;
 
     while(!model_it.end_reached())
-	{
-        if(!(*model_it)->physics_module())
-        {
-            ++model_it;
-            continue;
-        }
+    {
+        rb = &(*model_it)->rectangular_border();
 
-		if((*model_it)->physics_module()->can_collide() == false)
-		{
-			++model_it;
-			continue;
-		}
-
-        const LEti::Geometry_2D::Rectangular_Border& rb = (*model_it)->physics_module()->rectangular_border();
-
-        if(!rb_inited)
-        {
-            max_left = rb.left;
-            max_right = rb.right;
-            max_top = rb.top;
-            max_bottom = rb.bottom;
-            rb_inited = true;
-        }
-        else
-        {
-            if(rb.left < max_left) max_left = rb.left;
-            if(rb.right > max_right) max_right = rb.right;
-            if(rb.top > max_top) max_top = rb.top;
-            if(rb.bottom < max_bottom) max_bottom = rb.bottom;
-        }
+        if(rb->left < max_left)
+            max_left = rb->left;
+        if(rb->right > max_right)
+            max_right = rb->right;
+        if(rb->top > max_top)
+            max_top = rb->top;
+        if(rb->bottom < max_bottom)
+            max_bottom = rb->bottom;
 
 		++model_it;
 	}
@@ -91,14 +73,8 @@ void Space_Hasher_2D::hash_objects(const objects_list& _registred_objects)
 {
     objects_list::Const_Iterator model_it = _registred_objects.begin();
     while(!model_it.end_reached())
-	{
-        if(!(*model_it)->physics_module())
-        {
-            ++model_it;
-            continue;
-        }
-
-        const LEti::Geometry_2D::Rectangular_Border& curr_rb = (*model_it)->physics_module()->rectangular_border();
+    {
+        const LEti::Geometry_2D::Rectangular_Border& curr_rb = (*model_it)->rectangular_border();
 
 		unsigned int min_index_x = (unsigned int)((curr_rb.left - m_space_borders.min_x) / m_space_borders.width * m_precision);
 		unsigned int max_index_x = (unsigned int)((curr_rb.right - m_space_borders.min_x) / m_space_borders.width * m_precision);
@@ -166,9 +142,8 @@ void Space_Hasher_2D::check_for_possible_collisions__points(const points_list &_
         const objects_list& list = *m_array[hash];
         objects_list::Const_Iterator it = list.begin();
         while(!it.end_reached())
-		{
-			if((*it)->physics_module()->can_collide())
-                m_possible_collisions__points.insert(Colliding_Point_And_Object(*it, *point_it));
+        {
+            m_possible_collisions__points.insert(Colliding_Point_And_Object(*it, *point_it));
 			++it;
 		}
 

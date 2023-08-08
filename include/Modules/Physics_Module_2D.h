@@ -1,14 +1,15 @@
-#ifndef __Dynamic_Physics_Module_2D
-#define __Dynamic_Physics_Module_2D
+#ifndef PHYSICS_MODULE_2D_H
+#define PHYSICS_MODULE_2D_H
 
-#include <Modules/Physics_Module_Base.h>
+#include <Module.h>
+
 #include <Physical_Models/Physical_Model_2D.h>
 
 
 namespace LPhys
 {
 
-    class Dynamic_Physics_Module_2D_Stub : public Physics_Module_Base_Stub
+    class Physics_Module_2D_Stub : public LV::Builder_Stub
     {
     public:
         DECLARE_VARIABLE;
@@ -24,10 +25,10 @@ namespace LPhys
         void M_init_constructed_product(LV::Variable_Base* _product) const override;
 
     public:
-        virtual ~Dynamic_Physics_Module_2D_Stub();
+        virtual ~Physics_Module_2D_Stub();
     };
 
-    class Dynamic_Physics_Module_2D : public Physics_Module_Base
+    class Physics_Module_2D : public LEti::Module
 	{
     public:
         DECLARE_VARIABLE;
@@ -38,22 +39,22 @@ namespace LPhys
         LEti::Geometry_2D::Rectangular_Border m_rectangular_border;
 
 	public:
-        Dynamic_Physics_Module_2D();
-        ~Dynamic_Physics_Module_2D();
+        Physics_Module_2D();
+        ~Physics_Module_2D();
 
     private:
         virtual Physical_Model_2D* M_create_physical_model() const;
 
     public:
-	void init_physical_model(); //	allocates physical_model
-	void init_prev_state();	    //	allocates physical_model_imprint with physical_model's data
-	void setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
+        void init_physical_model(); //	allocates physical_model
+        void init_prev_state();	    //	allocates physical_model_imprint with physical_model's data
+        void setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
 
         void move_raw(const glm::vec3 &_stride);
 
     public:
-	void update_previous_state() override;
-        void update(const glm::mat4x4 &_matrix) override;
+        void update_previous_state();
+        virtual void update(float _dt);
 
 	public:
         inline Physical_Model_2D* get_physical_model() { return m_physical_model; }
@@ -67,4 +68,4 @@ namespace LPhys
 }
 
 
-#endif // __Dynamic_Physics_Module_2D
+#endif // PHYSICS_MODULE_2D_H

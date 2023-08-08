@@ -1,10 +1,9 @@
 #ifndef __NARROW_PHASE_INTERFACE
 #define __NARROW_PHASE_INTERFACE
 
-#include <Object_System/Object_2D.h>
-
 #include <Collision_Detection/Broad_Phase_Interface.h>
 #include <Collision_Detection/Narrowest_Phase_Interface.h>
+#include <Modules/Physics_Module_2D.h>
 
 namespace LPhys
 {

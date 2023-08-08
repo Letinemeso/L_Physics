@@ -21,9 +21,8 @@ win32 {
 }
 
 HEADERS += \
-    include/Modules/Dynamic_Physics_Module_2D.h \
-    include/Modules/Physics_Module_Base.h \
-    include/Modules/Physics_Module__Rigid_Body_2D.h \
+	include/Modules/Physics_Module_2D.h \
+	include/Modules/Rigid_Body_2D.h \
     include/Physical_Models/Physical_Model_2D.h \
     include/Physical_Models/Polygon.h \
     include/Physical_Models/Rigid_Body_Physical_Model_2D.h \
@@ -41,9 +40,8 @@ HEADERS += \
     include/Collision_Detection/Space_Hasher_2D.h \
 
 SOURCES += \
-    source/Modules/Dynamic_Physics_Module_2D.cpp \
-    source/Modules/Physics_Module_Base.cpp \
-    source/Modules/Physics_Module__Rigid_Body_2D.cpp \
+	source/Modules/Physics_Module_2D.cpp \
+	source/Modules/Rigid_Body_2D.cpp \
     source/Physical_Models/Physical_Model_2D.cpp \
     source/Physical_Models/Polygon.cpp \
     source/Physical_Models/Rigid_Body_Physical_Model_2D.cpp \

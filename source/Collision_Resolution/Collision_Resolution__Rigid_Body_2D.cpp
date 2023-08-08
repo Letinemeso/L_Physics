@@ -19,14 +19,14 @@ float Collision_Resolution__Rigid_Body_2D::M_calculate_kinetic_energy(const glm:
 
 bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
 {
-    LEti::Object_2D* bodyA = (LEti::Object_2D*)_id.first;	//	too lazy to figure out appropriate way to pass non-const pointer here
-    LEti::Object_2D* bodyB = (LEti::Object_2D*)_id.second;
-
-    Physics_Module__Rigid_Body_2D* pm1 = LV::cast_variable<Physics_Module__Rigid_Body_2D>(bodyA->physics_module());
-    Physics_Module__Rigid_Body_2D* pm2 = LV::cast_variable<Physics_Module__Rigid_Body_2D>(bodyB->physics_module());
+    Rigid_Body_2D* pm1 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.first);
+    Rigid_Body_2D* pm2 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.second);
 
     if(!pm1 || !pm2)
         return false;
+
+    LEti::Object_2D* bodyA = pm1->associated_object();	//	too lazy to figure out appropriate way to pass non-const pointer here
+    LEti::Object_2D* bodyB = pm2->associated_object();
 
     glm::vec3 A_center_of_mas = pm1->get_physical_model()->center_of_mass();
     glm::vec3 B_center_of_mas = pm2->get_physical_model()->center_of_mass();
@@ -41,10 +41,8 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
 
     float ke_before = M_calculate_kinetic_energy(A_velocity, A_angular_velocity, pm1->mass(), A_moment_of_inertia) + M_calculate_kinetic_energy(B_velocity, B_angular_velocity, pm2->mass(), B_moment_of_inertia);
 
-    bodyA->revert_to_previous_state();
-    bodyA->update(_id.time_of_intersection_ratio);
-    bodyB->revert_to_previous_state();
-    bodyB->update(_id.time_of_intersection_ratio);
+    bodyA->revert_to_ratio_between_frames(_id.time_of_intersection_ratio);
+    bodyB->revert_to_ratio_between_frames(_id.time_of_intersection_ratio);
 
     float e = 1.0f;
 

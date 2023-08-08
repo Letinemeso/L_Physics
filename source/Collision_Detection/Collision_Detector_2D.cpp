@@ -16,9 +16,9 @@ Collision_Detector_2D::~Collision_Detector_2D()
 
 
 
-void Collision_Detector_2D::debug_assert_if_model_copy_found(const LEti::Object_2D *_model, bool _reverse)
+void Collision_Detector_2D::debug_assert_if_model_copy_found(const Physics_Module_2D *_model, bool _reverse)
 {
-    LDS::List<const LEti::Object_2D*>::Iterator check = m_registred_models.begin();
+    LDS::List<const Physics_Module_2D*>::Iterator check = m_registred_models.begin();
     while(!check.end_reached())
 	{
         L_ASSERT(!_reverse && *check != _model);
@@ -64,15 +64,15 @@ void Collision_Detector_2D::set_narrowest_phase(Narrowest_Phase_Interface* _narr
 
 
 
-void Collision_Detector_2D::register_object(const LEti::Object_2D *_model)
+void Collision_Detector_2D::register_object(const Physics_Module_2D *_model)
 {
 	L_DEBUG_FUNC_2ARG(debug_assert_if_model_copy_found, _model, false);
 	m_registred_models.push_back(_model);
 }
 
-void Collision_Detector_2D::unregister_object(const LEti::Object_2D *_model)
+void Collision_Detector_2D::unregister_object(const Physics_Module_2D *_model)
 {
-    LDS::List<const LEti::Object_2D*>::Iterator it = m_registred_models.begin();
+    LDS::List<const Physics_Module_2D*>::Iterator it = m_registred_models.begin();
     while(!it.end_reached())
 	{
         if(*it == _model)

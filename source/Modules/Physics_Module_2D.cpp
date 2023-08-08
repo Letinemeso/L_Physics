@@ -1,9 +1,9 @@
-#include <Modules/Dynamic_Physics_Module_2D.h>
+#include <Modules/Physics_Module_2D.h>
 
 using namespace LPhys;
 
 
-INIT_FIELDS(LPhys::Dynamic_Physics_Module_2D_Stub, LPhys::Physics_Module_Base_Stub)
+INIT_FIELDS(LPhys::Physics_Module_2D_Stub, LV::Builder_Stub)
 
 ADD_FIELD(unsigned int, coords_count)
 ADD_FIELD(float*, coords)
@@ -14,14 +14,14 @@ FIELDS_END
 
 
 
-LV::Variable_Base* Dynamic_Physics_Module_2D_Stub::M_construct_product() const
+LV::Variable_Base* Physics_Module_2D_Stub::M_construct_product() const
 {
-    return new Dynamic_Physics_Module_2D;
+    return new Physics_Module_2D;
 }
 
-void Dynamic_Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _product) const
+void Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _product) const
 {
-    Dynamic_Physics_Module_2D* result = (Dynamic_Physics_Module_2D*)_product;
+    Physics_Module_2D* result = (Physics_Module_2D*)_product;
 
     result->init_physical_model();
     result->setup_base_data(coords, coords_count, collision_permissions);
@@ -30,24 +30,24 @@ void Dynamic_Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Bas
 
 
 
-Dynamic_Physics_Module_2D_Stub::~Dynamic_Physics_Module_2D_Stub()
+Physics_Module_2D_Stub::~Physics_Module_2D_Stub()
 {
     delete[] coords;
     delete[] collision_permissions;
 }
 
 
-INIT_FIELDS(LPhys::Dynamic_Physics_Module_2D, LPhys::Physics_Module_Base)
+INIT_FIELDS(LPhys::Physics_Module_2D, LEti::Module)
 FIELDS_END
 
 
 
-Dynamic_Physics_Module_2D::Dynamic_Physics_Module_2D()
+Physics_Module_2D::Physics_Module_2D()
 {
 
 }
 
-Dynamic_Physics_Module_2D::~Dynamic_Physics_Module_2D()
+Physics_Module_2D::~Physics_Module_2D()
 {
 	delete m_physical_model_prev_state;
 	delete m_physical_model;
@@ -55,14 +55,14 @@ Dynamic_Physics_Module_2D::~Dynamic_Physics_Module_2D()
 
 
 
-Physical_Model_2D* Dynamic_Physics_Module_2D::M_create_physical_model() const
+Physical_Model_2D* Physics_Module_2D::M_create_physical_model() const
 {
     return new Physical_Model_2D;
 }
 
 
 
-void Dynamic_Physics_Module_2D::init_physical_model()
+void Physics_Module_2D::init_physical_model()
 {
 	delete m_physical_model;
     m_physical_model = nullptr;
@@ -70,7 +70,7 @@ void Dynamic_Physics_Module_2D::init_physical_model()
     m_physical_model = M_create_physical_model();
 }
 
-void Dynamic_Physics_Module_2D::init_prev_state()
+void Physics_Module_2D::init_prev_state()
 {
     delete m_physical_model_prev_state;
     m_physical_model_prev_state = nullptr;
@@ -78,37 +78,33 @@ void Dynamic_Physics_Module_2D::init_prev_state()
     m_physical_model_prev_state = m_physical_model->create_imprint();
 }
 
-void Dynamic_Physics_Module_2D::setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
+void Physics_Module_2D::setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
 {
     m_physical_model->setup(_raw_coords, _raw_coords_count, _collision_permissions);
 }
 
 
-void Dynamic_Physics_Module_2D::move_raw(const glm::vec3 &_stride)
+void Physics_Module_2D::move_raw(const glm::vec3 &_stride)
 {
     m_physical_model->move_raw(_stride);
 }
 
 
 
-void Dynamic_Physics_Module_2D::update_previous_state()
+void Physics_Module_2D::update_previous_state()
 {
 	L_ASSERT(!(!m_physical_model || !m_physical_model_prev_state));
-
-    if(!can_collide())
-        return;
 
 	m_physical_model_prev_state->update_to_current_model_state();
 }
 
-void Dynamic_Physics_Module_2D::update(const glm::mat4x4 &_matrix)
+void Physics_Module_2D::update(float /*_dt*/)
 {
-	L_ASSERT(!(!m_physical_model || !m_physical_model_prev_state));
+    L_ASSERT(!m_physical_model && m_physical_model_prev_state && associated_object());
 
-    if(!can_collide())
-        return;
+    associated_object()->update_matrix();
 
-    m_physical_model->update(_matrix);
+    m_physical_model->update(associated_object()->final_matrix());
 
         const LEti::Geometry_2D::Rectangular_Border& prev_rb = get_physical_model_prev_state()->curr_rect_border(),
 			curr_rb = get_physical_model()->curr_rect_border();

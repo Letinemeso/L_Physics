@@ -4,7 +4,7 @@ using namespace LPhys;
 
 
 
-Dynamic_Narrow_CD::float_pair Dynamic_Narrow_CD::find_ratio(const LEti::Object_2D &_moving_1, const LEti::Object_2D &_moving_2) const
+Dynamic_Narrow_CD::float_pair Dynamic_Narrow_CD::find_ratio(const Physics_Module_2D &_moving_1, const Physics_Module_2D &_moving_2) const
 {
     float min_intersection_ratio = 1.1f, max_intersection_ratio = -0.1f;
     auto rewrite_min_max_ratio = [&min_intersection_ratio, &max_intersection_ratio](float _ratio)->void
@@ -30,7 +30,7 @@ Dynamic_Narrow_CD::float_pair Dynamic_Narrow_CD::find_ratio(const LEti::Object_2
             return {_pol[_ind], _pol[0]};
     };
 
-    Physical_Model_2D_Imprint ppm1_relative_prev = *_moving_1.physics_module()->get_physical_model_prev_state();
+    Physical_Model_2D_Imprint ppm1_relative_prev = *_moving_1.get_physical_model_prev_state();
     Physical_Model_2D_Imprint ppm1_relative = ppm1_relative_prev;
 
     glm::mat4x4 fake_default_matrix{
@@ -40,36 +40,39 @@ Dynamic_Narrow_CD::float_pair Dynamic_Narrow_CD::find_ratio(const LEti::Object_2
         0.0f, 0.0f, 0.0f, 1.0f
     };
 
-    glm::vec3 pos_diff_vector_prev = _moving_1.get_pos_prev() - _moving_2.get_pos_prev();
-    pos_diff_vector_prev = _moving_2.get_rotation_matrix_inversed_for_time_ratio(0.0f) * glm::vec4(pos_diff_vector_prev, 1.0f);
+    const LEti::Object_2D& associated_object_1 = *_moving_1.associated_object();
+    const LEti::Object_2D& associated_object_2 = *_moving_2.associated_object();
+
+    glm::vec3 pos_diff_vector_prev = associated_object_1.get_pos_prev() - associated_object_2.get_pos_prev();
+    pos_diff_vector_prev = associated_object_2.get_rotation_matrix_inversed_for_time_ratio(0.0f) * glm::vec4(pos_diff_vector_prev, 1.0f);
 
     glm::mat4x4 diff_pos_prev = fake_default_matrix;
     diff_pos_prev[3][0] += pos_diff_vector_prev[0];
     diff_pos_prev[3][1] += pos_diff_vector_prev[1];
-    glm::mat4x4 diff_rotation_prev = _moving_1.get_rotation_matrix_for_time_ratio(0.0f) / _moving_2.get_rotation_matrix_for_time_ratio(0.0f);
-    glm::mat4x4 diff_scale_prev = _moving_1.get_scale_matrix_for_time_ratio(0.0f);
+    glm::mat4x4 diff_rotation_prev = associated_object_1.get_rotation_matrix_for_time_ratio(0.0f) / associated_object_2.get_rotation_matrix_for_time_ratio(0.0f);
+    glm::mat4x4 diff_scale_prev = associated_object_1.get_scale_matrix_for_time_ratio(0.0f);
 
 
-    glm::vec3 pos_diff_vector = _moving_1.get_pos() - _moving_2.get_pos();
-    pos_diff_vector = _moving_2.get_rotation_matrix_inversed_for_time_ratio(1.0f) * glm::vec4(pos_diff_vector, 1.0f);
+    glm::vec3 pos_diff_vector = associated_object_1.get_pos() - associated_object_2.get_pos();
+    pos_diff_vector = associated_object_2.get_rotation_matrix_inversed_for_time_ratio(1.0f) * glm::vec4(pos_diff_vector, 1.0f);
 
     glm::mat4x4 diff_pos = fake_default_matrix;
     diff_pos[3][0] += pos_diff_vector[0];
     diff_pos[3][1] += pos_diff_vector[1];
-    glm::mat4x4 diff_rotation = _moving_1.get_rotation_matrix_for_time_ratio(1.0f) / _moving_2.get_rotation_matrix_for_time_ratio(1.0f);
+    glm::mat4x4 diff_rotation = associated_object_1.get_rotation_matrix_for_time_ratio(1.0f) / associated_object_2.get_rotation_matrix_for_time_ratio(1.0f);
 
-    glm::vec3 m2_scale_diff_vec = _moving_2.get_scale() - _moving_2.get_scale_prev();
+    glm::vec3 m2_scale_diff_vec = associated_object_2.get_scale() - associated_object_2.get_scale_prev();
     glm::mat4x4 m2_scale_diff_matrix = fake_default_matrix;
     for(unsigned int i=0; i<3; ++i)
         m2_scale_diff_matrix[i][i] += m2_scale_diff_vec[i];
 
-    glm::mat4x4 diff_scale = _moving_1.get_scale_matrix_for_time_ratio(1.0f) * m2_scale_diff_matrix;
+    glm::mat4x4 diff_scale = associated_object_1.get_scale_matrix_for_time_ratio(1.0f) * m2_scale_diff_matrix;
 
     ppm1_relative_prev.update(diff_pos_prev, diff_rotation_prev, diff_scale_prev);
     ppm1_relative.update(diff_pos, diff_rotation, diff_scale);
 
-    Physical_Model_2D_Imprint ppm2 = *_moving_2.physics_module()->get_physical_model_prev_state();
-    ppm2.update(fake_default_matrix, fake_default_matrix, _moving_2.get_scale_matrix_for_time_ratio(0.0f));
+    Physical_Model_2D_Imprint ppm2 = *_moving_2.get_physical_model_prev_state();
+    ppm2.update(fake_default_matrix, fake_default_matrix, associated_object_2.get_scale_matrix_for_time_ratio(0.0f));
 
     for(unsigned int pol1=0; pol1<ppm1_relative_prev.get_polygons_count(); ++pol1)
     {
@@ -100,9 +103,8 @@ Dynamic_Narrow_CD::float_pair Dynamic_Narrow_CD::find_ratio(const LEti::Object_2
     return {min_intersection_ratio, max_intersection_ratio};
 }
 
-Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const LEti::Object_2D& _first, const LEti::Object_2D& _second, float _min_ratio, float _max_ratio) const
+Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const Physics_Module_2D& _first, const Physics_Module_2D& _second, float _min_ratio, float _max_ratio) const
 {
-    L_ASSERT(!(!_first.physics_module()->can_collide() || !_second.physics_module()->can_collide()));
     L_ASSERT(!(_min_ratio < 0.0f || _max_ratio < 0.0f || _min_ratio > 1.0f || _max_ratio > 1.0f));
 
     float diff = _max_ratio - _min_ratio;
@@ -113,10 +115,10 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const L
     float curr_time_point = _min_ratio;
     while(curr_time_point <= _max_ratio)
     {
-        Physical_Model_2D_Imprint first_impr = *_first.physics_module()->get_physical_model_prev_state();
-        first_impr.update(_first.get_translation_matrix_for_time_ratio(curr_time_point), _first.get_rotation_matrix_for_time_ratio(curr_time_point), _first.get_scale_matrix_for_time_ratio(curr_time_point));
-        Physical_Model_2D_Imprint second_impr = *_second.physics_module()->get_physical_model_prev_state();
-        second_impr.update(_second.get_translation_matrix_for_time_ratio(curr_time_point), _second.get_rotation_matrix_for_time_ratio(curr_time_point), _second.get_scale_matrix_for_time_ratio(curr_time_point));
+        Physical_Model_2D_Imprint first_impr = *_first.get_physical_model_prev_state();
+        first_impr.update(_first.associated_object()->get_translation_matrix_for_time_ratio(curr_time_point), _first.associated_object()->get_rotation_matrix_for_time_ratio(curr_time_point), _first.associated_object()->get_scale_matrix_for_time_ratio(curr_time_point));
+        Physical_Model_2D_Imprint second_impr = *_second.get_physical_model_prev_state();
+        second_impr.update(_second.associated_object()->get_translation_matrix_for_time_ratio(curr_time_point), _second.associated_object()->get_rotation_matrix_for_time_ratio(curr_time_point), _second.associated_object()->get_scale_matrix_for_time_ratio(curr_time_point));
         id = m_narrowest_phase->collision__model_vs_model(first_impr.get_polygons(), first_impr.get_polygons_count(), second_impr.get_polygons(), second_impr.get_polygons_count());
         if(id) break;
 
@@ -124,8 +126,8 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const L
     }
 
     if(!id && LEti::Math::floats_are_equal(_max_ratio, 1.0f))
-        id = m_narrowest_phase->collision__model_vs_model(_first.physics_module()->get_physical_model()->get_polygons(), _first.physics_module()->get_physical_model()->get_polygons_count(),
-                                                          _second.physics_module()->get_physical_model()->get_polygons(), _second.physics_module()->get_physical_model()->get_polygons_count());
+        id = m_narrowest_phase->collision__model_vs_model(_first.get_physical_model()->get_polygons(), _first.get_physical_model()->get_polygons_count(),
+                                                          _second.get_physical_model()->get_polygons(), _second.get_physical_model()->get_polygons_count());
 
     if(id)
     {
@@ -135,7 +137,7 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const L
     return id;
 }
 
-Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_moving(const LEti::Object_2D &_moving_1, const LEti::Object_2D &_moving_2) const
+Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_moving(const Physics_Module_2D &_moving_1, const Physics_Module_2D &_moving_2) const
 {
     float min_intersection_ratio = 1.1f, max_intersection_ratio = -0.1f;
     auto rewrite_min_max_ratio = [&min_intersection_ratio, &max_intersection_ratio](float _ratio)->void
@@ -173,7 +175,7 @@ Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_moving(const LEti::Obj
     return Intersection_Data();
 }
 
-Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_static(const LEti::Object_2D& _moving, const LEti::Object_2D& _static) const
+Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_static(const Physics_Module_2D& _moving, const Physics_Module_2D& _static) const
 {
     float min_intersection_ratio = 1.1f, max_intersection_ratio = -0.1f;
     auto rewrite_min_max_ratio = [&min_intersection_ratio, &max_intersection_ratio](float _ratio)->void
@@ -205,30 +207,19 @@ Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_static(const LEti::Obj
     return Intersection_Data();
 }
 
-LEti::Geometry::Simple_Intersection_Data Dynamic_Narrow_CD::collision__static_vs_point(const LEti::Object_2D &_static, const glm::vec3 &_point) const
+LEti::Geometry::Simple_Intersection_Data Dynamic_Narrow_CD::collision__static_vs_point(const Physics_Module_2D &_static, const glm::vec3 &_point) const
 {
-    return m_narrowest_phase->collision__model_vs_point(*_static.physics_module()->get_physical_model(), _point);
+    return m_narrowest_phase->collision__model_vs_point(*_static.get_physical_model(), _point);
 }
 
 
 
-Intersection_Data Dynamic_Narrow_CD::objects_collide(const LEti::Object_2D& _first, const LEti::Object_2D& _second) const
+Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module_2D& _first, const Physics_Module_2D& _second) const
 {
-    L_ASSERT(_first.physics_module() && _second.physics_module());
-
-    if(!_second.physics_module()->can_collide() || !_first.physics_module()->can_collide())
+    if(!(_first.rectangular_border() && _second.rectangular_border()))
         return Intersection_Data();
 
-    if(!(_first.physics_module()->rectangular_border() && _second.physics_module()->rectangular_border()))
-        return Intersection_Data();
-
-    if(_first.moved_since_last_frame() || _second.moved_since_last_frame())
-        return collision__moving_vs_moving(_first, _second);
-    else
-        return m_narrowest_phase->collision__model_vs_model(_first.physics_module()->get_physical_model()->get_polygons(), _first.physics_module()->get_physical_model()->get_polygons_count(),
-                                                            _second.physics_module()->get_physical_model()->get_polygons(), _second.physics_module()->get_physical_model()->get_polygons_count());
-
-    return Intersection_Data();
+    return collision__moving_vs_moving(_first, _second);
 }
 
 

@@ -3,10 +3,7 @@
 
 #include <vec3.hpp>
 
-namespace LEti
-{
-    class Object_2D;
-}
+#include <Modules/Physics_Module_2D.h>
 
 namespace LPhys
 {
@@ -28,8 +25,8 @@ namespace LPhys
         glm::vec3 point{0.0f, 0.0f, 0.0f};
         glm::vec3 normal{0.0f, 0.0f, 0.0f};
         float depth = 0.0f;
-        const LEti::Object_2D* first = nullptr;
-        const LEti::Object_2D* second = nullptr;
+        const Physics_Module_2D* first = nullptr;
+        const Physics_Module_2D* second = nullptr;
         unsigned int first_collided_polygon_index = 0;
         unsigned int second_collided_polygon_index = 0;
         float time_of_intersection_ratio = 1.0f;

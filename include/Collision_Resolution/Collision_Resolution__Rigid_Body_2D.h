@@ -2,7 +2,7 @@
 #define COLLISION_RESOLUTION__RIGID_BODY_2D_H
 
 #include <Collision_Resolution/Collision_Resolver.h>
-#include <Modules/Physics_Module__Rigid_Body_2D.h>
+#include <Modules/Rigid_Body_2D.h>
 
 
 namespace LPhys

@@ -1,9 +1,9 @@
-#include <Modules/Physics_Module__Rigid_Body_2D.h>
+#include <Modules/Rigid_Body_2D.h>
 
 using namespace LPhys;
 
 
-INIT_FIELDS(LPhys::Physics_Module__Rigid_Body_2D__Stub, LPhys::Dynamic_Physics_Module_2D_Stub)
+INIT_FIELDS(LPhys::Rigid_Body_2D__Stub, LPhys::Physics_Module_2D_Stub)
 
 ADD_FIELD(float*, masses)
 ADD_FIELD(float, mass_multiplier)
@@ -12,14 +12,14 @@ FIELDS_END
 
 
 
-LV::Variable_Base* Physics_Module__Rigid_Body_2D__Stub::M_construct_product() const
+LV::Variable_Base* Rigid_Body_2D__Stub::M_construct_product() const
 {
-    return new Physics_Module__Rigid_Body_2D;
+    return new Rigid_Body_2D;
 }
 
-void Physics_Module__Rigid_Body_2D__Stub::M_init_constructed_product(LV::Variable_Base* _product) const
+void Rigid_Body_2D__Stub::M_init_constructed_product(LV::Variable_Base* _product) const
 {
-    Physics_Module__Rigid_Body_2D* result = (Physics_Module__Rigid_Body_2D*)_product;
+    Rigid_Body_2D* result = (Rigid_Body_2D*)_product;
 
     result->init_physical_model();
     result->setup_base_data(coords, coords_count, collision_permissions);
@@ -30,19 +30,19 @@ void Physics_Module__Rigid_Body_2D__Stub::M_init_constructed_product(LV::Variabl
 
 
 
-INIT_FIELDS(LPhys::Physics_Module__Rigid_Body_2D, LPhys::Dynamic_Physics_Module_2D)
+INIT_FIELDS(LPhys::Rigid_Body_2D, LPhys::Physics_Module_2D)
 FIELDS_END
 
 
 
-Physical_Model_2D* Physics_Module__Rigid_Body_2D::M_create_physical_model() const
+Physical_Model_2D* Rigid_Body_2D::M_create_physical_model() const
 {
     return new Rigid_Body_Physical_Model_2D;
 }
 
 
 
-glm::vec3 Physics_Module__Rigid_Body_2D::calculate_raw_center_of_mass() const
+glm::vec3 Rigid_Body_2D::calculate_raw_center_of_mass() const
 {
     glm::vec3 result(0.0f, 0.0f, 0.0f);
 
@@ -59,7 +59,7 @@ glm::vec3 Physics_Module__Rigid_Body_2D::calculate_raw_center_of_mass() const
 
 
 
-void Physics_Module__Rigid_Body_2D::align_to_center_of_mass()
+void Rigid_Body_2D::align_to_center_of_mass()
 {
     if(m_on_alignment)
         m_on_alignment();
@@ -72,7 +72,7 @@ void Physics_Module__Rigid_Body_2D::align_to_center_of_mass()
 
 
 
-void Physics_Module__Rigid_Body_2D::set_masses(const float* _masses)
+void Rigid_Body_2D::set_masses(const float* _masses)
 {
     Rigid_Body_Physical_Model_2D* physical_model = (Rigid_Body_Physical_Model_2D*)get_physical_model();
 
@@ -81,16 +81,28 @@ void Physics_Module__Rigid_Body_2D::set_masses(const float* _masses)
 
 
 
-float Physics_Module__Rigid_Body_2D::mass() const
+float Rigid_Body_2D::mass() const
 {
     Rigid_Body_Physical_Model_2D* physical_model = (Rigid_Body_Physical_Model_2D*)get_physical_model();
 
     return physical_model->total_mass() * m_mass_multiplier;
 }
 
-float Physics_Module__Rigid_Body_2D::moment_of_inertia() const
+float Rigid_Body_2D::moment_of_inertia() const
 {
     Rigid_Body_Physical_Model_2D* physical_model = (Rigid_Body_Physical_Model_2D*)get_physical_model();
 
     return physical_model->moment_of_inertia() * m_mass_multiplier;
+}
+
+
+
+void Rigid_Body_2D::update(float _dt)
+{
+    L_ASSERT(!get_physical_model() && get_physical_model_prev_state() && associated_object());
+
+    associated_object()->move(velocity() * _dt);
+    associated_object()->rotate(angular_velocity() * _dt);
+
+    Physics_Module_2D::update(_dt);
 }

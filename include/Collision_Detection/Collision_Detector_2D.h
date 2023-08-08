@@ -4,10 +4,9 @@
 #include <L_Debug/L_Debug.h>
 #include <Data_Structures/List.h>
 
-#include <Object_System/Object_2D.h>
-
 #include <Collision_Detection/Broad_Phase_Interface.h>
 #include <Collision_Detection/Narrow_Phase_Interface.h>
+#include <Modules/Physics_Module_2D.h>
 
 
 namespace LPhys
@@ -19,11 +18,11 @@ namespace LPhys
 		virtual ~Collision_Detector_2D();
 
 	private:
-        LDS::List<const LEti::Object_2D*> m_registred_models;
+        LDS::List<const Physics_Module_2D*> m_registred_models;
         LDS::List<const glm::vec3*> m_registred_points;
 
 	private:
-		void debug_assert_if_model_copy_found(const LEti::Object_2D *_model, bool _reverse);
+        void debug_assert_if_model_copy_found(const Physics_Module_2D *_model, bool _reverse);
 		void debug_assert_if_point_copy_found(const glm::vec3* _point, bool _reverse);
 
 	private:
@@ -36,8 +35,8 @@ namespace LPhys
 		void set_narrowest_phase(Narrowest_Phase_Interface* _narrowest_phase_impl);
 
 	public:
-		void register_object(const LEti::Object_2D* _model);
-		void unregister_object(const LEti::Object_2D* _model);
+        void register_object(const Physics_Module_2D* _model);
+        void unregister_object(const Physics_Module_2D* _model);
 		void unregister_all_objects();
 		void register_point(const glm::vec3* _point);
 		void unregister_point(const glm::vec3* _point);

@@ -3,7 +3,7 @@
 
 #include <Data_Structures/List.h>
 
-#include <Object_System/Object_2D.h>
+#include <Modules/Physics_Module_2D.h>
 
 
 namespace LPhys
@@ -12,20 +12,20 @@ namespace LPhys
 	class Broad_Phase_Interface
 	{
 	public:
-        using objects_list = LDS::List<const LEti::Object_2D*>;
+        using objects_list = LDS::List<const Physics_Module_2D*>;
         using points_list = LDS::List<const glm::vec3*>;
 
 		struct Colliding_Pair
 		{
-			const LEti::Object_2D* first = nullptr, * second = nullptr;
-            Colliding_Pair(const LEti::Object_2D* _first, const LEti::Object_2D* _second) : first(_first), second(_second) { L_ASSERT(!(first == second));}
+            const Physics_Module_2D* first = nullptr, * second = nullptr;
+            Colliding_Pair(const Physics_Module_2D* _first, const Physics_Module_2D* _second) : first(_first), second(_second) { L_ASSERT(!(first == second));}
 			bool operator==(const Colliding_Pair& _other) const { return (first == _other.first && second == _other.second) || (first == _other.second && second == _other.first); }
 			bool operator<(const Colliding_Pair& _other) const
 			{
-				const LEti::Object_2D* f_bigger = first > second ? first : second;
-				const LEti::Object_2D* f_lesser = first > second ? second : first;
-				const LEti::Object_2D* s_bigger = _other.first > _other.second ? _other.first : _other.second;
-				const LEti::Object_2D* s_lesser = _other.first > _other.second ? _other.second : _other.first;
+                const Physics_Module_2D* f_bigger = first > second ? first : second;
+                const Physics_Module_2D* f_lesser = first > second ? second : first;
+                const Physics_Module_2D* s_bigger = _other.first > _other.second ? _other.first : _other.second;
+                const Physics_Module_2D* s_lesser = _other.first > _other.second ? _other.second : _other.first;
 				return f_bigger < s_bigger ? true : f_lesser < s_lesser ? true : false;
 			}
             bool operator>(const Colliding_Pair& _other) const { return !(*this < _other) && !(*this == _other); }
@@ -34,9 +34,9 @@ namespace LPhys
 
 		struct Colliding_Point_And_Object
 		{
-			const LEti::Object_2D* object = nullptr;
+            const Physics_Module_2D* object = nullptr;
 			const glm::vec3* point = nullptr;
-			Colliding_Point_And_Object(const LEti::Object_2D* _object, const glm::vec3* _point) : object(_object), point(_point) {  }
+            Colliding_Point_And_Object(const Physics_Module_2D* _object, const glm::vec3* _point) : object(_object), point(_point) {  }
 			bool operator==(const Colliding_Point_And_Object& _other) const { return object == _other.object && point == _other.point; }
 			bool operator<(const Colliding_Point_And_Object& _other) const { return object < _other.object; }
 			bool operator>(const Colliding_Point_And_Object& _other) const { return !(*this < _other); }

@@ -1,16 +1,16 @@
-#ifndef PHYSICS_MODULE__RIGID_BODY_2D_H
-#define PHYSICS_MODULE__RIGID_BODY_2D_H
+#ifndef Rigid_Body_2D_H
+#define Rigid_Body_2D_H
 
 #include <Stuff/Function_Wrapper.h>
 
-#include <Modules/Dynamic_Physics_Module_2D.h>
+#include <Modules/Physics_Module_2D.h>
 #include <Physical_Models/Rigid_Body_Physical_Model_2D.h>
 
 
 namespace LPhys
 {
 
-    class Physics_Module__Rigid_Body_2D__Stub : public Dynamic_Physics_Module_2D_Stub
+    class Rigid_Body_2D__Stub : public Physics_Module_2D_Stub
     {
     public:
         DECLARE_VARIABLE;
@@ -25,7 +25,7 @@ namespace LPhys
 
     };
 
-	class Physics_Module__Rigid_Body_2D : public Dynamic_Physics_Module_2D
+    class Rigid_Body_2D : public Physics_Module_2D
 	{
     public:
         DECLARE_VARIABLE;
@@ -66,9 +66,12 @@ namespace LPhys
         inline const glm::vec3& velocity() const { return m_velocity; }
         inline float angular_velocity() const { return m_angular_velocity; }
 
+    public:
+        void update(float _dt) override;
+
 	};
 
 }
 
 
-#endif // PHYSICS_MODULE__RIGID_BODY_2D_H
+#endif // Rigid_Body_2D_H
