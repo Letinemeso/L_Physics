@@ -25,24 +25,21 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
     if(!pm1 || !pm2)
         return false;
 
-    LEti::Object_2D* bodyA = pm1->associated_object();	//	too lazy to figure out appropriate way to pass non-const pointer here
-    LEti::Object_2D* bodyB = pm2->associated_object();
-
     glm::vec3 A_center_of_mas = pm1->get_physical_model()->center_of_mass();
     glm::vec3 B_center_of_mas = pm2->get_physical_model()->center_of_mass();
 
     float A_moment_of_inertia = pm1->moment_of_inertia();
     float B_moment_of_inertia = pm2->moment_of_inertia();
 
-    glm::vec3 A_velocity = (bodyA->get_pos() - bodyA->get_pos_prev()) / LR::Event_Controller::get_dt();
-    glm::vec3 B_velocity = (bodyB->get_pos() - bodyB->get_pos_prev()) / LR::Event_Controller::get_dt();
-    float A_angular_velocity = (bodyA->get_rotation_angle() - bodyA->get_rotation_angle_prev()) / LR::Event_Controller::get_dt();
-    float B_angular_velocity = (bodyB->get_rotation_angle() - bodyB->get_rotation_angle_prev()) / LR::Event_Controller::get_dt();
+    glm::vec3 A_velocity = (pm1->transformation_data()->position() - pm1->transformation_data_prev_state()->position()) / LR::Event_Controller::get_dt();
+    glm::vec3 B_velocity = (pm2->transformation_data()->position() - pm2->transformation_data_prev_state()->position()) / LR::Event_Controller::get_dt();
+    float A_angular_velocity = (pm1->transformation_data()->rotation().z - pm1->transformation_data_prev_state()->rotation().z) / LR::Event_Controller::get_dt();
+    float B_angular_velocity = (pm2->transformation_data()->rotation().z - pm2->transformation_data_prev_state()->rotation().z) / LR::Event_Controller::get_dt();
 
     float ke_before = M_calculate_kinetic_energy(A_velocity, A_angular_velocity, pm1->mass(), A_moment_of_inertia) + M_calculate_kinetic_energy(B_velocity, B_angular_velocity, pm2->mass(), B_moment_of_inertia);
 
-    bodyA->revert_to_ratio_between_frames(_id.time_of_intersection_ratio);
-    bodyB->revert_to_ratio_between_frames(_id.time_of_intersection_ratio);
+    pm1->transformation_data()->set_position( LEti::Transformation_Data::get_position_for_ratio(*pm1->transformation_data_prev_state(), *pm1->transformation_data(), _id.time_of_intersection_ratio) );
+    pm2->transformation_data()->set_position( LEti::Transformation_Data::get_position_for_ratio(*pm2->transformation_data_prev_state(), *pm2->transformation_data(), _id.time_of_intersection_ratio) );
 
     float e = 1.0f;
 
@@ -75,8 +72,11 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
     float avA = LEti::Math::cross_product(ra, impulse) / A_moment_of_inertia;
     float avB = LEti::Math::cross_product(rb, impulse) / B_moment_of_inertia;
 
-    bodyA->move(_id.normal * (_id.depth + 0.1f) / 2.0f);
-    bodyB->move(-_id.normal * (_id.depth + 0.1f) / 2.0f);
+    pm1->transformation_data()->move(_id.normal * (_id.depth + 0.1f) / 2.0f);
+    pm2->transformation_data()->move(-_id.normal * (_id.depth + 0.1f) / 2.0f);
+
+//    bodyA->move(_id.normal * (_id.depth + 0.1f) / 2.0f);
+//    bodyB->move(-_id.normal * (_id.depth + 0.1f) / 2.0f);
 
     pm1->apply_linear_impulse(-impulse / pm1->mass());
     pm1->apply_rotation(-avA);

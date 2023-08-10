@@ -40,39 +40,36 @@ Dynamic_Narrow_CD::float_pair Dynamic_Narrow_CD::find_ratio(const Physics_Module
         0.0f, 0.0f, 0.0f, 1.0f
     };
 
-    const LEti::Object_2D& associated_object_1 = *_moving_1.associated_object();
-    const LEti::Object_2D& associated_object_2 = *_moving_2.associated_object();
-
-    glm::vec3 pos_diff_vector_prev = associated_object_1.get_pos_prev() - associated_object_2.get_pos_prev();
-    pos_diff_vector_prev = associated_object_2.get_rotation_matrix_inversed_for_time_ratio(0.0f) * glm::vec4(pos_diff_vector_prev, 1.0f);
+    glm::vec3 pos_diff_vector_prev = _moving_1.transformation_data_prev_state()->position() - _moving_2.transformation_data_prev_state()->position();
+    pos_diff_vector_prev = LEti::Transformation_Data::get_rotation_matrix_inversed_for_ratio(*_moving_2.transformation_data_prev_state(), *_moving_2.transformation_data(), 0.0f) * glm::vec4(pos_diff_vector_prev, 1.0f);
 
     glm::mat4x4 diff_pos_prev = fake_default_matrix;
     diff_pos_prev[3][0] += pos_diff_vector_prev[0];
     diff_pos_prev[3][1] += pos_diff_vector_prev[1];
-    glm::mat4x4 diff_rotation_prev = associated_object_1.get_rotation_matrix_for_time_ratio(0.0f) / associated_object_2.get_rotation_matrix_for_time_ratio(0.0f);
-    glm::mat4x4 diff_scale_prev = associated_object_1.get_scale_matrix_for_time_ratio(0.0f);
+    glm::mat4x4 diff_rotation_prev = LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_moving_1.transformation_data_prev_state(), *_moving_1.transformation_data(), 0.0f) / LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_moving_2.transformation_data_prev_state(), *_moving_2.transformation_data(), 0.0f);
+    glm::mat4x4 diff_scale_prev = LEti::Transformation_Data::get_scale_matrix_for_ratio(*_moving_1.transformation_data_prev_state(), *_moving_1.transformation_data(), 0.0f);
 
 
-    glm::vec3 pos_diff_vector = associated_object_1.get_pos() - associated_object_2.get_pos();
-    pos_diff_vector = associated_object_2.get_rotation_matrix_inversed_for_time_ratio(1.0f) * glm::vec4(pos_diff_vector, 1.0f);
+    glm::vec3 pos_diff_vector = _moving_1.transformation_data()->position() - _moving_2.transformation_data()->position();
+    pos_diff_vector = LEti::Transformation_Data::get_rotation_matrix_inversed_for_ratio(*_moving_2.transformation_data_prev_state(), *_moving_2.transformation_data(), 1.0f) * glm::vec4(pos_diff_vector, 1.0f);
 
     glm::mat4x4 diff_pos = fake_default_matrix;
     diff_pos[3][0] += pos_diff_vector[0];
     diff_pos[3][1] += pos_diff_vector[1];
-    glm::mat4x4 diff_rotation = associated_object_1.get_rotation_matrix_for_time_ratio(1.0f) / associated_object_2.get_rotation_matrix_for_time_ratio(1.0f);
+    glm::mat4x4 diff_rotation = LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_moving_1.transformation_data_prev_state(), *_moving_1.transformation_data(), 1.0f) / LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_moving_2.transformation_data_prev_state(), *_moving_2.transformation_data(), 1.0f);
 
-    glm::vec3 m2_scale_diff_vec = associated_object_2.get_scale() - associated_object_2.get_scale_prev();
+    glm::vec3 m2_scale_diff_vec = _moving_2.transformation_data()->scale() - _moving_2.transformation_data_prev_state()->scale();
     glm::mat4x4 m2_scale_diff_matrix = fake_default_matrix;
     for(unsigned int i=0; i<3; ++i)
         m2_scale_diff_matrix[i][i] += m2_scale_diff_vec[i];
 
-    glm::mat4x4 diff_scale = associated_object_1.get_scale_matrix_for_time_ratio(1.0f) * m2_scale_diff_matrix;
+    glm::mat4x4 diff_scale = LEti::Transformation_Data::get_scale_matrix_for_ratio(*_moving_1.transformation_data_prev_state(), *_moving_1.transformation_data(), 1.0f) * m2_scale_diff_matrix;
 
     ppm1_relative_prev.update(diff_pos_prev, diff_rotation_prev, diff_scale_prev);
     ppm1_relative.update(diff_pos, diff_rotation, diff_scale);
 
     Physical_Model_2D_Imprint ppm2 = *_moving_2.get_physical_model_prev_state();
-    ppm2.update(fake_default_matrix, fake_default_matrix, associated_object_2.get_scale_matrix_for_time_ratio(0.0f));
+    ppm2.update(fake_default_matrix, fake_default_matrix, LEti::Transformation_Data::get_scale_matrix_for_ratio(*_moving_2.transformation_data_prev_state(), *_moving_2.transformation_data(), 0.0f));
 
     for(unsigned int pol1=0; pol1<ppm1_relative_prev.get_polygons_count(); ++pol1)
     {
@@ -116,9 +113,17 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const P
     while(curr_time_point <= _max_ratio)
     {
         Physical_Model_2D_Imprint first_impr = *_first.get_physical_model_prev_state();
-        first_impr.update(_first.associated_object()->get_translation_matrix_for_time_ratio(curr_time_point), _first.associated_object()->get_rotation_matrix_for_time_ratio(curr_time_point), _first.associated_object()->get_scale_matrix_for_time_ratio(curr_time_point));
+        first_impr.update(
+                    LEti::Transformation_Data::get_translation_matrix_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point),
+                    LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point),
+                    LEti::Transformation_Data::get_scale_matrix_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point));
+
         Physical_Model_2D_Imprint second_impr = *_second.get_physical_model_prev_state();
-        second_impr.update(_second.associated_object()->get_translation_matrix_for_time_ratio(curr_time_point), _second.associated_object()->get_rotation_matrix_for_time_ratio(curr_time_point), _second.associated_object()->get_scale_matrix_for_time_ratio(curr_time_point));
+        second_impr.update(
+                    LEti::Transformation_Data::get_translation_matrix_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point),
+                    LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point),
+                    LEti::Transformation_Data::get_scale_matrix_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point));
+
         id = m_narrowest_phase->collision__model_vs_model(first_impr.get_polygons(), first_impr.get_polygons_count(), second_impr.get_polygons(), second_impr.get_polygons_count());
         if(id) break;
 

@@ -1,6 +1,8 @@
 #ifndef PHYSICS_MODULE_2D_H
 #define PHYSICS_MODULE_2D_H
 
+#include <Builder_Stub.h>
+
 #include <Module.h>
 
 #include <Physical_Models/Physical_Model_2D.h>
@@ -53,8 +55,8 @@ namespace LPhys
         void move_raw(const glm::vec3 &_stride);
 
     public:
-        void update_previous_state();
-        virtual void update(float _dt);
+        void update_prev_state() override;
+        void update() override;
 
 	public:
         inline Physical_Model_2D* get_physical_model() { return m_physical_model; }

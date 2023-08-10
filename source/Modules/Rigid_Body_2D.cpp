@@ -97,12 +97,12 @@ float Rigid_Body_2D::moment_of_inertia() const
 
 
 
-void Rigid_Body_2D::update(float _dt)
+void Rigid_Body_2D::update()
 {
-    L_ASSERT(!get_physical_model() && get_physical_model_prev_state() && associated_object());
+    L_ASSERT(get_physical_model() && get_physical_model_prev_state() && transformation_data());
 
-    associated_object()->move(velocity() * _dt);
-    associated_object()->rotate(angular_velocity() * _dt);
+    transformation_data()->move(velocity() * LR::Event_Controller::get_dt());
+    transformation_data()->rotate({0.0f, 0.0f, angular_velocity() * LR::Event_Controller::get_dt()});
 
-    Physics_Module_2D::update(_dt);
+    Physics_Module_2D::update();
 }

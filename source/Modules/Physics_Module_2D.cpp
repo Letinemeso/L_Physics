@@ -91,20 +91,20 @@ void Physics_Module_2D::move_raw(const glm::vec3 &_stride)
 
 
 
-void Physics_Module_2D::update_previous_state()
+void Physics_Module_2D::update_prev_state()
 {
 	L_ASSERT(!(!m_physical_model || !m_physical_model_prev_state));
 
 	m_physical_model_prev_state->update_to_current_model_state();
 }
 
-void Physics_Module_2D::update(float /*_dt*/)
+void Physics_Module_2D::update()
 {
-    L_ASSERT(!m_physical_model && m_physical_model_prev_state && associated_object());
+    L_ASSERT(m_physical_model && m_physical_model_prev_state && transformation_data());
 
-    associated_object()->update_matrix();
+    transformation_data()->update_matrix();
 
-    m_physical_model->update(associated_object()->final_matrix());
+    m_physical_model->update(transformation_data()->matrix());
 
         const LEti::Geometry_2D::Rectangular_Border& prev_rb = get_physical_model_prev_state()->curr_rect_border(),
 			curr_rb = get_physical_model()->curr_rect_border();

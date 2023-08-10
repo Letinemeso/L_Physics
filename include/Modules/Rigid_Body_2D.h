@@ -67,7 +67,7 @@ namespace LPhys
         inline float angular_velocity() const { return m_angular_velocity; }
 
     public:
-        void update(float _dt) override;
+        void update() override;
 
 	};
 
