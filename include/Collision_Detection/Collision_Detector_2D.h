@@ -43,7 +43,7 @@ namespace LPhys
 		void unregister_all_points();
 
 	public:
-		void update();
+        void update();
 
 	public:
 		const Narrow_Phase_Interface::Collision_Data_List__Models& get_collisions__models();

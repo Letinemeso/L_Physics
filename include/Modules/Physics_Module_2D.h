@@ -56,7 +56,7 @@ namespace LPhys
 
     public:
         void update_prev_state() override;
-        void update() override;
+        void update(float _dt) override;
 
 	public:
         inline Physical_Model_2D* get_physical_model() { return m_physical_model; }

@@ -9,8 +9,7 @@ INCLUDEPATH += "include/"
 INCLUDEPATH += "../L_Variable/include/"
 INCLUDEPATH += "../L_Utility/include/"
 INCLUDEPATH += "../LEti_Engine/include/"
-#   temporary stuff
-INCLUDEPATH += "../L_Renderer/include/"
+
 unix {
     INCLUDEPATH += "../LEti_Engine/OpenGL/Linux/include/"
 }

@@ -98,7 +98,7 @@ void Physics_Module_2D::update_prev_state()
 	m_physical_model_prev_state->update_to_current_model_state();
 }
 
-void Physics_Module_2D::update()
+void Physics_Module_2D::update(float /*_dt*/)
 {
     L_ASSERT(m_physical_model && m_physical_model_prev_state && transformation_data());
 

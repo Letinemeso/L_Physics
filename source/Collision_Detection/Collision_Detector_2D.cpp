@@ -116,7 +116,7 @@ void Collision_Detector_2D::unregister_all_points()
 
 void Collision_Detector_2D::update()
 {
-	L_ASSERT(!(!m_broad_phase || !m_narrow_phase));
+    L_ASSERT(m_broad_phase && m_narrow_phase);
 
 	m_broad_phase->update(m_registred_models, m_registred_points);
 

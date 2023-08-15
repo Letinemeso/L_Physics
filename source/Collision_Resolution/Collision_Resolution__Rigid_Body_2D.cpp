@@ -31,10 +31,10 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
     float A_moment_of_inertia = pm1->moment_of_inertia();
     float B_moment_of_inertia = pm2->moment_of_inertia();
 
-    glm::vec3 A_velocity = (pm1->transformation_data()->position() - pm1->transformation_data_prev_state()->position()) / LR::Event_Controller::get_dt();
-    glm::vec3 B_velocity = (pm2->transformation_data()->position() - pm2->transformation_data_prev_state()->position()) / LR::Event_Controller::get_dt();
-    float A_angular_velocity = (pm1->transformation_data()->rotation().z - pm1->transformation_data_prev_state()->rotation().z) / LR::Event_Controller::get_dt();
-    float B_angular_velocity = (pm2->transformation_data()->rotation().z - pm2->transformation_data_prev_state()->rotation().z) / LR::Event_Controller::get_dt();
+    glm::vec3 A_velocity = /*(pm1->transformation_data()->position() - pm1->transformation_data_prev_state()->position()) / _id.delta_time*/ pm1->velocity();
+    glm::vec3 B_velocity = /*(pm2->transformation_data()->position() - pm2->transformation_data_prev_state()->position()) / _id.delta_time*/ pm2->velocity();
+    float A_angular_velocity = /*(pm1->transformation_data()->rotation().z - pm1->transformation_data_prev_state()->rotation().z) / _id.delta_time*/ pm1->angular_velocity();
+    float B_angular_velocity = /*(pm2->transformation_data()->rotation().z - pm2->transformation_data_prev_state()->rotation().z) / _id.delta_time*/ pm2->angular_velocity();
 
     float ke_before = M_calculate_kinetic_energy(A_velocity, A_angular_velocity, pm1->mass(), A_moment_of_inertia) + M_calculate_kinetic_energy(B_velocity, B_angular_velocity, pm2->mass(), B_moment_of_inertia);
 
