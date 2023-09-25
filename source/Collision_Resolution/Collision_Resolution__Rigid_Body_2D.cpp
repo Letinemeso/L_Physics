@@ -17,7 +17,7 @@ float Collision_Resolution__Rigid_Body_2D::M_calculate_kinetic_energy(const glm:
 
 
 
-bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
+bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, float _dt)
 {
     Rigid_Body_2D* pm1 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.first);
     Rigid_Body_2D* pm2 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.second);
@@ -31,10 +31,10 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
     float A_moment_of_inertia = pm1->moment_of_inertia();
     float B_moment_of_inertia = pm2->moment_of_inertia();
 
-    glm::vec3 A_velocity = /*(pm1->transformation_data()->position() - pm1->transformation_data_prev_state()->position()) / _id.delta_time*/ pm1->velocity();
-    glm::vec3 B_velocity = /*(pm2->transformation_data()->position() - pm2->transformation_data_prev_state()->position()) / _id.delta_time*/ pm2->velocity();
-    float A_angular_velocity = /*(pm1->transformation_data()->rotation().z - pm1->transformation_data_prev_state()->rotation().z) / _id.delta_time*/ pm1->angular_velocity();
-    float B_angular_velocity = /*(pm2->transformation_data()->rotation().z - pm2->transformation_data_prev_state()->rotation().z) / _id.delta_time*/ pm2->angular_velocity();
+    glm::vec3 A_velocity = pm1->velocity();
+    glm::vec3 B_velocity = pm2->velocity();
+    float A_angular_velocity = pm1->angular_velocity();
+    float B_angular_velocity = pm2->angular_velocity();
 
     float ke_before = M_calculate_kinetic_energy(A_velocity, A_angular_velocity, pm1->mass(), A_moment_of_inertia) + M_calculate_kinetic_energy(B_velocity, B_angular_velocity, pm2->mass(), B_moment_of_inertia);
 
@@ -75,9 +75,6 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
     pm1->transformation_data()->move(_id.normal * (_id.depth + 0.1f) / 2.0f);
     pm2->transformation_data()->move(-_id.normal * (_id.depth + 0.1f) / 2.0f);
 
-//    bodyA->move(_id.normal * (_id.depth + 0.1f) / 2.0f);
-//    bodyB->move(-_id.normal * (_id.depth + 0.1f) / 2.0f);
-
     pm1->apply_linear_impulse(-impulse / pm1->mass());
     pm1->apply_rotation(-avA);
     pm2->apply_linear_impulse(impulse / pm2->mass());
@@ -95,6 +92,9 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id)
         pm2->set_velocity(pm2->velocity() * ratio_sqrt);
         pm2->set_angular_velocity(pm2->angular_velocity() * ratio_sqrt);
     }
+
+    pm1->update(_dt * (1.0f - _id.time_of_intersection_ratio));
+    pm2->update(_dt * (1.0f - _id.time_of_intersection_ratio));
 
     return true;
 }

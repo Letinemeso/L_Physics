@@ -35,21 +35,21 @@ void Collision_Resolver::clear_resolutions()
 
 
 
-void Collision_Resolver::resolve_single(const Intersection_Data &_id) const
+void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt) const
 {
 	auto it = m_resolutions.begin();
 	bool resolved = false;
 	while(!it.end_reached() && !resolved)
 	{
-		resolved = (*it)->resolve(_id);
+        resolved = (*it)->resolve(_id, _dt);
 		++it;
 	}
 
 	L_ASSERT(resolved);
 }
 
-void Collision_Resolver::resolve_all(const LDS::List<Intersection_Data> &_ids) const
+void Collision_Resolver::resolve_all(const LDS::List<Intersection_Data> &_ids, float _dt) const
 {
     for(LDS::List<Intersection_Data>::Const_Iterator it = _ids.begin(); !it.end_reached(); ++it)
-		resolve_single(*it);
+        resolve_single(*it, _dt);
 }

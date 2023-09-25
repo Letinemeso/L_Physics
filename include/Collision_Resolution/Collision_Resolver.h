@@ -17,7 +17,7 @@ public:
     virtual ~Collision_Resolution_Interface(){}
 
 public:
-    virtual bool resolve(const Intersection_Data& _id) = 0;
+    virtual bool resolve(const Intersection_Data& _id, float _dt) = 0;
 
 };
 
@@ -37,8 +37,8 @@ public:
     void clear_resolutions();
 
 public:
-    void resolve_single(const Intersection_Data& _id) const;
-    void resolve_all(const LDS::List<Intersection_Data>& _ids) const;
+    void resolve_single(const Intersection_Data& _id, float _dt) const;
+    void resolve_all(const LDS::List<Intersection_Data>& _ids, float _dt) const;
 
 };
 
