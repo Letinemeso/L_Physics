@@ -42,24 +42,22 @@ void Collision_Detector_2D::debug_assert_if_point_copy_found(const glm::vec3 *_p
 
 
 
-void Collision_Detector_2D::set_broad_phase(Broad_Phase_Interface* _broad_phase_impl, unsigned int _precision)
+void Collision_Detector_2D::set_broad_phase(Broad_Phase_Interface* _broad_phase_impl)
 {
 	delete m_broad_phase;
-	m_broad_phase = _broad_phase_impl;
-	m_broad_phase->set_precision(_precision);
+    m_broad_phase = _broad_phase_impl;
 }
 
-void Collision_Detector_2D::set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl, unsigned int _precision)
+void Collision_Detector_2D::set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl)
 {
 	delete m_narrow_phase;
-	m_narrow_phase = _narrow_phase_impl;
-	m_narrow_phase->set_precision(_precision);
+    m_narrow_phase = _narrow_phase_impl;
 }
 
 void Collision_Detector_2D::set_narrowest_phase(Narrowest_Phase_Interface* _narrowest_phase_impl)
 {
-	L_ASSERT(m_narrow_phase);
-	m_narrow_phase->set_narrowest_phase(_narrowest_phase_impl);
+    delete m_narrowest_phase;
+    m_narrowest_phase = _narrowest_phase_impl;
 }
 
 
@@ -116,27 +114,23 @@ void Collision_Detector_2D::unregister_all_points()
 
 void Collision_Detector_2D::update()
 {
-    L_ASSERT(m_broad_phase && m_narrow_phase);
+    L_ASSERT(m_broad_phase && m_narrow_phase && m_narrowest_phase);
 
-	m_broad_phase->update(m_registred_models, m_registred_points);
-
-    LDS::List<Broad_Phase_Interface::Colliding_Pair> possible_collisions__models = m_broad_phase->get_possible_collisions__models();
-    LDS::List<Broad_Phase_Interface::Colliding_Point_And_Object> possible_collisions__points = m_broad_phase->get_possible_collisions__points();
-
-	m_narrow_phase->update(possible_collisions__models, possible_collisions__points);
+    m_broad_phase->update(m_registred_models, m_registred_points);
+    m_narrow_phase->update(m_broad_phase->possible_collisions__models(), m_broad_phase->possible_collisions__points(), m_narrowest_phase);
 }
 
 
 
 const Narrow_Phase_Interface::Collision_Data_List__Models& Collision_Detector_2D::get_collisions__models()
 {
-	L_ASSERT(!(!m_broad_phase || !m_narrow_phase));
+    L_ASSERT(m_broad_phase && m_narrow_phase && m_narrowest_phase);
 	return m_narrow_phase->get_collisions__models();
 }
 
 const Narrow_Phase_Interface::Collision_Data_List__Points& Collision_Detector_2D::get_collisions__points()
 {
-	L_ASSERT(!(!m_broad_phase || !m_narrow_phase));
+    L_ASSERT(m_broad_phase && m_narrow_phase && m_narrowest_phase);
 	return m_narrow_phase->get_collisions__points();
 }
 

@@ -43,15 +43,19 @@ namespace LPhys
 		};
         using Colliding_Point_And_Object_List = LDS::List<Colliding_Point_And_Object>;
 
+    protected:
+        LDS::List<Colliding_Pair> m_possible_collisions__models;
+        LDS::List<Colliding_Point_And_Object> m_possible_collisions__points;
+
 	public:
 		virtual ~Broad_Phase_Interface();
 
 	public:
 		virtual void update(const objects_list& _registred_objects, const points_list& _registred_points) = 0;
-        virtual LDS::List<Colliding_Pair> get_possible_collisions__models() = 0;
-        virtual LDS::List<Colliding_Point_And_Object> get_possible_collisions__points() = 0;
 
-		virtual void set_precision(unsigned int _precision) = 0;
+    public:
+        inline const LDS::List<Colliding_Pair> possible_collisions__models() const { return m_possible_collisions__models; }
+        inline const LDS::List<Colliding_Point_And_Object> possible_collisions__points() const { return m_possible_collisions__points; }
 
 	};
 

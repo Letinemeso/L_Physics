@@ -114,7 +114,7 @@ void Space_Hasher_2D::hash_objects(const objects_list& _registred_objects)
 
 void Space_Hasher_2D::check_for_possible_collisions__points(const points_list &_registred_points)
 {
-	m_possible_collisions__points.clear();
+    LDS::AVL_Tree<Colliding_Point_And_Object> possible_collisions;
 
     points_list::Const_Iterator point_it = _registred_points.begin();
     while(!point_it.end_reached())
@@ -143,25 +143,37 @@ void Space_Hasher_2D::check_for_possible_collisions__points(const points_list &_
         objects_list::Const_Iterator it = list.begin();
         while(!it.end_reached())
         {
-            m_possible_collisions__points.insert(Colliding_Point_And_Object(*it, *point_it));
+            possible_collisions.insert(Colliding_Point_And_Object(*it, *point_it));
 			++it;
 		}
 
 		++point_it;
 	}
+
+    m_possible_collisions__points.clear();
+
+    LDS::AVL_Tree<Colliding_Point_And_Object>::Iterator it = possible_collisions.iterator();
+
+    while(!it.end_reached())
+    {
+        m_possible_collisions__points.push_back({it->object, it->point});
+        ++it;
+    }
 }
 
 
 
 void Space_Hasher_2D::check_for_possible_collisions__models()
 {
-	m_possible_collisions__models.clear();
+    LDS::AVL_Tree<Colliding_Pair> possible_collisions;  //  TODO: think about more optimal way to find already registred possible collisions
 
 	for(unsigned int i=0; i<m_array_size; ++i)
 	{
-		if(m_array[i] == nullptr) continue;
+        if(m_array[i] == nullptr)
+            continue;
 		const objects_list& curr_list = *(m_array[i]);
-		if(curr_list.size() < 2) continue;
+        if(curr_list.size() < 2)
+            continue;
 
         objects_list::Const_Iterator first = curr_list.begin();
         while(!first.end_reached())
@@ -172,8 +184,8 @@ void Space_Hasher_2D::check_for_possible_collisions__models()
             while(!second.end_reached())
 			{
 				Colliding_Pair cd(*first, *second);
-                if(!m_possible_collisions__models.find(cd).is_ok())
-                    m_possible_collisions__models.insert(cd);
+                if(!possible_collisions.find(cd).is_ok())
+                    possible_collisions.insert(cd);
 
 				++second;
 			}
@@ -181,6 +193,15 @@ void Space_Hasher_2D::check_for_possible_collisions__models()
 			++first;
 		}
 	}
+
+    m_possible_collisions__models.clear();
+    LDS::AVL_Tree<Colliding_Pair>::Iterator it = possible_collisions.iterator();
+
+    while(!it.end_reached())
+    {
+        m_possible_collisions__models.push_back({it->first, it->second});
+        ++it;
+    }
 }
 
 
@@ -225,33 +246,4 @@ void Space_Hasher_2D::update(const objects_list &_registred_objects, const point
 	hash_objects(_registred_objects);
 	check_for_possible_collisions__models();
 	check_for_possible_collisions__points(_registred_points);
-}
-
-
-LDS::List<Space_Hasher_2D::Colliding_Pair> Space_Hasher_2D::get_possible_collisions__models()
-{
-    LDS::List<Colliding_Pair> result;
-    LDS::AVL_Tree<Colliding_Pair>::Iterator it = m_possible_collisions__models.iterator();
-
-    while(!it.end_reached())
-	{
-        result.push_back({it->first, it->second});
-		++it;
-	}
-
-	return result;
-}
-
-LDS::List<Space_Hasher_2D::Colliding_Point_And_Object> Space_Hasher_2D::get_possible_collisions__points()
-{
-    LDS::List<Colliding_Point_And_Object> result;
-    LDS::AVL_Tree<Colliding_Point_And_Object>::Iterator it = m_possible_collisions__points.iterator();
-
-    while(!it.end_reached())
-	{
-        result.push_back({it->object, it->point});
-		++it;
-	}
-
-	return result;
 }

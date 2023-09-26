@@ -28,10 +28,11 @@ namespace LPhys
 	private:
 		Broad_Phase_Interface* m_broad_phase = nullptr;
 		Narrow_Phase_Interface* m_narrow_phase = nullptr;
+        Narrowest_Phase_Interface* m_narrowest_phase = nullptr;
 
 	public:
-		void set_broad_phase(Broad_Phase_Interface* _broad_phase_impl, unsigned int _precision);
-		void set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl, unsigned int _precision);
+        void set_broad_phase(Broad_Phase_Interface* _broad_phase_impl);
+        void set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl);
 		void set_narrowest_phase(Narrowest_Phase_Interface* _narrowest_phase_impl);
 
 	public:

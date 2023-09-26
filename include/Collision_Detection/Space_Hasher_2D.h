@@ -19,9 +19,6 @@ namespace LPhys
 		struct Space_Border { float min_x = 0.0f, min_y = 0.0f, height = 0.0f, width = 0.0f; };
 		Space_Border m_space_borders;
 
-        LDS::AVL_Tree<Colliding_Pair> m_possible_collisions__models;
-        LDS::AVL_Tree<Colliding_Point_And_Object> m_possible_collisions__points;
-
 	private:
 		unsigned int get_number_binary_length(unsigned int _number);
 		unsigned int construct_hash(unsigned int _x, unsigned int _y);
@@ -36,11 +33,9 @@ namespace LPhys
 		virtual ~Space_Hasher_2D();
 
 	public:
-		void set_precision(unsigned int _precision) override;
+        void set_precision(unsigned int _precision);
 
-		void update(const objects_list &_registred_objects, const points_list &_registred_points) override;
-        LDS::List<Colliding_Pair> get_possible_collisions__models() override;
-        LDS::List<Colliding_Point_And_Object> get_possible_collisions__points() override;
+        void update(const objects_list &_registred_objects, const points_list &_registred_points) override;
 
 	};
 
