@@ -72,8 +72,20 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, 
     float avA = LEti::Math::cross_product(ra, impulse) / A_moment_of_inertia;
     float avB = LEti::Math::cross_product(rb, impulse) / B_moment_of_inertia;
 
-    pm1->transformation_data()->move(_id.normal * (_id.depth + 0.1f) / 2.0f);
-    pm2->transformation_data()->move(-_id.normal * (_id.depth + 0.1f) / 2.0f);
+    Rigid_Body_2D* heavier_pm = pm1->mass() > pm2->mass() ? pm1 : pm2;
+    Rigid_Body_2D* lighter_pm = heavier_pm == pm1 ? pm2 : pm1;
+
+    float masses_ratio = lighter_pm->mass() / heavier_pm->mass();
+
+    glm::vec3 separation_vec = _id.normal * (_id.depth * 1.01f);
+    glm::vec3 heavier_pm_separation_vec = separation_vec * masses_ratio;
+    glm::vec3 lighter_pm_separation_vec = separation_vec * (1.0f - masses_ratio);
+
+    pm1->transformation_data()->move(  (pm1 == heavier_pm ? heavier_pm_separation_vec : lighter_pm_separation_vec) );
+    pm2->transformation_data()->move( -(pm2 == heavier_pm ? heavier_pm_separation_vec : lighter_pm_separation_vec) );
+
+//    pm1->transformation_data()->move(separation_vec * (1.0f / masses_ratio));
+//    pm2->transformation_data()->move(-separation_vec * masses_ratio);
 
     pm1->apply_linear_impulse(-impulse / pm1->mass());
     pm1->apply_rotation(-avA);
