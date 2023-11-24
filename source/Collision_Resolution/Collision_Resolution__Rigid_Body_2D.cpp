@@ -1,7 +1,5 @@
 #include <Collision_Resolution/Collision_Resolution__Rigid_Body_2D.h>
 
-#include <Object_System/Object_2D.h>
-
 using namespace LPhys;
 
 
