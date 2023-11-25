@@ -67,8 +67,8 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, 
 
     glm::vec3 impulse = j * _id.normal;
 
-    float avA = LEti::Math::cross_product(ra, impulse) / A_moment_of_inertia;
-    float avB = LEti::Math::cross_product(rb, impulse) / B_moment_of_inertia;
+    float avA = LEti::Math::cross_product(ra, impulse).z / A_moment_of_inertia;
+    float avB = LEti::Math::cross_product(rb, impulse).z / B_moment_of_inertia;
 
     Rigid_Body_2D* heavier_pm = pm1->mass() > pm2->mass() ? pm1 : pm2;
     Rigid_Body_2D* lighter_pm = heavier_pm == pm1 ? pm2 : pm1;
