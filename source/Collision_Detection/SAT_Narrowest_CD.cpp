@@ -29,6 +29,9 @@ SAT_Narrowest_CD::Intersection_Data SAT_Narrowest_CD::M_polygons_collision(const
 
 	for(unsigned int i=0; i<3; ++i)
     {
+        if(!_first.segment_can_collide(i))
+            continue;
+
 		glm::vec3 axis = _first[i + 1] - _first[i];
         LEti::Math::shrink_vector_to_1(axis);
         LEti::Geometry_2D::rotate_perpendicular_ccw(axis);
@@ -55,6 +58,9 @@ SAT_Narrowest_CD::Intersection_Data SAT_Narrowest_CD::M_polygons_collision(const
 
     for(unsigned int i=0; i<3; ++i)
     {
+        if(!_second.segment_can_collide(i))
+            continue;
+
         glm::vec3 axis = _second[i + 1] - _second[i];
         LEti::Math::shrink_vector_to_1(axis);
         LEti::Geometry_2D::rotate_perpendicular_ccw(axis);
@@ -249,7 +255,7 @@ LPhys::Intersection_Data SAT_Narrowest_CD::collision__model_vs_model(const Polyg
 	}
 
 	if(!f_id.intersection)
-		return {};
+        return {};
 
     result.normal = -f_id.min_dist_axis;
 	LEti::Math::shrink_vector_to_1(result.normal);
@@ -266,6 +272,13 @@ LPhys::Intersection_Data SAT_Narrowest_CD::collision__model_vs_model(const Polyg
 
     result.first_collided_polygon_index = first_collided_polygon;
     result.second_collided_polygon_index = second_collided_polygon;
+
+    //  TEST
+
+    glm::vec3 point_to_first = result.point - _polygon_holder_1->get_polygon(first_collided_polygon)->center();
+    glm::vec3 point_to_second = result.point - _polygon_holder_2->get_polygon(second_collided_polygon)->center();
+
+    //  ~TEST
 
 	return result;
 }

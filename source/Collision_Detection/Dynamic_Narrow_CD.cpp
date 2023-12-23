@@ -177,7 +177,14 @@ Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_moving(const Physics_M
             return get_precise_time_ratio_of_collision(_moving_1, _moving_2, min_intersection_ratio, max_intersection_ratio, _cd);
     }
 
-    return Intersection_Data();
+    Intersection_Data result = _cd->collision__model_vs_model(_moving_1.get_physical_model_prev_state()->get_polygons(), _moving_1.get_physical_model_prev_state()->get_polygons_count(),
+                                                              _moving_2.get_physical_model_prev_state()->get_polygons(), _moving_2.get_physical_model_prev_state()->get_polygons_count());
+
+    if(!result)
+        return Intersection_Data();
+
+    result.time_of_intersection_ratio = 0.0f;
+    return result;
 }
 
 Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_static(const Physics_Module_2D& _moving, const Physics_Module_2D& _static, const Narrowest_Phase_Interface* _cd) const
@@ -209,7 +216,14 @@ Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_static(const Physics_M
             return get_precise_time_ratio_of_collision(_moving, _static, min_intersection_ratio, max_intersection_ratio, _cd);
     }
 
-    return Intersection_Data();
+    Intersection_Data result = _cd->collision__model_vs_model(_moving.get_physical_model_prev_state()->get_polygons(), _moving.get_physical_model_prev_state()->get_polygons_count(),
+                                                              _static.get_physical_model_prev_state()->get_polygons(), _static.get_physical_model_prev_state()->get_polygons_count());
+
+    if(!result)
+        return Intersection_Data();
+
+    result.time_of_intersection_ratio = 0.0f;
+    return result;
 }
 
 LEti::Geometry::Simple_Intersection_Data Dynamic_Narrow_CD::collision__static_vs_point(const Physics_Module_2D &_static, const glm::vec3 &_point, const Narrowest_Phase_Interface* _cd) const
@@ -221,8 +235,8 @@ LEti::Geometry::Simple_Intersection_Data Dynamic_Narrow_CD::collision__static_vs
 
 Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module_2D& _first, const Physics_Module_2D& _second, const Narrowest_Phase_Interface* _cd) const
 {
-    if(!(_first.rectangular_border() && _second.rectangular_border()))
-        return Intersection_Data();
+//    if(!(_first.rectangular_border() && _second.rectangular_border()))
+//        return Intersection_Data();
 
     return collision__moving_vs_moving(_first, _second, _cd);
 }

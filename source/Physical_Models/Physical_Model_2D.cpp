@@ -264,10 +264,7 @@ void Physical_Model_2D_Imprint::update_to_current_model_state()
         Polygon& polygon = *m_polygons_holder->get_polygon(i);
         const Polygon& parent_polygon = *m_parent->get_polygon(i);
 
-        for(unsigned int vert=0; vert<3; ++vert)
-            polygon[vert] = parent_polygon[vert];
-
-        m_polygons_holder->get_polygon(i)->calculate_center();
+        polygon.setup(parent_polygon);
     }
     m_rect_border = m_parent->curr_rect_border();
 }

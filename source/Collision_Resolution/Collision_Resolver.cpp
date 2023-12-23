@@ -45,6 +45,9 @@ void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt)
 		++it;
 	}
 
+    _id.first->on_collision(_id.second);
+    _id.second->on_collision(_id.first);
+
 	L_ASSERT(resolved);
 }
 

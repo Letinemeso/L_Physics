@@ -1,5 +1,4 @@
-#ifndef COLLISION_RESOLUTION__RIGID_BODY_2D_H
-#define COLLISION_RESOLUTION__RIGID_BODY_2D_H
+#pragma once
 
 #include <Collision_Resolution/Collision_Resolver.h>
 #include <Modules/Rigid_Body_2D.h>
@@ -19,6 +18,3 @@ namespace LPhys
 	};
 
 }
-
-
-#endif // COLLISION_RESOLUTION__RIGID_BODY_2D_H

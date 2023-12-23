@@ -1,5 +1,6 @@
-#ifndef PHYSICS_MODULE_2D_H
-#define PHYSICS_MODULE_2D_H
+#pragma once
+
+#include <Stuff/Function_Wrapper.h>
 
 #include <Builder_Stub.h>
 
@@ -40,6 +41,12 @@ namespace LPhys
         Physical_Model_2D_Imprint* m_physical_model_prev_state = nullptr;
         LEti::Geometry_2D::Rectangular_Border m_rectangular_border;
 
+    public:
+        using On_Collision_Function = LST::Function<void(const Physics_Module_2D*)>;
+
+    private:
+        On_Collision_Function m_on_collision_func;
+
 	public:
         Physics_Module_2D();
         ~Physics_Module_2D();
@@ -55,6 +62,12 @@ namespace LPhys
         void move_raw(const glm::vec3 &_stride);
 
     public:
+        inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
+
+    public:
+        inline void on_collision(const Physics_Module_2D* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
+
+    public:
         void update_prev_state() override;
         void update(float _dt) override;
 
@@ -68,6 +81,3 @@ namespace LPhys
 	};
 
 }
-
-
-#endif // PHYSICS_MODULE_2D_H
