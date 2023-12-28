@@ -26,16 +26,6 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, 
     glm::vec3 A_center_of_mass = pm1->get_physical_model()->center_of_mass();
     glm::vec3 B_center_of_mass = pm2->get_physical_model()->center_of_mass();
 
-
-    //  TEST
-
-    std::cout << "first  (" << _id.first << "):\n" << A_center_of_mass.x << "   " << A_center_of_mass.y << "\n"
-              << "second (" << _id.first << "):\n" << B_center_of_mass.x << "   " << B_center_of_mass.y << "\n"
-              << "normal: " << _id.normal.x << "   " << _id.normal.y << "\n\n";
-
-    //  ~TEST
-
-
     float A_moment_of_inertia = pm1->moment_of_inertia();
     float B_moment_of_inertia = pm2->moment_of_inertia();
 
@@ -96,10 +86,8 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, 
 //    pm2->transformation_data()->move(-separation_vec * masses_ratio);
 
     pm1->apply_linear_impulse(-impulse / pm1->mass());
-//    pm1->apply_rotation(-avA);
     pm1->set_angular_velocity(-avA / pm1->mass());
     pm2->apply_linear_impulse(impulse / pm2->mass());
-//    pm2->apply_rotation(avB);
     pm2->set_angular_velocity(avB / pm2->mass());
 
     //  attempt to fix increase of models' velocities after some collisions. and it seems to work fine!
