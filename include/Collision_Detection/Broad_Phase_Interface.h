@@ -54,8 +54,8 @@ namespace LPhys
 		virtual void update(const objects_list& _registred_objects, const points_list& _registred_points) = 0;
 
     public:
-        inline const LDS::List<Colliding_Pair> possible_collisions__models() const { return m_possible_collisions__models; }
-        inline const LDS::List<Colliding_Point_And_Object> possible_collisions__points() const { return m_possible_collisions__points; }
+        inline const LDS::List<Colliding_Pair>& possible_collisions__models() const { return m_possible_collisions__models; }
+        inline const LDS::List<Colliding_Point_And_Object>& possible_collisions__points() const { return m_possible_collisions__points; }
 
 	};
 
