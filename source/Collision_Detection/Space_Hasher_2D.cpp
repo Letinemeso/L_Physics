@@ -19,7 +19,7 @@ unsigned int Space_Hasher_2D::construct_hash(unsigned int _x, unsigned int _y)
 	return (_x << m_number_binary_length) | (_y);
 }
 
-void Space_Hasher_2D::update_border(const objects_list& _registred_objects)
+void Space_Hasher_2D::update_border(const Objects_List& _registred_objects)
 {
     if(_registred_objects.size() == 0)
         return;
@@ -69,9 +69,9 @@ void Space_Hasher_2D::reset_hash_array()
 	}
 }
 
-void Space_Hasher_2D::hash_objects(const objects_list& _registred_objects)
+void Space_Hasher_2D::hash_objects(const Objects_List& _registred_objects)
 {
-    objects_list::Const_Iterator model_it = _registred_objects.begin();
+    Objects_List::Const_Iterator model_it = _registred_objects.begin();
     while(!model_it.end_reached())
     {
         const LEti::Geometry_2D::Rectangular_Border& curr_rb = (*model_it)->rectangular_border();
@@ -89,15 +89,15 @@ void Space_Hasher_2D::hash_objects(const objects_list& _registred_objects)
 
                 if(!m_array[hash])
                 {
-                    m_array[hash] = new objects_list;
+                    m_array[hash] = new Objects_List;
                     m_array[hash]->push_back(*model_it);
                     continue;
                 }
 
                 bool copy = false;
 
-                const objects_list& list = *m_array[hash];
-                for(objects_list::Const_Iterator list_it = list.begin(); !list_it.end_reached(); ++list_it)
+                const Objects_List& list = *m_array[hash];
+                for(Objects_List::Const_Iterator list_it = list.begin(); !list_it.end_reached(); ++list_it)
                 {
                     if(*list_it == *model_it)
                         copy = true;
@@ -112,11 +112,11 @@ void Space_Hasher_2D::hash_objects(const objects_list& _registred_objects)
 	}
 }
 
-void Space_Hasher_2D::check_for_possible_collisions__points(const points_list &_registred_points)
+void Space_Hasher_2D::check_for_possible_collisions__points(const Points_List &_registred_points)
 {
     LDS::AVL_Tree<Colliding_Point_And_Object> possible_collisions;
 
-    points_list::Const_Iterator point_it = _registred_points.begin();
+    Points_List::Const_Iterator point_it = _registred_points.begin();
     while(!point_it.end_reached())
 	{
 		glm::vec3 point_with_offset = *(*point_it);
@@ -139,8 +139,8 @@ void Space_Hasher_2D::check_for_possible_collisions__points(const points_list &_
 			continue;
 		}
 
-        const objects_list& list = *m_array[hash];
-        objects_list::Const_Iterator it = list.begin();
+        const Objects_List& list = *m_array[hash];
+        Objects_List::Const_Iterator it = list.begin();
         while(!it.end_reached())
         {
             possible_collisions.insert(Colliding_Point_And_Object(*it, *point_it));
@@ -171,14 +171,14 @@ void Space_Hasher_2D::check_for_possible_collisions__models()
 	{
         if(m_array[i] == nullptr)
             continue;
-		const objects_list& curr_list = *(m_array[i]);
+		const Objects_List& curr_list = *(m_array[i]);
         if(curr_list.size() < 2)
             continue;
 
-        objects_list::Const_Iterator first = curr_list.begin();
+        Objects_List::Const_Iterator first = curr_list.begin();
         while(!first.end_reached())
 		{
-            objects_list::Const_Iterator second = first;
+            Objects_List::Const_Iterator second = first;
 			++second;
 
             while(!second.end_reached())
@@ -233,13 +233,13 @@ void Space_Hasher_2D::set_precision(unsigned int _precision)
 	m_number_binary_length = get_number_binary_length(_precision);
 	m_precision = _precision;
 	m_array_size = ((m_precision + 1) << m_number_binary_length) | m_precision + 1;
-	m_array = new objects_list*[m_array_size];
+	m_array = new Objects_List*[m_array_size];
 	for(unsigned int i=0; i<m_array_size; ++i)
 		m_array[i] = nullptr;
 }
 
 
-void Space_Hasher_2D::update(const objects_list &_registred_objects, const points_list &_registred_points)
+void Space_Hasher_2D::update(const Objects_List &_registred_objects, const Points_List &_registred_points)
 {
 	update_border(_registred_objects);
 	reset_hash_array();

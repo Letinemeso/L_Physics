@@ -12,8 +12,8 @@ namespace LPhys
 	class Broad_Phase_Interface
 	{
 	public:
-        using objects_list = LDS::List<const Physics_Module_2D*>;
-        using points_list = LDS::List<const glm::vec3*>;
+        using Objects_List = LDS::List<const Physics_Module_2D*>;
+        using Points_List = LDS::List<const glm::vec3*>;
 
 		struct Colliding_Pair
 		{
@@ -51,7 +51,7 @@ namespace LPhys
 		virtual ~Broad_Phase_Interface();
 
 	public:
-		virtual void update(const objects_list& _registred_objects, const points_list& _registred_points) = 0;
+        virtual void update(const Objects_List& _registred_objects, const Points_List& _registred_points) = 0;
 
     public:
         inline const LDS::List<Colliding_Pair>& possible_collisions__models() const { return m_possible_collisions__models; }

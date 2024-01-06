@@ -14,7 +14,7 @@ namespace LPhys
 	private:
 		unsigned int m_precision = 0;
 		unsigned int m_array_size = 0;
-		objects_list** m_array = nullptr;
+        Objects_List** m_array = nullptr;
 		unsigned int m_number_binary_length = 0;
 		struct Space_Border { float min_x = 0.0f, min_y = 0.0f, height = 0.0f, width = 0.0f; };
 		Space_Border m_space_borders;
@@ -22,10 +22,10 @@ namespace LPhys
 	private:
 		unsigned int get_number_binary_length(unsigned int _number);
 		unsigned int construct_hash(unsigned int _x, unsigned int _y);
-		void update_border(const objects_list& _registred_objects);
+        void update_border(const Objects_List& _registred_objects);
 		void reset_hash_array();
-		void hash_objects(const objects_list& _registred_objects);
-		void check_for_possible_collisions__points(const points_list &_registred_points);
+        void hash_objects(const Objects_List& _registred_objects);
+        void check_for_possible_collisions__points(const Points_List &_registred_points);
 		void check_for_possible_collisions__models();
 
 	public:
@@ -35,7 +35,7 @@ namespace LPhys
 	public:
         void set_precision(unsigned int _precision);
 
-        void update(const objects_list &_registred_objects, const points_list &_registred_points) override;
+        void update(const Objects_List &_registred_objects, const Points_List &_registred_points) override;
 
 	};
 
