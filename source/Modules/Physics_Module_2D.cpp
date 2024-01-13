@@ -3,43 +3,8 @@
 using namespace LPhys;
 
 
-INIT_FIELDS(LPhys::Physics_Module_2D_Stub, LV::Builder_Stub)
-
-ADD_FIELD(unsigned int, coords_count)
-ADD_FIELD(float*, coords)
-
-ADD_FIELD(bool*, collision_permissions)
-
-FIELDS_END
-
-
-
-LV::Variable_Base* Physics_Module_2D_Stub::M_construct_product() const
-{
-    return new Physics_Module_2D;
-}
-
-void Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _product) const
-{
-    Physics_Module_2D* result = (Physics_Module_2D*)_product;
-
-    result->init_physical_model();
-    result->setup_base_data(coords, coords_count, collision_permissions);
-    result->init_prev_state();
-}
-
-
-
-Physics_Module_2D_Stub::~Physics_Module_2D_Stub()
-{
-    delete[] coords;
-    delete[] collision_permissions;
-}
-
-
 INIT_FIELDS(LPhys::Physics_Module_2D, LEti::Module)
 FIELDS_END
-
 
 
 Physics_Module_2D::Physics_Module_2D()
@@ -113,4 +78,41 @@ void Physics_Module_2D::update(float /*_dt*/)
     m_rectangular_border.right = prev_rb.right > curr_rb.right ? prev_rb.right : curr_rb.right;
     m_rectangular_border.top = prev_rb.top > curr_rb.top ? prev_rb.top : curr_rb.top;
     m_rectangular_border.bottom = prev_rb.bottom < curr_rb.bottom ? prev_rb.bottom : curr_rb.bottom;
+}
+
+
+
+
+
+INIT_FIELDS(LPhys::Physics_Module_2D_Stub, LEti::Module_Stub)
+
+ADD_FIELD(unsigned int, coords_count)
+ADD_FIELD(float*, coords)
+
+ADD_FIELD(bool*, collision_permissions)
+
+FIELDS_END
+
+
+
+LV::Variable_Base* Physics_Module_2D_Stub::M_construct_product() const
+{
+    return new Physics_Module_2D;
+}
+
+void Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _product) const
+{
+    Physics_Module_2D* result = (Physics_Module_2D*)_product;
+
+    result->init_physical_model();
+    result->setup_base_data(coords, coords_count, collision_permissions);
+    result->init_prev_state();
+}
+
+
+
+Physics_Module_2D_Stub::~Physics_Module_2D_Stub()
+{
+    delete[] coords;
+    delete[] collision_permissions;
 }

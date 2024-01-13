@@ -12,25 +12,6 @@
 namespace LPhys
 {
 
-    class Physics_Module_2D_Stub : public LV::Builder_Stub
-    {
-    public:
-        DECLARE_VARIABLE;
-
-    public:
-        unsigned int coords_count = 0;
-        float* coords = nullptr;
-
-        bool* collision_permissions = nullptr;
-
-    protected:
-        LV::Variable_Base* M_construct_product() const override;
-        void M_init_constructed_product(LV::Variable_Base* _product) const override;
-
-    public:
-        virtual ~Physics_Module_2D_Stub();
-    };
-
     class Physics_Module_2D : public LEti::Module
 	{
     public:
@@ -79,5 +60,26 @@ namespace LPhys
         inline const LEti::Geometry_2D::Rectangular_Border& rectangular_border() const { return m_rectangular_border; }
 
 	};
+
+
+
+    class Physics_Module_2D_Stub : public LEti::Module_Stub
+    {
+    public:
+        DECLARE_VARIABLE;
+
+    public:
+        unsigned int coords_count = 0;
+        float* coords = nullptr;
+
+        bool* collision_permissions = nullptr;
+
+    protected:
+        LV::Variable_Base* M_construct_product() const override;
+        void M_init_constructed_product(LV::Variable_Base* _product) const override;
+
+    public:
+        virtual ~Physics_Module_2D_Stub();
+    };
 
 }
