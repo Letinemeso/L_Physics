@@ -46,7 +46,7 @@ namespace LPhys
         inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
 
     public:
-        inline void on_collision(const Physics_Module_2D* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
+        virtual void on_collision(const Physics_Module_2D* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
 
     public:
         void update_prev_state() override;
