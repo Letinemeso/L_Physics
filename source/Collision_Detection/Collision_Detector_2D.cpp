@@ -12,6 +12,7 @@ Collision_Detector_2D::~Collision_Detector_2D()
 {
 	delete m_broad_phase;
 	delete m_narrow_phase;
+    delete m_narrowest_phase;
 }
 
 
