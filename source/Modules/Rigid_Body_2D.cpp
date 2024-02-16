@@ -3,38 +3,6 @@
 using namespace LPhys;
 
 
-INIT_FIELDS(LPhys::Rigid_Body_2D__Stub, LPhys::Physics_Module_2D_Stub)
-
-ADD_FIELD(float*, masses)
-ADD_FIELD(float, mass_multiplier)
-
-FIELDS_END
-
-
-
-LV::Variable_Base* Rigid_Body_2D__Stub::M_construct_product() const
-{
-    return new Rigid_Body_2D;
-}
-
-void Rigid_Body_2D__Stub::M_init_constructed_product(LV::Variable_Base* _product) const
-{
-    Rigid_Body_2D* result = (Rigid_Body_2D*)_product;
-
-    result->init_physical_model();
-    result->setup_base_data(coords, coords_count, collision_permissions);
-    result->set_masses(masses);
-    result->set_mass_multiplier(mass_multiplier);
-    result->init_prev_state();
-}
-
-
-
-INIT_FIELDS(LPhys::Rigid_Body_2D, LPhys::Physics_Module_2D)
-FIELDS_END
-
-
-
 Physical_Model_2D* Rigid_Body_2D::M_create_physical_model() const
 {
     return new Rigid_Body_Physical_Model_2D;
@@ -105,4 +73,31 @@ void Rigid_Body_2D::update(float _dt)
     transformation_data()->rotate({0.0f, 0.0f, angular_velocity() * _dt});
 
     Physics_Module_2D::update(_dt);
+}
+
+
+
+
+
+Rigid_Body_2D__Stub::~Rigid_Body_2D__Stub()
+{
+    delete[] masses;
+}
+
+
+
+LV::Variable_Base* Rigid_Body_2D__Stub::M_construct_product() const
+{
+    return new Rigid_Body_2D;
+}
+
+void Rigid_Body_2D__Stub::M_init_constructed_product(LV::Variable_Base* _product) const
+{
+    Rigid_Body_2D* result = (Rigid_Body_2D*)_product;
+
+    result->init_physical_model();
+    result->setup_base_data(coords, coords_count, collision_permissions);
+    result->set_masses(masses);
+    result->set_mass_multiplier(mass_multiplier);
+    result->init_prev_state();
 }

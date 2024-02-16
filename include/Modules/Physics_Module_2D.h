@@ -15,7 +15,7 @@ namespace LPhys
     class Physics_Module_2D : public LEti::Module
 	{
     public:
-        DECLARE_VARIABLE;
+        INIT_VARIABLE(LPhys::Physics_Module_2D, LEti::Module)
 
     private:
         Physical_Model_2D* m_physical_model = nullptr;
@@ -66,7 +66,13 @@ namespace LPhys
     class Physics_Module_2D_Stub : public LEti::Module_Stub
     {
     public:
-        DECLARE_VARIABLE;
+        INIT_VARIABLE(LPhys::Physics_Module_2D_Stub, LEti::Module_Stub)
+
+        INIT_FIELDS
+        ADD_FIELD(unsigned int, coords_count)
+        ADD_FIELD(float*, coords)
+        ADD_FIELD(bool*, collision_permissions)
+        FIELDS_END
 
     public:
         unsigned int coords_count = 0;

@@ -10,25 +10,10 @@
 namespace LPhys
 {
 
-    class Rigid_Body_2D__Stub : public Physics_Module_2D_Stub
-    {
-    public:
-        DECLARE_VARIABLE;
-
-    public:
-        float* masses = nullptr;
-        float mass_multiplier = 1.0f;
-
-    protected:
-        LV::Variable_Base* M_construct_product() const override;
-        void M_init_constructed_product(LV::Variable_Base* _product) const override;
-
-    };
-
     class Rigid_Body_2D : public Physics_Module_2D
 	{
     public:
-        DECLARE_VARIABLE;
+        INIT_VARIABLE(LPhys::Rigid_Body_2D, LPhys::Physics_Module_2D)
 
 	private:
         float m_mass_multiplier = 1.0f;
@@ -70,6 +55,31 @@ namespace LPhys
         void update(float _dt) override;
 
 	};
+
+
+
+    class Rigid_Body_2D__Stub : public Physics_Module_2D_Stub
+    {
+    public:
+        INIT_VARIABLE(LPhys::Rigid_Body_2D__Stub, LPhys::Physics_Module_2D_Stub)
+
+        INIT_FIELDS
+        ADD_FIELD(float*, masses)
+        ADD_FIELD(float, mass_multiplier)
+        FIELDS_END
+
+    public:
+        float* masses = nullptr;
+        float mass_multiplier = 1.0f;
+
+    public:
+        ~Rigid_Body_2D__Stub();
+
+    protected:
+        LV::Variable_Base* M_construct_product() const override;
+        void M_init_constructed_product(LV::Variable_Base* _product) const override;
+
+    };
 
 }
 

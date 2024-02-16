@@ -3,10 +3,6 @@
 using namespace LPhys;
 
 
-INIT_FIELDS(LPhys::Physics_Module_2D, LEti::Module)
-FIELDS_END
-
-
 Physics_Module_2D::Physics_Module_2D()
 {
 
@@ -81,17 +77,6 @@ void Physics_Module_2D::update(float /*_dt*/)
 }
 
 
-
-
-
-INIT_FIELDS(LPhys::Physics_Module_2D_Stub, LEti::Module_Stub)
-
-ADD_FIELD(unsigned int, coords_count)
-ADD_FIELD(float*, coords)
-
-ADD_FIELD(bool*, collision_permissions)
-
-FIELDS_END
 
 
 
