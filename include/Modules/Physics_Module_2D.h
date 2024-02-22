@@ -20,7 +20,7 @@ namespace LPhys
     private:
         Physical_Model_2D* m_physical_model = nullptr;
         Physical_Model_2D_Imprint* m_physical_model_prev_state = nullptr;
-        LEti::Geometry_2D::Rectangular_Border m_rectangular_border;
+        Border m_border;
 
     public:
         using On_Collision_Function = LST::Function<void(const Physics_Module_2D*)>;
@@ -46,7 +46,7 @@ namespace LPhys
         inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
 
     public:
-        virtual void on_collision(const Physics_Module_2D* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
+        inline void on_collision(const Physics_Module_2D* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
 
     public:
         void update_prev_state() override;
@@ -57,7 +57,7 @@ namespace LPhys
         inline Physical_Model_2D_Imprint* get_physical_model_prev_state() { return m_physical_model_prev_state; }
         inline const Physical_Model_2D* get_physical_model() const { return m_physical_model; }
         inline const Physical_Model_2D_Imprint* get_physical_model_prev_state() const { return m_physical_model_prev_state; }
-        inline const LEti::Geometry_2D::Rectangular_Border& rectangular_border() const { return m_rectangular_border; }
+        inline const Border& border() const { return m_border; }
 
 	};
 
@@ -79,6 +79,9 @@ namespace LPhys
         float* coords = nullptr;
 
         bool* collision_permissions = nullptr;
+
+    public:
+        Physics_Module_2D::On_Collision_Function on_collision_func;
 
     protected:
         LV::Variable_Base* M_construct_product() const override;

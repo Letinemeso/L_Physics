@@ -1,5 +1,4 @@
 #include <Physical_Models/Physical_Model_2D.h>
-#include <Physical_Models/Rigid_Body_Polygon.h>
 
 using namespace LPhys;
 
@@ -14,30 +13,18 @@ Polygon_Holder_Base* Physical_Model_2D::M_create_polygons_holder() const
 
 
 
-void Physical_Model_2D::M_update_rectangular_border()
+void Physical_Model_2D::M_update_border()
 {
     L_ASSERT(m_polygons_holder);
 
-    {
-        const Polygon& polygon = *m_polygons_holder->get_polygon(0);
-
-        m_current_border.left = polygon[0].x;
-        m_current_border.right = polygon[0].x;
-        m_current_border.top = polygon[0].y;
-        m_current_border.bottom = polygon[0].y;
-    }
+    m_border.reset();
 
     for(unsigned int i=0; i<m_polygons_count; ++i)
     {
         const Polygon& polygon = *m_polygons_holder->get_polygon(i);
 
         for(unsigned int p=0; p<3; ++p)
-        {
-            if(m_current_border.left > polygon[p].x) m_current_border.left = polygon[p].x;
-            if(m_current_border.right < polygon[p].x) m_current_border.right = polygon[p].x;
-            if(m_current_border.top < polygon[p].y) m_current_border.top = polygon[p].y;
-            if(m_current_border.bottom > polygon[p].y) m_current_border.bottom = polygon[p].y;
-        }
+            m_border.consider_point(polygon[p]);
     }
 }
 
@@ -54,9 +41,9 @@ glm::vec3 Physical_Model_2D::M_calculate_center_of_mass() const
 
 
 
-const LEti::Geometry_2D::Rectangular_Border& Physical_Model_2D::curr_rect_border() const
+const Border& Physical_Model_2D::border() const
 {
-    return m_current_border;
+    return m_border;
 }
 
 
@@ -124,7 +111,7 @@ void Physical_Model_2D::update(const glm::mat4x4& _matrix)
     for (unsigned int i = 0; i < m_polygons_count; ++i)
         m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
 
-    M_update_rectangular_border();
+    M_update_border();
     m_center_of_mass = M_calculate_center_of_mass();
 }
 
@@ -135,7 +122,7 @@ void Physical_Model_2D::copy_real_coordinates(const Physical_Model_2D &_other)
         for(unsigned int points_i = 0; points_i < 3; ++points_i)
             m_polygons_holder->get_polygon(i)[points_i] = _other.m_polygons_holder->get_polygon(i)[points_i];
     }
-    m_current_border = _other.m_current_border;
+    m_border = _other.m_border;
 }
 
 
@@ -175,7 +162,7 @@ Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(const Physical_Model_2D* _p
     m_polygons_holder->allocate(m_polygons_count);
     for(unsigned int i=0; i<m_polygons_count; ++i)
         m_polygons_holder->get_polygon(i)->setup(*m_parent->get_polygon(i));
-    m_rect_border = m_parent->curr_rect_border();
+    m_border = m_parent->border();
 }
 
 
@@ -187,7 +174,7 @@ Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(Physical_Model_2D_Imprint&&
     _other.m_polygons_count = 0;
     m_parent = _other.m_parent;
     _other.m_parent = nullptr;
-    m_rect_border = _other.m_rect_border;
+    m_border = _other.m_border;
 }
 
 Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(const Physical_Model_2D_Imprint& _other)
@@ -198,7 +185,7 @@ Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(const Physical_Model_2D_Imp
     m_polygons_holder->allocate(m_polygons_count);
     for(unsigned int i=0; i<m_polygons_count; ++i)
         m_polygons_holder->get_polygon(i)->setup(*_other.m_polygons_holder->get_polygon(i));
-    m_rect_border = _other.m_rect_border;
+    m_border = _other.m_border;
 }
 
 Physical_Model_2D_Imprint::~Physical_Model_2D_Imprint()
@@ -208,30 +195,18 @@ Physical_Model_2D_Imprint::~Physical_Model_2D_Imprint()
 
 
 
-void Physical_Model_2D_Imprint::M_update_rectangular_border()
+void Physical_Model_2D_Imprint::M_update_border()
 {
     L_ASSERT(m_polygons_holder);
 
-    {
-        const Polygon& polygon = *m_polygons_holder->get_polygon(0);
-
-        m_rect_border.left = polygon[0].x;
-        m_rect_border.right = polygon[0].x;
-        m_rect_border.top = polygon[0].y;
-        m_rect_border.bottom = polygon[0].y;
-    }
+    m_border.reset();
 
     for(unsigned int i=0; i<m_polygons_count; ++i)
     {
         const Polygon& polygon = *m_polygons_holder->get_polygon(i);
 
         for(unsigned int p=0; p<3; ++p)
-        {
-            if(m_rect_border.left > polygon[p].x) m_rect_border.left = polygon[p].x;
-            if(m_rect_border.right < polygon[p].x) m_rect_border.right = polygon[p].x;
-            if(m_rect_border.top < polygon[p].y) m_rect_border.top = polygon[p].y;
-            if(m_rect_border.bottom > polygon[p].y) m_rect_border.bottom = polygon[p].y;
-        }
+            m_border.consider_point(polygon[p]);
     }
 }
 
@@ -253,7 +228,7 @@ void Physical_Model_2D_Imprint::update_with_single_matrix(const glm::mat4x4& _ma
 
     for(unsigned int i=0; i<m_polygons_count; ++i)
         m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
-    M_update_rectangular_border();
+    M_update_border();
 }
 
 void Physical_Model_2D_Imprint::update_to_current_model_state()
@@ -267,7 +242,7 @@ void Physical_Model_2D_Imprint::update_to_current_model_state()
 
         polygon.setup(parent_polygon);
     }
-    m_rect_border = m_parent->curr_rect_border();
+    m_border = m_parent->border();
 }
 
 
@@ -293,7 +268,7 @@ unsigned int Physical_Model_2D_Imprint::get_polygons_count() const
     return m_parent->get_polygons_count();
 }
 
-const LEti::Geometry_2D::Rectangular_Border& Physical_Model_2D_Imprint::curr_rect_border() const
+const Border& Physical_Model_2D_Imprint::border() const
 {
-    return m_rect_border;
+    return m_border;
 }

@@ -22,11 +22,11 @@ namespace LPhys
         Colliding_Point_And_Object_Tree m_possible_collisions_with_points_tree;
 
     private:
-        LEti::Geometry_2D::Rectangular_Border M_calculate_rb(const Objects_List& _objects_inside);
-        Objects_List M_get_objects_inside_area(const LEti::Geometry_2D::Rectangular_Border& _rb, const Objects_List& _objects_maybe_inside);
-        Points_List M_get_points_inside_area(const LEti::Geometry_2D::Rectangular_Border& _rb, const Points_List& _points_maybe_inside);
+        Border M_calculate_rb(const Objects_List& _objects_inside);
+        Objects_List M_get_objects_inside_area(const Border& _rb, const Objects_List& _objects_maybe_inside);
+        Points_List M_get_points_inside_area(const Border& _rb, const Points_List& _points_maybe_inside);
         void M_save_possible_collisions(const Objects_List& _objects_inside, const Points_List &_points_inside);
-        void M_find_possible_collisions_in_area(const LEti::Geometry_2D::Rectangular_Border& _rb, const Objects_List& _objects_inside, const Points_List &_points_inside, unsigned int _same_objects_repetition);
+        void M_find_possible_collisions_in_area(const Border& _rb, const Objects_List& _objects_inside, const Points_List &_points_inside, unsigned int _same_objects_repetition);
 
     public:
         inline void set_precision(unsigned int _precision) { m_precision = _precision; }

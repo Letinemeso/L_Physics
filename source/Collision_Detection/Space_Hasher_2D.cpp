@@ -24,35 +24,15 @@ void Space_Hasher_2D::update_border(const Objects_List& _registred_objects)
     if(_registred_objects.size() == 0)
         return;
 
-    LDS::List<const Physics_Module_2D*>::Const_Iterator model_it = _registred_objects.begin();
+    Border border;
 
-    const LEti::Geometry_2D::Rectangular_Border* rb = &(*model_it)->rectangular_border();
+    for(Objects_List::Const_Iterator model_it = _registred_objects.begin(); !model_it.end_reached(); ++model_it)
+        border = border || (*model_it)->border();
 
-    float max_left = rb->left;
-    float max_right = rb->right;
-    float max_top = rb->top;
-    float max_bottom = rb->bottom;
-
-    while(!model_it.end_reached())
-    {
-        rb = &(*model_it)->rectangular_border();
-
-        if(rb->left < max_left)
-            max_left = rb->left;
-        if(rb->right > max_right)
-            max_right = rb->right;
-        if(rb->top > max_top)
-            max_top = rb->top;
-        if(rb->bottom < max_bottom)
-            max_bottom = rb->bottom;
-
-		++model_it;
-	}
-
-	m_space_borders.min_x = max_left;
-	m_space_borders.min_y = max_bottom;
-	m_space_borders.width = max_right - max_left;
-	m_space_borders.height= max_top - max_bottom;
+    m_space_borders.min_x = border.offset().x;
+    m_space_borders.min_y = border.offset().y;
+    m_space_borders.width = border.size().x;
+    m_space_borders.height= border.size().y;
 }
 
 void Space_Hasher_2D::reset_hash_array()
@@ -74,12 +54,12 @@ void Space_Hasher_2D::hash_objects(const Objects_List& _registred_objects)
     Objects_List::Const_Iterator model_it = _registred_objects.begin();
     while(!model_it.end_reached())
     {
-        const LEti::Geometry_2D::Rectangular_Border& curr_rb = (*model_it)->rectangular_border();
+        const Border& curr_rb = (*model_it)->border();
 
-		unsigned int min_index_x = (unsigned int)((curr_rb.left - m_space_borders.min_x) / m_space_borders.width * m_precision);
-		unsigned int max_index_x = (unsigned int)((curr_rb.right - m_space_borders.min_x) / m_space_borders.width * m_precision);
-		unsigned int min_index_y = (unsigned int)((curr_rb.bottom - m_space_borders.min_y) / m_space_borders.height * m_precision);
-		unsigned int max_index_y = (unsigned int)((curr_rb.top - m_space_borders.min_y) / m_space_borders.height * m_precision);
+        unsigned int min_index_x = (unsigned int)((curr_rb.left() - m_space_borders.min_x) / m_space_borders.width * m_precision);
+        unsigned int max_index_x = (unsigned int)((curr_rb.right() - m_space_borders.min_x) / m_space_borders.width * m_precision);
+        unsigned int min_index_y = (unsigned int)((curr_rb.bottom() - m_space_borders.min_y) / m_space_borders.height * m_precision);
+        unsigned int max_index_y = (unsigned int)((curr_rb.top() - m_space_borders.min_y) / m_space_borders.height * m_precision);
 
 		for(unsigned int x = min_index_x; x <= max_index_x; ++x)
 		{

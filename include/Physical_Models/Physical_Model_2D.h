@@ -1,5 +1,4 @@
-#ifndef __PHYSICAL_MODEL_2D
-#define __PHYSICAL_MODEL_2D
+#pragma once
 
 #include "vec3.hpp"
 #include "mat4x4.hpp"
@@ -8,6 +7,8 @@
 #include "Data_Structures/List.h"
 
 #include <Math_Stuff.h>
+
+#include <Physical_Models/Border.h>
 #include <Physical_Models/Polygon.h>
 
 
@@ -63,17 +64,17 @@ namespace LPhys
         glm::vec3 m_center_of_mass{0.0f, 0.0f, 0.0f};
 
 	private:
-        LEti::Geometry_2D::Rectangular_Border m_current_border;
+        Border m_border;
 
     private:
         virtual Polygon_Holder_Base* M_create_polygons_holder() const;
 
 	private:
-		void M_update_rectangular_border();
+        void M_update_border();
         virtual glm::vec3 M_calculate_center_of_mass() const;
 
 	public:
-        const LEti::Geometry_2D::Rectangular_Border& curr_rect_border() const;
+        const Border& border() const;
 
 	public:
 		Physical_Model_2D();
@@ -105,7 +106,7 @@ namespace LPhys
     private:
         Polygon_Holder_Base* m_polygons_holder = nullptr;
         unsigned int m_polygons_count = 0;
-        LEti::Geometry_2D::Rectangular_Border m_rect_border;
+        Border m_border;
 
     public:
         Physical_Model_2D_Imprint(const Physical_Model_2D* _parent);
@@ -114,7 +115,7 @@ namespace LPhys
         ~Physical_Model_2D_Imprint();
 
     private:
-        void M_update_rectangular_border();
+        void M_update_border();
 
     public:
         void update(const glm::mat4x4& _translation, const glm::mat4x4& _rotation, const glm::mat4x4& _scale);
@@ -125,9 +126,7 @@ namespace LPhys
         const Polygon* get_polygon(unsigned int _index) const;
         const Polygon_Holder_Base* get_polygons() const;
         unsigned int get_polygons_count() const;
-        const LEti::Geometry_2D::Rectangular_Border& curr_rect_border() const;
+        const Border& border() const;
 
     };
 }
-
-#endif // __PHYSICAL_MODEL_2D

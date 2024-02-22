@@ -3,30 +3,30 @@
 using namespace LPhys;
 
 
-LEti::Geometry_2D::Rectangular_Border Binary_Space_Partitioner::M_calculate_rb(const Objects_List& _objects_inside)
+Border Binary_Space_Partitioner::M_calculate_rb(const Objects_List& _objects_inside)
 {
-    LEti::Geometry_2D::Rectangular_Border result;
+    Border result;
 
     for(Objects_List::Const_Iterator it = _objects_inside.begin(); !it.end_reached(); ++it)
-        result = result || (*it)->rectangular_border();
+        result = result || (*it)->border();
 
     return result;
 }
 
-Binary_Space_Partitioner::Objects_List Binary_Space_Partitioner::M_get_objects_inside_area(const LEti::Geometry_2D::Rectangular_Border& _rb, const Objects_List& _objects_maybe_inside)
+Binary_Space_Partitioner::Objects_List Binary_Space_Partitioner::M_get_objects_inside_area(const Border& _rb, const Objects_List& _objects_maybe_inside)
 {
     Objects_List result;
 
     for(Objects_List::Const_Iterator it = _objects_maybe_inside.begin(); !it.end_reached(); ++it)
     {
-        if(_rb && (*it)->rectangular_border())
+        if(_rb && (*it)->border())
             result.push_back(*it);
     }
 
     return result;
 }
 
-Binary_Space_Partitioner::Points_List Binary_Space_Partitioner::M_get_points_inside_area(const LEti::Geometry_2D::Rectangular_Border& _rb, const Points_List& _points_maybe_inside)
+Binary_Space_Partitioner::Points_List Binary_Space_Partitioner::M_get_points_inside_area(const Border& _rb, const Points_List& _points_maybe_inside)
 {
     Points_List result;
 
@@ -51,7 +51,7 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _o
 
         for(; !it_2.end_reached(); ++it_2)
         {
-            if( ! ((*it_1)->rectangular_border() && (*it_2)->rectangular_border()) )
+            if( ! ((*it_1)->border() && (*it_2)->border()) )
                 continue;
 
             Colliding_Pair cp(*it_1, *it_2);
@@ -64,7 +64,7 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _o
 
         for(Points_List::Const_Iterator points_it = _points_inside.begin(); !points_it.end_reached(); ++points_it)
         {
-            if( ! ((*it_1)->rectangular_border().point_is_inside(**points_it)) )
+            if( ! ((*it_1)->border().point_is_inside(**points_it)) )
                 continue;
 
             Colliding_Point_And_Object cp(*it_1, *points_it);
@@ -77,7 +77,7 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _o
     }
 }
 
-void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const LEti::Geometry_2D::Rectangular_Border& _rb, const Objects_List& _objects_inside, const Points_List &_points_inside, unsigned int _same_objects_repetition)
+void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& _rb, const Objects_List& _objects_inside, const Points_List &_points_inside, unsigned int _same_objects_repetition)
 {
     if( (_same_objects_repetition == m_precision) || (_objects_inside.size() <= 2) )
     {
@@ -85,21 +85,25 @@ void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const LEti::Ge
         return;
     }
 
-    LEti::Geometry_2D::Rectangular_Border rb_1 = _rb;
-    LEti::Geometry_2D::Rectangular_Border rb_2 = _rb;
+    Border rb_1 = _rb;
+    Border rb_2 = _rb;
 
-    float current_rb_width_half = (_rb.right - _rb.left) * 0.5f;
-    float current_rb_height_half = (_rb.top - _rb.bottom) * 0.5f;
+    float current_rb_width_half = _rb.size().x * 0.5f;
+    float current_rb_height_half = _rb.size().y * 0.5f;
 
     if(current_rb_width_half > current_rb_height_half)
     {
-        rb_1.right = rb_1.left + current_rb_width_half;
-        rb_2.left = rb_2.left + current_rb_width_half;
+        rb_1.modify_size({-current_rb_width_half, 0.0f, 0.0f});
+        rb_2.modify_size({-current_rb_width_half, 0.0f, 0.0f});
+
+        rb_2.modify_offset({current_rb_width_half, 0.0f, 0.0f});
     }
     else
     {
-        rb_1.top = rb_1.bottom + current_rb_height_half;
-        rb_2.bottom = rb_2.bottom + current_rb_height_half;
+        rb_1.modify_size({0.0f, -current_rb_height_half, 0.0f});
+        rb_2.modify_size({0.0f, -current_rb_height_half, 0.0f});
+
+        rb_2.modify_offset({0.0f, current_rb_height_half, 0.0f});
     }
 
     Objects_List objects_inside_1 = M_get_objects_inside_area(rb_1, _objects_inside);

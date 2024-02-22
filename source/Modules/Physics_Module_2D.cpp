@@ -67,13 +67,7 @@ void Physics_Module_2D::update(float /*_dt*/)
 
     m_physical_model->update(transformation_data()->matrix());
 
-        const LEti::Geometry_2D::Rectangular_Border& prev_rb = get_physical_model_prev_state()->curr_rect_border(),
-			curr_rb = get_physical_model()->curr_rect_border();
-
-    m_rectangular_border.left = prev_rb.left < curr_rb.left ? prev_rb.left : curr_rb.left;
-    m_rectangular_border.right = prev_rb.right > curr_rb.right ? prev_rb.right : curr_rb.right;
-    m_rectangular_border.top = prev_rb.top > curr_rb.top ? prev_rb.top : curr_rb.top;
-    m_rectangular_border.bottom = prev_rb.bottom < curr_rb.bottom ? prev_rb.bottom : curr_rb.bottom;
+    m_border = get_physical_model_prev_state()->border() || get_physical_model()->border();
 }
 
 
@@ -92,6 +86,9 @@ void Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _prod
     result->init_physical_model();
     result->setup_base_data(coords, coords_count, collision_permissions);
     result->init_prev_state();
+
+    if(on_collision_func)
+        result->set_on_collision_function(on_collision_func);
 }
 
 

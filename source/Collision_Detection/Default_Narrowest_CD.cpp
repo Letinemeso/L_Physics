@@ -69,9 +69,9 @@ Intersection_Data Default_Narrowest_CD::intersection__polygon_vs_segment(const P
 
 Intersection_Data Default_Narrowest_CD::intersection__polygon_vs_polygon(const Polygon& _first, const Polygon& _second) const
 {
-    LEti::Geometry_2D::Rectangular_Border this_rb;
+    Border this_rb;
     this_rb.consider_point(_first[0]).consider_point(_first[1]).consider_point(_first[2]);
-    LEti::Geometry_2D::Rectangular_Border other_rb;
+    Border other_rb;
     other_rb.consider_point(_second[0]).consider_point(_second[1]).consider_point(_second[2]);
 
     if(!(this_rb && other_rb))
