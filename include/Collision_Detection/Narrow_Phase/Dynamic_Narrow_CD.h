@@ -1,7 +1,6 @@
-#ifndef __DYNAMIC_NARROW_CD
-#define __DYNAMIC_NARROW_CD
+#pragma once
 
-#include <Collision_Detection/Narrow_Phase_Interface.h>
+#include <Collision_Detection/Narrow_Phase/Narrow_Phase_Interface.h>
 
 
 namespace LPhys
@@ -24,17 +23,14 @@ namespace LPhys
         Intersection_Data collision__moving_vs_moving(const Physics_Module_2D& _moving_1, const Physics_Module_2D& _moving_2, const Narrowest_Phase_Interface* _cd) const;
         Intersection_Data collision__moving_vs_static(const Physics_Module_2D& _moving, const Physics_Module_2D& _static, const Narrowest_Phase_Interface* _cd) const;
 
-        LEti::Geometry::Simple_Intersection_Data collision__static_vs_point(const Physics_Module_2D& _static, const glm::vec3& _point, const Narrowest_Phase_Interface* _cd) const;
+//        LEti::Geometry::Simple_Intersection_Data collision__static_vs_point(const Physics_Module_2D& _static, const glm::vec3& _point, const Narrowest_Phase_Interface* _cd) const;
 
 	public:
         Intersection_Data objects_collide(const Physics_Module_2D& _first, const Physics_Module_2D& _second, const Narrowest_Phase_Interface* _cd) const;
 
 	public:
-        void update(const Broad_Phase_Interface::Colliding_Pair_List& _possible_collisions__models, const Broad_Phase_Interface::Colliding_Point_And_Object_List& _possible_collisions__points, const Narrowest_Phase_Interface* _cd) override;
+        void update(const Broad_Phase_Interface::Colliding_Pair_List& _possible_collisions__models, const Narrowest_Phase_Interface* _cd) override;
 
 	};
 
 }
-
-
-#endif // __DYNAMIC_NARROW_CD

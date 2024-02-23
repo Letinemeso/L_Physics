@@ -1,4 +1,4 @@
-#include <Collision_Detection/Broad_Phase_Interface.h>
+#include <Collision_Detection/Broad_Phase/Broad_Phase_Interface.h>
 
 using namespace LPhys;
 

@@ -1,4 +1,4 @@
-#include <Collision_Detection/Narrowest_Phase_Interface.h>
+#include <Collision_Detection/Narrowest_Phase/Narrowest_Phase_Interface.h>
 
 using namespace LPhys;
 

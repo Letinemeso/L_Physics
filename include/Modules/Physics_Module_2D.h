@@ -4,23 +4,21 @@
 
 #include <Builder_Stub.h>
 
-#include <Module.h>
-
+#include <Modules/Physics_Module.h>
 #include <Physical_Models/Physical_Model_2D.h>
 
 
 namespace LPhys
 {
 
-    class Physics_Module_2D : public LEti::Module
+    class Physics_Module_2D : public Physics_Module
 	{
     public:
-        INIT_VARIABLE(LPhys::Physics_Module_2D, LEti::Module)
+        INIT_VARIABLE(LPhys::Physics_Module_2D, LPhys::Physics_Module)
 
     private:
         Physical_Model_2D* m_physical_model = nullptr;
         Physical_Model_2D_Imprint* m_physical_model_prev_state = nullptr;
-        Border m_border;
 
     public:
         using On_Collision_Function = LST::Function<void(const Physics_Module_2D*)>;
@@ -57,16 +55,15 @@ namespace LPhys
         inline Physical_Model_2D_Imprint* get_physical_model_prev_state() { return m_physical_model_prev_state; }
         inline const Physical_Model_2D* get_physical_model() const { return m_physical_model; }
         inline const Physical_Model_2D_Imprint* get_physical_model_prev_state() const { return m_physical_model_prev_state; }
-        inline const Border& border() const { return m_border; }
 
 	};
 
 
 
-    class Physics_Module_2D_Stub : public LEti::Module_Stub
+    class Physics_Module_2D_Stub : public Physics_Module_Stub
     {
     public:
-        INIT_VARIABLE(LPhys::Physics_Module_2D_Stub, LEti::Module_Stub)
+        INIT_VARIABLE(LPhys::Physics_Module_2D_Stub, LPhys::Physics_Module_Stub)
 
         INIT_FIELDS
         ADD_FIELD(unsigned int, coords_count)

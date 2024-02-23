@@ -1,4 +1,4 @@
-#include <Collision_Detection/Dynamic_Narrow_CD.h>
+#include <Collision_Detection/Narrow_Phase/Dynamic_Narrow_CD.h>
 
 using namespace LPhys;
 
@@ -226,55 +226,57 @@ Intersection_Data Dynamic_Narrow_CD::collision__moving_vs_static(const Physics_M
     return result;
 }
 
-LEti::Geometry::Simple_Intersection_Data Dynamic_Narrow_CD::collision__static_vs_point(const Physics_Module_2D &_static, const glm::vec3 &_point, const Narrowest_Phase_Interface* _cd) const
-{
-    return _cd->collision__model_vs_point(*_static.get_physical_model(), _point);
-}
+//LEti::Geometry::Simple_Intersection_Data Dynamic_Narrow_CD::collision__static_vs_point(const Physics_Module_2D &_static, const glm::vec3 &_point, const Narrowest_Phase_Interface* _cd) const
+//{
+//    return _cd->collision__model_vs_point(*_static.get_physical_model(), _point);
+//}
 
 
 
 Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module_2D& _first, const Physics_Module_2D& _second, const Narrowest_Phase_Interface* _cd) const
 {
-//    if(!(_first.rectangular_border() && _second.rectangular_border()))
-//        return Intersection_Data();
-
     return collision__moving_vs_moving(_first, _second, _cd);
 }
 
 
 
-void Dynamic_Narrow_CD::update(const Broad_Phase_Interface::Colliding_Pair_List &_possible_collisions__models, const Broad_Phase_Interface::Colliding_Point_And_Object_List &_possible_collisions__points, const Narrowest_Phase_Interface* _cd)
+void Dynamic_Narrow_CD::update(const Broad_Phase_Interface::Colliding_Pair_List &_possible_collisions__models, const Narrowest_Phase_Interface* _cd)
 {
     m_collisions__models.clear();
-    m_collisions__points.clear();
 
     Broad_Phase_Interface::Colliding_Pair_List::Const_Iterator itm = _possible_collisions__models.begin();
     while(!itm.end_reached())
     {
-        Intersection_Data id = objects_collide(*itm->first, *itm->second, _cd);
+        L_ASSERT(LV::cast_variable<Physics_Module_2D>(itm->first));
+        L_ASSERT(LV::cast_variable<Physics_Module_2D>(itm->second));
+
+        Physics_Module_2D* first = (Physics_Module_2D*)itm->first;
+        Physics_Module_2D* second = (Physics_Module_2D*)itm->second;
+
+        Intersection_Data id = objects_collide(*first, *second, _cd);
         if(id)
         {
-            id.first = itm->first;
-            id.second = itm->second;
+            id.first = first;
+            id.second = second;
             m_collisions__models.push_back(id);
         }
 
         ++itm;
     }
 
-    Broad_Phase_Interface::Colliding_Point_And_Object_List::Const_Iterator itp = _possible_collisions__points.begin();
-    while(!itp.end_reached())
-    {
-        LEti::Geometry::Simple_Intersection_Data id = collision__static_vs_point(*itp->object, *itp->point, _cd);
-        if(id)
-        {
-            Intersection_Data result(Intersection_Data::Type::intersection);
-            result.first = itp->object;
-            result.second = nullptr;
-            result.point = *itp->point;
-            m_collisions__points.push_back(result);
-        }
+//    Broad_Phase_Interface::Colliding_Point_And_Object_List::Const_Iterator itp = _possible_collisions__points.begin();
+//    while(!itp.end_reached())
+//    {
+//        LEti::Geometry::Simple_Intersection_Data id = collision__static_vs_point(*itp->object, *itp->point, _cd);
+//        if(id)
+//        {
+//            Intersection_Data result(Intersection_Data::Type::intersection);
+//            result.first = itp->object;
+//            result.second = nullptr;
+//            result.point = *itp->point;
+//            m_collisions__points.push_back(result);
+//        }
 
-        ++itp;
-    }
+//        ++itp;
+//    }
 }
