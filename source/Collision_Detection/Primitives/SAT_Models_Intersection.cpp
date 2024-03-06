@@ -1,18 +1,18 @@
-#include <Collision_Detection/Narrowest_Phase/SAT_Narrowest_CD.h>
+#include <Collision_Detection/Primitives/SAT_Models_Intersection.h>
 
 using namespace LPhys;
 
 
-SAT_Narrowest_CD::mm_pair SAT_Narrowest_CD::M_get_minmax_projections(const glm::vec3 &_axis, const Polygon &_pol) const
+SAT_Models_Intersection::mm_pair SAT_Models_Intersection::M_get_minmax_projections(const glm::vec3 &_axis, const Polygon &_pol) const
 {
 	float min = 0.0f, max = 0.0f;
 
-    min = LEti::Geometry_2D::point_to_axis_projection(_pol[0], _axis);
-    max = LEti::Geometry_2D::point_to_axis_projection(_pol[0], _axis);
+    min = LEti::Math::dot_product(_pol[0], _axis);      //  point to axis projection
+    max = LEti::Math::dot_product(_pol[0], _axis);
 
 	for(unsigned int i=1; i<3; ++i)
 	{
-        float proj = LEti::Geometry_2D::point_to_axis_projection(_pol[i], _axis);
+        float proj = LEti::Math::dot_product(_pol[i], _axis);
 		if(proj < min)
 			min = proj;
 		if(proj > max)
@@ -22,10 +22,72 @@ SAT_Narrowest_CD::mm_pair SAT_Narrowest_CD::M_get_minmax_projections(const glm::
 	return {min, max};
 }
 
-
-SAT_Narrowest_CD::Intersection_Data SAT_Narrowest_CD::M_polygons_collision(const Polygon &_first, const Polygon &_second) const
+float SAT_Models_Intersection::M_point_to_segment_distance(const glm::vec3& _point, const glm::vec3& _seg_start, const glm::vec3& _seg_end) const
 {
-	SAT_Narrowest_CD::Intersection_Data result;
+    glm::vec3 seg_perp = _seg_end - _seg_start;
+    float x = seg_perp.x;
+    seg_perp.x = -seg_perp.y;
+    seg_perp.y = x;
+    seg_perp += _point;
+
+    LEti::Geometry_2D::Equasion_Data eq_1(_seg_start, _seg_end);
+    LEti::Geometry_2D::Equasion_Data eq_2(_point, seg_perp);
+
+    glm::vec3 itsc_point = LEti::Geometry_2D::lines_intersect(eq_1, eq_2).point;
+
+    if(eq_1.is_horisontal())
+    {
+        float max_x = 0.0f;
+        float min_x = 0.0f;
+
+        if(_seg_start.x > _seg_end.x)
+        {
+            max_x = _seg_start.x;
+            min_x = _seg_end.x;
+        }
+        else
+        {
+            max_x = _seg_end.x;
+            min_x = _seg_start.x;
+        }
+
+        if(itsc_point.x < min_x || itsc_point.x > max_x)
+            return -1.0f;
+        return LEti::Math::vector_length(itsc_point - _point);
+    }
+
+    float y = eq_1.solve_by_x(itsc_point.x);
+    if(eq_1.is_vertical())
+    {
+        if(!LEti::Math::floats_are_equal(eq_1.get_x_if_vertical(), itsc_point.x))
+            return -1.0f;
+        y = itsc_point.y;
+    }
+
+    float max_y = 0.0f;
+    float min_y = 0.0f;
+
+    if(_seg_start.y > _seg_end.y)
+    {
+        max_y = _seg_start.y;
+        min_y = _seg_end.y;
+    }
+    else
+    {
+        max_y = _seg_end.y;
+        min_y = _seg_start.y;
+    }
+
+    if((y < min_y && !LEti::Math::floats_are_equal(y, min_y, 0.01f)) || (y > max_y && !LEti::Math::floats_are_equal(y, max_y, 0.01f)))
+        return -1.0f;
+
+    return LEti::Math::vector_length(itsc_point - _point);
+}
+
+
+SAT_Models_Intersection::Intersection_Data SAT_Models_Intersection::M_polygons_collision(const Polygon &_first, const Polygon &_second) const
+{
+	SAT_Models_Intersection::Intersection_Data result;
 
 	for(unsigned int i=0; i<3; ++i)
     {
@@ -96,7 +158,7 @@ SAT_Narrowest_CD::Intersection_Data SAT_Narrowest_CD::M_polygons_collision(const
 }
 
 
-float SAT_Narrowest_CD::M_smallest_point_to_polygon_distance(const glm::vec3 &_point, const Polygon &_pol) const
+float SAT_Models_Intersection::M_smallest_point_to_polygon_distance(const glm::vec3 &_point, const Polygon &_pol) const
 {
 	float min_dist = -1.0f;
 
@@ -105,7 +167,7 @@ float SAT_Narrowest_CD::M_smallest_point_to_polygon_distance(const glm::vec3 &_p
 		if(_pol.segment_can_collide(i) == false)
 			continue;
 
-        float min = LEti::Geometry_2D::point_to_segment_distance(_point, _pol[i], _pol[i + 1]);
+        float min = M_point_to_segment_distance(_point, _pol[i], _pol[i + 1]);
 
 		if(min < 0.0f)
 			continue;
@@ -117,7 +179,7 @@ float SAT_Narrowest_CD::M_smallest_point_to_polygon_distance(const glm::vec3 &_p
 	return min_dist;
 }
 
-LDS::List<glm::vec3> SAT_Narrowest_CD::M_points_of_contact(const Polygon_Holder_Base* _f_pols, unsigned int _f_count, const Polygon_Holder_Base* _s_pols, unsigned int _s_count) const
+LDS::List<glm::vec3> SAT_Models_Intersection::M_points_of_contact(const Polygon_Holder_Base* _f_pols, unsigned int _f_count, const Polygon_Holder_Base* _s_pols, unsigned int _s_count) const
 {
 	float min_dist = -1.0f;
 
@@ -197,28 +259,28 @@ LDS::List<glm::vec3> SAT_Narrowest_CD::M_points_of_contact(const Polygon_Holder_
 }
 
 
-LEti::Geometry::Simple_Intersection_Data SAT_Narrowest_CD::intersection__polygon_vs_point(const Polygon& _polygon, const glm::vec3& _point) const
-{
-    LEti::Geometry_2D::Equasion_Data AB_eq(_polygon[0], _polygon[1]);
-    LEti::Geometry_2D::Equasion_Data BC_eq(_polygon[1], _polygon[2]);
-    LEti::Geometry_2D::Equasion_Data CA_eq(_polygon[2], _polygon[0]);
+//LEti::Geometry::Simple_Intersection_Data SAT_Models_Intersection::intersection__polygon_vs_point(const Polygon& _polygon, const glm::vec3& _point) const
+//{
+//    LEti::Geometry_2D::Equasion_Data AB_eq(_polygon[0], _polygon[1]);
+//    LEti::Geometry_2D::Equasion_Data BC_eq(_polygon[1], _polygon[2]);
+//    LEti::Geometry_2D::Equasion_Data CA_eq(_polygon[2], _polygon[0]);
 
-	float AB_y_proj = AB_eq.solve_by_x(_point.x);
-	float BC_y_proj = BC_eq.solve_by_x(_point.x);
-	float CA_y_proj = CA_eq.solve_by_x(_point.x);
+//	float AB_y_proj = AB_eq.solve_by_x(_point.x);
+//	float BC_y_proj = BC_eq.solve_by_x(_point.x);
+//	float CA_y_proj = CA_eq.solve_by_x(_point.x);
 
-	bool AB_right_side = AB_eq.is_vertical() ? ( _polygon[1].y < _polygon[0].y ? _point.x >= _polygon[0].x : _point.x <= _polygon[0].x ) : ( AB_eq.goes_left() ? AB_y_proj > _point.y : AB_y_proj < _point.y );
-	bool BC_right_side = BC_eq.is_vertical() ? ( _polygon[2].y < _polygon[1].y ? _point.x >= _polygon[1].x : _point.x <= _polygon[1].x ) : ( BC_eq.goes_left() ? BC_y_proj > _point.y : BC_y_proj < _point.y );
-	bool CA_right_side = CA_eq.is_vertical() ? ( _polygon[0].y < _polygon[2].y ? _point.x >= _polygon[2].x : _point.x <= _polygon[2].x ) : ( CA_eq.goes_left() ? CA_y_proj > _point.y : CA_y_proj < _point.y );
+//	bool AB_right_side = AB_eq.is_vertical() ? ( _polygon[1].y < _polygon[0].y ? _point.x >= _polygon[0].x : _point.x <= _polygon[0].x ) : ( AB_eq.goes_left() ? AB_y_proj > _point.y : AB_y_proj < _point.y );
+//	bool BC_right_side = BC_eq.is_vertical() ? ( _polygon[2].y < _polygon[1].y ? _point.x >= _polygon[1].x : _point.x <= _polygon[1].x ) : ( BC_eq.goes_left() ? BC_y_proj > _point.y : BC_y_proj < _point.y );
+//	bool CA_right_side = CA_eq.is_vertical() ? ( _polygon[0].y < _polygon[2].y ? _point.x >= _polygon[2].x : _point.x <= _polygon[2].x ) : ( CA_eq.goes_left() ? CA_y_proj > _point.y : CA_y_proj < _point.y );
 
-	if (AB_right_side && BC_right_side && CA_right_side)
-        return LEti::Geometry::Simple_Intersection_Data(LEti::Geometry::Simple_Intersection_Data::Type::intersection, _point);
-    return LEti::Geometry::Simple_Intersection_Data();
-}
+//	if (AB_right_side && BC_right_side && CA_right_side)
+//        return LEti::Geometry::Simple_Intersection_Data(LEti::Geometry::Simple_Intersection_Data::Type::intersection, _point);
+//    return LEti::Geometry::Simple_Intersection_Data();
+//}
 
 
 
-//LEti::Geometry::Simple_Intersection_Data SAT_Narrowest_CD::collision__model_vs_point(const Physical_Model_2D &_model, const glm::vec3 &_point) const
+//LEti::Geometry::Simple_Intersection_Data SAT_Models_Intersection::collision__model_vs_point(const Physical_Model_2D &_model, const glm::vec3 &_point) const
 //{
 //	for (unsigned int i = 0; i < _model.get_polygons_count(); ++i)
 //	{
@@ -230,19 +292,19 @@ LEti::Geometry::Simple_Intersection_Data SAT_Narrowest_CD::intersection__polygon
 //}
 
 
-LPhys::Intersection_Data SAT_Narrowest_CD::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
+LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
 {
     LPhys::Intersection_Data result(LPhys::Intersection_Data::Type::intersection);
 
     unsigned int first_collided_polygon = 0;
     unsigned int second_collided_polygon = 0;
 
-    SAT_Narrowest_CD::Intersection_Data f_id;
+    SAT_Models_Intersection::Intersection_Data f_id;
 	for(unsigned int i=0; i<_pols_amount_1; ++i)
 	{
 		for(unsigned int j=0; j<_pols_amount_2; ++j)
 		{
-            SAT_Narrowest_CD::Intersection_Data id = M_polygons_collision(*_polygon_holder_1->get_polygon(i), *_polygon_holder_2->get_polygon(j));
+            SAT_Models_Intersection::Intersection_Data id = M_polygons_collision(*_polygon_holder_1->get_polygon(i), *_polygon_holder_2->get_polygon(j));
 
 			if(!id.intersection)
 				continue;

@@ -31,7 +31,7 @@ namespace LPhys
         using Colliding_Pair_List = LDS::List<Colliding_Pair>;
 
     protected:
-        LDS::List<Colliding_Pair> m_possible_collisions__models;
+        LDS::List<Colliding_Pair> m_possible_collisions;
 
 	public:
 		virtual ~Broad_Phase_Interface();
@@ -40,7 +40,7 @@ namespace LPhys
         virtual void update(const Objects_List& _registred_objects) = 0;
 
     public:
-        inline const LDS::List<Colliding_Pair>& possible_collisions__models() const { return m_possible_collisions__models; }
+        inline const Colliding_Pair_List& possible_collisions() const { return m_possible_collisions; }
 
 	};
 

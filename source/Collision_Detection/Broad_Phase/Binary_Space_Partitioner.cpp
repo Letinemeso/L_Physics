@@ -95,12 +95,12 @@ void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& 
 
 void Binary_Space_Partitioner::update(const Objects_List &_registred_objects)
 {
-    m_possible_collisions__models.clear();
+    m_possible_collisions.clear();
 
     m_possible_collisions_tree.clear();
 
     M_find_possible_collisions_in_area(M_calculate_rb(_registred_objects), _registred_objects, 0);
 
     for(Colliding_Pair_Tree::Iterator it = m_possible_collisions_tree.iterator(); !it.end_reached(); ++it)
-        m_possible_collisions__models.push_back(*it);
+        m_possible_collisions.push_back(*it);
 }

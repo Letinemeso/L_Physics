@@ -218,8 +218,7 @@ void Physical_Model_2D_Imprint::update(const glm::mat4x4 &_translation, const gl
 
     glm::mat4x4 result_matrix = _translation * _rotation * _scale;
 
-    for (unsigned int i = 0; i < m_polygons_count; ++i)
-        m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(result_matrix);
+    update_with_single_matrix(result_matrix);
 }
 
 void Physical_Model_2D_Imprint::update_with_single_matrix(const glm::mat4x4& _matrix)

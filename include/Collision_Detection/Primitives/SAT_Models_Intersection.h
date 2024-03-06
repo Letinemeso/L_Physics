@@ -1,18 +1,22 @@
 #pragma once
 
+#include <vec3.hpp>
+
 #include <Data_Structures/List.h>
 
-#include <Collision_Detection/Narrowest_Phase/Narrowest_Phase_Interface.h>
+#include <Math_Stuff.h>
+
+#include <Collision_Detection/Intersection_Data.h>
 
 
 namespace LPhys
 {
 
-    class SAT_Narrowest_CD : public Narrowest_Phase_Interface
+    class SAT_Models_Intersection
     {
     public:
-        SAT_Narrowest_CD() {}
-        ~SAT_Narrowest_CD() {}
+        SAT_Models_Intersection() {}
+        ~SAT_Models_Intersection() {}
 
     private:
         struct Intersection_Data
@@ -26,17 +30,18 @@ namespace LPhys
 
     private:
         mm_pair M_get_minmax_projections(const glm::vec3& _axis, const Polygon& _pol) const;
+        float M_point_to_segment_distance(const glm::vec3& _point, const glm::vec3& _seg_start, const glm::vec3& _seg_end) const;
 
         Intersection_Data M_polygons_collision(const Polygon& _first, const Polygon& _second) const;
 
         float M_smallest_point_to_polygon_distance(const glm::vec3& _point, const Polygon& _pol) const;
         LDS::List<glm::vec3> M_points_of_contact(const Polygon_Holder_Base* _f_pols, unsigned int _f_count, const Polygon_Holder_Base* _s_pols, unsigned int _s_count) const;
 
-        LEti::Geometry::Simple_Intersection_Data intersection__polygon_vs_point(const Polygon& _polygon, const glm::vec3& _point) const;
+//        LEti::Geometry::Simple_Intersection_Data intersection__polygon_vs_point(const Polygon& _polygon, const glm::vec3& _point) const;
 
     public:
     //    LEti::Geometry::Simple_Intersection_Data collision__model_vs_point(const Physical_Model_2D& _model, const glm::vec3& _point) const override;
-        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const override;
+        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const;
     };
 
 }
