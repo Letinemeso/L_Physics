@@ -3,7 +3,19 @@
 using namespace LPhys;
 
 
+Line::Line()
+{
+
+}
+
 Line::Line(const glm::vec3& _point_1, const glm::vec3& _point_2)
+{
+    init(_point_1, _point_2);
+}
+
+
+
+void Line::init(const glm::vec3& _point_1, const glm::vec3& _point_2)
 {
     m_direction = _point_2 - _point_1;
     m_initial_offset = _point_1;
@@ -18,6 +30,33 @@ float Line::M_calculate_multiplier_by_component(Components _component, float _va
     return (_value - m_initial_offset[_component]) / m_direction[_component];
 }
 
+unsigned int Line::M_get_easy_solution_component(const Line& _with) const
+{
+    for(unsigned int i=0; i<3; ++i)
+    {
+        if(can_be_solved_by_component(i) && !_with.can_be_solved_by_component(i))
+            return i;
+    }
+    return 3;
+}
+
+bool Line::M_matches_with(const Line& _with) const
+{
+    glm::vec3 this_direction = m_direction;
+    glm::vec3 others_direction = _with.m_direction;
+
+    LEti::Math::shrink_vector_to_1(this_direction);
+    LEti::Math::shrink_vector_to_1(others_direction);
+
+    for(unsigned int i=0; i<3; ++i)
+    {
+        if(!LEti::Math::floats_are_equal(fabs(this_direction[i]), fabs(others_direction[i])))
+            return false;
+    }
+
+    return contains_point(_with.m_initial_offset);
+}
+
 
 
 bool Line::contains_point(const glm::vec3& _point, float _tolerance) const
@@ -28,7 +67,11 @@ bool Line::contains_point(const glm::vec3& _point, float _tolerance) const
     for(unsigned int i=0; i<3; ++i)
     {
         if(!can_be_solved_by_component(i))
+        {
+            if(!LEti::Math::floats_are_equal(m_initial_offset[i], _point[i], _tolerance))
+                return false;
             continue;
+        }
 
         float multiplier = M_calculate_multiplier_by_component((Components)i, _point[i]);
 
@@ -66,8 +109,33 @@ glm::vec3 Line::solve_by_multiplier(float _multiplier) const
     return result;
 }
 
-/*Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
+Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
 {
+    unsigned int easy_solution_component = M_get_easy_solution_component(_with);
+
+    if(easy_solution_component < 3)
+    {
+        float multiplier = (_with.m_initial_offset[easy_solution_component] - m_initial_offset[easy_solution_component]) / m_direction[easy_solution_component];
+        glm::vec3 maybe_result_point = solve_by_multiplier(multiplier);
+        if(_with.contains_point(maybe_result_point))
+            return { Lines_Intersection_Data::Intersection, maybe_result_point };
+        return {};
+    }
+
+    easy_solution_component = _with.M_get_easy_solution_component(*this);
+
+    if(easy_solution_component < 3)
+    {
+        float multiplier = (m_initial_offset[easy_solution_component] - _with.m_initial_offset[easy_solution_component]) / _with.m_direction[easy_solution_component];
+        glm::vec3 maybe_result_point = _with.solve_by_multiplier(multiplier);
+        if(contains_point(maybe_result_point))
+            return { Lines_Intersection_Data::Intersection, maybe_result_point };
+        return {};
+    }
+
+
+
+
     float comp_mult = 0.0f;
     float comp_offs = 0.0f;
 
@@ -78,7 +146,7 @@ glm::vec3 Line::solve_by_multiplier(float _multiplier) const
             continue;
 
         comp_mult = _with.m_direction[i] / m_direction[i];
-        comp_offs = (m_initial_offset[i] + _with.m_initial_offset[i]) / m_direction[i];
+        comp_offs = (m_initial_offset[i] - _with.m_initial_offset[i]) / m_direction[i];
         first_multiplier_expression_component_index = i;
         break;
     }
@@ -91,9 +159,6 @@ glm::vec3 Line::solve_by_multiplier(float _multiplier) const
         if(i == first_multiplier_expression_component_index)
             continue;
 
-//        if(!can_be_solved_by_component(i))
-//            continue;
-
         comp_mult *= m_direction[i];
         comp_offs = comp_offs * m_direction[i] + m_initial_offset[i];
 
@@ -105,17 +170,19 @@ glm::vec3 Line::solve_by_multiplier(float _multiplier) const
     }
 
     if(LEti::Math::floats_are_equal(comp_mult, 0.0f, 0.0000001f))
+    {
+        if(M_matches_with(_with))
+            return { Lines_Intersection_Data::Same_Line, m_initial_offset };
+
         return {};
+    }
 
     float second_multiplier = comp_offs / comp_mult;
 
     glm::vec3 intersection_point = _with.solve_by_multiplier(second_multiplier);
 
-//    if(!contains_point(intersection_point))
-//        return { false, {} };
-
-    return { true, intersection_point };
-} */
+    return { Lines_Intersection_Data::Intersection, intersection_point };
+}
 
 /*Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
 {
@@ -175,7 +242,7 @@ glm::vec3 Line::solve_by_multiplier(float _multiplier) const
     }
 }*/
 
-Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
+/*Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
 {
     float a1 = m_direction.x;               //  this stuff (and above) was provided by ChatGPT and does works bad. i was too lazy to implement it myself, but got a better idea for dependent part. i'll leave it like this for now
     float b1 = m_direction.y;
@@ -207,4 +274,4 @@ Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) con
     }
     return {true, {x, y, z}};
 }
-
+*/

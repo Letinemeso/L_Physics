@@ -10,8 +10,17 @@ namespace LPhys
 
     struct Lines_Intersection_Data
     {
-        bool has_intersection = false;
+        enum Intersection_Type : unsigned int
+        {
+            None,
+            Intersection,
+            Same_Line
+        };
+
+        Intersection_Type intersection = None;
         glm::vec3 point;
+
+        inline operator bool() const { return intersection != None; }
     };
 
 
@@ -31,10 +40,16 @@ namespace LPhys
         glm::vec3 m_initial_offset;
 
     public:
+        Line();
         Line(const glm::vec3& _point_1, const glm::vec3& _point_2);
+
+    public:
+        void init(const glm::vec3& _point_1, const glm::vec3& _point_2);
 
     private:
         float M_calculate_multiplier_by_component(Components _component, float _value) const;
+        unsigned int M_get_easy_solution_component(const Line& _with) const;
+        bool M_matches_with(const Line& _with) const;
 
     public:
         bool contains_point(const glm::vec3& _point, float _tolerance = 0.0001f) const;
