@@ -3,85 +3,46 @@
 using namespace LPhys;
 
 
-SAT_Models_Intersection::mm_pair SAT_Models_Intersection::M_get_minmax_projections(const glm::vec3 &_axis, const Polygon &_pol) const
+void SAT_Models_Intersection::M_rotate_2D_vector_perpendicular(glm::vec3& _vec) const
 {
-	float min = 0.0f, max = 0.0f;
+    float x = _vec.x;
+    _vec.x = -_vec.y;
+    _vec.y = x;
+}
 
-    min = LEti::Math::dot_product(_pol[0], _axis);      //  point to axis projection
-    max = LEti::Math::dot_product(_pol[0], _axis);
+
+SAT_Models_Intersection::MinMax_Pair SAT_Models_Intersection::M_get_minmax_projections(const glm::vec3 &_axis, const Polygon &_pol) const
+{
+    MinMax_Pair result;
+
+    result.min = LEti::Math::dot_product(_pol[0], _axis);      //  point to axis projection
+    result.max = LEti::Math::dot_product(_pol[0], _axis);
 
 	for(unsigned int i=1; i<3; ++i)
 	{
         float proj = LEti::Math::dot_product(_pol[i], _axis);
-		if(proj < min)
-			min = proj;
-		if(proj > max)
-			max = proj;
+        if(proj < result.min)
+            result.min = proj;
+        if(proj > result.max)
+            result.max = proj;
 	}
 
-	return {min, max};
+    return result;
 }
 
 float SAT_Models_Intersection::M_point_to_segment_distance(const glm::vec3& _point, const glm::vec3& _seg_start, const glm::vec3& _seg_end) const
 {
-    glm::vec3 seg_perp = _seg_end - _seg_start;
-    float x = seg_perp.x;
-    seg_perp.x = -seg_perp.y;
-    seg_perp.y = x;
-    seg_perp += _point;
+    glm::vec3 segment_direction_vec = _seg_end - _seg_start;
+    LEti::Math::shrink_vector_to_1(segment_direction_vec);
 
-    LEti::Geometry_2D::Equasion_Data eq_1(_seg_start, _seg_end);
-    LEti::Geometry_2D::Equasion_Data eq_2(_point, seg_perp);
+    glm::vec3 point_to_start_vec = _point - _seg_start;
 
-    glm::vec3 itsc_point = LEti::Geometry_2D::lines_intersect(eq_1, eq_2).point;
+    float dot = LEti::Math::dot_product(point_to_start_vec, segment_direction_vec);
 
-    if(eq_1.is_horisontal())
-    {
-        float max_x = 0.0f;
-        float min_x = 0.0f;
-
-        if(_seg_start.x > _seg_end.x)
-        {
-            max_x = _seg_start.x;
-            min_x = _seg_end.x;
-        }
-        else
-        {
-            max_x = _seg_end.x;
-            min_x = _seg_start.x;
-        }
-
-        if(itsc_point.x < min_x || itsc_point.x > max_x)
-            return -1.0f;
-        return LEti::Math::vector_length(itsc_point - _point);
-    }
-
-    float y = eq_1.solve_by_x(itsc_point.x);
-    if(eq_1.is_vertical())
-    {
-        if(!LEti::Math::floats_are_equal(eq_1.get_x_if_vertical(), itsc_point.x))
-            return -1.0f;
-        y = itsc_point.y;
-    }
-
-    float max_y = 0.0f;
-    float min_y = 0.0f;
-
-    if(_seg_start.y > _seg_end.y)
-    {
-        max_y = _seg_start.y;
-        min_y = _seg_end.y;
-    }
-    else
-    {
-        max_y = _seg_end.y;
-        min_y = _seg_start.y;
-    }
-
-    if((y < min_y && !LEti::Math::floats_are_equal(y, min_y, 0.01f)) || (y > max_y && !LEti::Math::floats_are_equal(y, max_y, 0.01f)))
+    if(dot < 0.0f || dot > 1.0f)
         return -1.0f;
 
-    return LEti::Math::vector_length(itsc_point - _point);
+    return fabs(LEti::Math::dot_product(segment_direction_vec, point_to_start_vec));
 }
 
 
@@ -97,18 +58,18 @@ SAT_Models_Intersection::Intersection_Data SAT_Models_Intersection::M_polygons_c
 		glm::vec3 axis = _first[i + 1] - _first[i];
         axis.z = 0.0f;  //  this should fix float calculation inaccuracy for 2D objects
         LEti::Math::shrink_vector_to_1(axis);
-        LEti::Geometry_2D::rotate_perpendicular_ccw(axis);
+        M_rotate_2D_vector_perpendicular(axis);
 
-		mm_pair f = M_get_minmax_projections(axis, _first);
-		mm_pair s = M_get_minmax_projections(axis, _second);
+        MinMax_Pair f = M_get_minmax_projections(axis, _first);
+        MinMax_Pair s = M_get_minmax_projections(axis, _second);
 
-		if(f.first > s.second || s.first > f.second)
+        if(f.min > s.max || s.min > f.max)
 			return Intersection_Data();
 
 		result.intersection = true;
 
-		float dist_1 = fabs(f.second - s.first);
-		float dist_2 = fabs(s.second - f.first);
+        float dist_1 = fabs(f.max - s.min);
+        float dist_2 = fabs(s.max - f.min);
 
 		float min = dist_1 < dist_2 ? dist_1 : dist_2;
 
@@ -127,18 +88,18 @@ SAT_Models_Intersection::Intersection_Data SAT_Models_Intersection::M_polygons_c
         glm::vec3 axis = _second[i + 1] - _second[i];
         axis.z = 0.0f;  //  this should fix float calculation inaccuracy for 2D objects
         LEti::Math::shrink_vector_to_1(axis);
-        LEti::Geometry_2D::rotate_perpendicular_ccw(axis);
+        M_rotate_2D_vector_perpendicular(axis);
 
-        mm_pair f = M_get_minmax_projections(axis, _second);
-        mm_pair s = M_get_minmax_projections(axis, _first);
+        MinMax_Pair f = M_get_minmax_projections(axis, _second);
+        MinMax_Pair s = M_get_minmax_projections(axis, _first);
 
-        if(f.first > s.second || s.first > f.second)
+        if(f.min > s.max || s.min > f.max)
             return Intersection_Data();
 
         result.intersection = true;
 
-        float dist_1 = fabs(f.second - s.first);
-        float dist_2 = fabs(s.second - f.first);
+        float dist_1 = fabs(f.max - s.min);
+        float dist_2 = fabs(s.max - f.min);
 
         float min = dist_1 < dist_2 ? dist_1 : dist_2;
 

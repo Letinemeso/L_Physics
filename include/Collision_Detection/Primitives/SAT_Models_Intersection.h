@@ -7,6 +7,7 @@
 #include <Math_Stuff.h>
 
 #include <Collision_Detection/Intersection_Data.h>
+#include <Collision_Detection/Primitives/Lines_Intersection.h>
 
 
 namespace LPhys
@@ -26,10 +27,16 @@ namespace LPhys
             glm::vec3 min_dist_axis;
         };
 
-        using mm_pair = std::pair<float, float>;
+        struct MinMax_Pair
+        {
+            float min = 0.0f;
+            float max = 0.0f;
+        };
 
     private:
-        mm_pair M_get_minmax_projections(const glm::vec3& _axis, const Polygon& _pol) const;
+        void M_rotate_2D_vector_perpendicular(glm::vec3& _vec) const;
+
+        MinMax_Pair M_get_minmax_projections(const glm::vec3& _axis, const Polygon& _pol) const;
         float M_point_to_segment_distance(const glm::vec3& _point, const glm::vec3& _seg_start, const glm::vec3& _seg_end) const;
 
         Intersection_Data M_polygons_collision(const Polygon& _first, const Polygon& _second) const;
