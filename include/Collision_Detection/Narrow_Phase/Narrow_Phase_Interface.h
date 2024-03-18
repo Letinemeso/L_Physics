@@ -2,7 +2,7 @@
 
 #include <Collision_Detection/Intersection_Data.h>
 #include <Collision_Detection/Broad_Phase/Broad_Phase_Interface.h>
-#include <Modules/Physics_Module_2D.h>
+#include <Modules/Physics_Module.h>
 
 namespace LPhys
 {

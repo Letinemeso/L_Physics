@@ -13,13 +13,20 @@ namespace LPhys
     public:
         INIT_VARIABLE(LPhys::Physics_Module, LEti::Module);
 
-    protected:
-        Border m_border;
+    public:
+        using On_Collision_Function = LST::Function<void(const Physics_Module*)>;
+
+    private:
+        On_Collision_Function m_on_collision_func;
 
     public:
-        inline const Border& border() const { return m_border; }
+        inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
 
     public:
+        inline void on_collision(const Physics_Module* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
+
+    public:
+        virtual void expand_border(Border& _border) const;
         virtual bool may_intersect_with_other(const Physics_Module& _other) const;
         virtual bool intersects_with_border(const Border& _border) const;
 
@@ -29,7 +36,7 @@ namespace LPhys
     class Physics_Module_Stub : public LEti::Module_Stub
     {
     public:
-        INIT_VARIABLE(LPhys::Physics_Module, LEti::Module);
+        INIT_VARIABLE(LPhys::Physics_Module_Stub, LEti::Module_Stub);
 
     };
 

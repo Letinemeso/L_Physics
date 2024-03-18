@@ -8,6 +8,7 @@
 
 #include <Collision_Detection/Intersection_Data.h>
 #include <Collision_Detection/Primitives/Lines_Intersection.h>
+#include <Modules/Physics_Module_2D.h>
 
 
 namespace LPhys

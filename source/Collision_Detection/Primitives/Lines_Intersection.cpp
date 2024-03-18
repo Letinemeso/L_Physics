@@ -146,7 +146,7 @@ Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) con
             continue;
 
         comp_mult = _with.m_direction[i] / m_direction[i];
-        comp_offs = (m_initial_offset[i] - _with.m_initial_offset[i]) / m_direction[i];
+        comp_offs = (_with.m_initial_offset[i] - m_initial_offset[i]) / m_direction[i];
         first_multiplier_expression_component_index = i;
         break;
     }

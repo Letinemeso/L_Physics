@@ -14,17 +14,14 @@ namespace LPhys
     class Physics_Module_2D : public Physics_Module
 	{
     public:
-        INIT_VARIABLE(LPhys::Physics_Module_2D, LPhys::Physics_Module)
+        INIT_VARIABLE(LPhys::Physics_Module_2D, LPhys::Physics_Module);
+
+    protected:
+        Border m_border;
 
     private:
         Physical_Model_2D* m_physical_model = nullptr;
         Physical_Model_2D_Imprint* m_physical_model_prev_state = nullptr;
-
-    public:
-        using On_Collision_Function = LST::Function<void(const Physics_Module_2D*)>;
-
-    private:
-        On_Collision_Function m_on_collision_func;
 
 	public:
         Physics_Module_2D();
@@ -41,16 +38,16 @@ namespace LPhys
         void move_raw(const glm::vec3 &_stride);
 
     public:
-        inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
-
-    public:
-        inline void on_collision(const Physics_Module_2D* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
-
-    public:
         void update_prev_state() override;
         void update(float _dt) override;
 
-	public:
+    public:
+        void expand_border(Border& _border) const override;
+        bool may_intersect_with_other(const Physics_Module& _other) const override;
+        bool intersects_with_border(const Border& _border) const override;
+
+    public:
+        inline const Border& border() const { return m_border; }
         inline Physical_Model_2D* get_physical_model() { return m_physical_model; }
         inline Physical_Model_2D_Imprint* get_physical_model_prev_state() { return m_physical_model_prev_state; }
         inline const Physical_Model_2D* get_physical_model() const { return m_physical_model; }

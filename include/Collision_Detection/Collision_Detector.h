@@ -10,18 +10,20 @@
 
 namespace LPhys
 {
-    class Collision_Detector_2D final
+    class Collision_Detector final
 	{
 	public:
-		Collision_Detector_2D();
-        ~Collision_Detector_2D();
+        Collision_Detector();
+        ~Collision_Detector();
 
     private:
         Broad_Phase_Interface* m_broad_phase = nullptr;
         Narrow_Phase_Interface* m_narrow_phase = nullptr;
 
-	private:
+    public:
         using Registred_Modules_List = LDS::List<const Physics_Module*>;
+
+    private:
         Registred_Modules_List m_registred_modules;
 
     public:
@@ -32,9 +34,12 @@ namespace LPhys
         void set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl);
 
 	public:
-        void register_object(const Physics_Module* _module);
-        void unregister_object(const Physics_Module* _module);
-        void unregister_all_objects();
+        void register_module(const Physics_Module* _module);
+        void unregister_module(const Physics_Module* _module);
+        void unregister_all_modules();
+
+    public:
+        inline const Registred_Modules_List& registred_modules() const { return m_registred_modules; }
 
 	public:
         void update();

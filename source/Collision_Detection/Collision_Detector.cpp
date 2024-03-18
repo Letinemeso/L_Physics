@@ -1,14 +1,14 @@
-#include <Collision_Detection/Collision_Detector_2D.h>
+#include <Collision_Detection/Collision_Detector.h>
 
 using namespace LPhys;
 
 
-Collision_Detector_2D::Collision_Detector_2D()
+Collision_Detector::Collision_Detector()
 {
 
 }
 
-Collision_Detector_2D::~Collision_Detector_2D()
+Collision_Detector::~Collision_Detector()
 {
     delete m_broad_phase;
     delete m_narrow_phase;
@@ -16,13 +16,13 @@ Collision_Detector_2D::~Collision_Detector_2D()
 
 
 
-void Collision_Detector_2D::set_broad_phase(Broad_Phase_Interface* _broad_phase_impl)
+void Collision_Detector::set_broad_phase(Broad_Phase_Interface* _broad_phase_impl)
 {
 	delete m_broad_phase;
     m_broad_phase = _broad_phase_impl;
 }
 
-void Collision_Detector_2D::set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl)
+void Collision_Detector::set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl)
 {
     delete m_narrow_phase;
     m_narrow_phase = _narrow_phase_impl;
@@ -30,7 +30,7 @@ void Collision_Detector_2D::set_narrow_phase(Narrow_Phase_Interface* _narrow_pha
 
 
 
-void Collision_Detector_2D::register_object(const Physics_Module *_module)
+void Collision_Detector::register_module(const Physics_Module *_module)
 {
     L_DEBUG_FUNC_1ARG([this](const Physics_Module* _module)
     {
@@ -43,7 +43,7 @@ void Collision_Detector_2D::register_object(const Physics_Module *_module)
     m_registred_modules.push_back(_module);
 }
 
-void Collision_Detector_2D::unregister_object(const Physics_Module *_module)
+void Collision_Detector::unregister_module(const Physics_Module *_module)
 {
     Registred_Modules_List::Iterator it = m_registred_modules.begin();
     while(!it.end_reached())
@@ -57,14 +57,14 @@ void Collision_Detector_2D::unregister_object(const Physics_Module *_module)
     m_registred_modules.erase(it);
 }
 
-void Collision_Detector_2D::unregister_all_objects()
+void Collision_Detector::unregister_all_modules()
 {
     m_registred_modules.clear();
 }
 
 
 
-void Collision_Detector_2D::update()
+void Collision_Detector::update()
 {
     L_ASSERT(m_broad_phase);
     L_ASSERT(m_narrow_phase);
@@ -77,7 +77,7 @@ void Collision_Detector_2D::update()
 
 
 
-const Collision_Detector_2D::Intersection_Data_List& Collision_Detector_2D::found_collisions() const
+const Collision_Detector::Intersection_Data_List& Collision_Detector::found_collisions() const
 {
     L_ASSERT(m_broad_phase && m_narrow_phase);
     return m_narrow_phase->get_collisions();

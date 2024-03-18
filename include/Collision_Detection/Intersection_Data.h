@@ -1,9 +1,8 @@
-#ifndef INTERSECTION_DATA_H
-#define INTERSECTION_DATA_H
+#pragma once
 
 #include <vec3.hpp>
 
-#include <Modules/Physics_Module_2D.h>
+#include <Modules/Physics_Module.h>
 
 namespace LPhys
 {
@@ -25,8 +24,8 @@ namespace LPhys
         glm::vec3 point{0.0f, 0.0f, 0.0f};
         glm::vec3 normal{0.0f, 0.0f, 0.0f};
         float depth = 0.0f;
-        const Physics_Module_2D* first = nullptr;
-        const Physics_Module_2D* second = nullptr;
+        const Physics_Module* first = nullptr;
+        const Physics_Module* second = nullptr;
         unsigned int first_collided_polygon_index = 0;
         unsigned int second_collided_polygon_index = 0;
         float time_of_intersection_ratio = 1.0f;
@@ -44,5 +43,3 @@ namespace LPhys
     };
 
 }
-
-#endif // INTERSECTION_DATA_H

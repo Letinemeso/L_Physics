@@ -8,7 +8,7 @@ Border Binary_Space_Partitioner::M_calculate_rb(const Objects_List& _objects_ins
     Border result;
 
     for(Objects_List::Const_Iterator it = _objects_inside.begin(); !it.end_reached(); ++it)
-        result = result || (*it)->border();
+        (*it)->expand_border(result);
 
     return result;
 }
@@ -42,7 +42,7 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _o
         {
             const Physics_Module* pm_2 = *it_2;
 
-            if(!pm_1->may_intersect_with_other(*pm_2) && !pm_2->may_intersect_with_other(*pm_1))
+            if( ! (pm_1->may_intersect_with_other(*pm_2) && pm_2->may_intersect_with_other(*pm_1)) )
                 continue;
 
             Colliding_Pair cp(*it_1, *it_2);

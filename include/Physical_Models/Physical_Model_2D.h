@@ -37,7 +37,7 @@ namespace LPhys
 
     public:
         inline Polygon_Holder_Base* create_copy() const override { return new Polygon_Holder<T>; }
-        void allocate(unsigned int _amount) override { delete[] polygons;  polygons = new T[_amount]; }
+        inline void allocate(unsigned int _amount) override { delete[] polygons;  polygons = new T[_amount]; }
         inline Polygon* get_polygon(unsigned int _index) override { return &polygons[_index]; }
         inline const Polygon* get_polygon(unsigned int _index) const override { return &polygons[_index]; }
 

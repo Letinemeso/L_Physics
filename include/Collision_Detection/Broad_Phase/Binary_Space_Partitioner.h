@@ -11,7 +11,7 @@ namespace LPhys
     class Binary_Space_Partitioner : public Broad_Phase_Interface
     {
     private:
-        unsigned int m_precision = 0;
+        unsigned int m_precision = 3;
 
     private:
         using Colliding_Pair_Tree = LDS::AVL_Tree<Colliding_Pair>;
