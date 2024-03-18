@@ -17,19 +17,18 @@ namespace LPhys
         using Collision_Resolutions_Map = LDS::Map<std::string, Collision_Resolution_Interface*>;
 
     private:
-        Collision_Resolutions_List m_registred_resolutions;
-        Collision_Resolutions_Map m_resolutions_map;
+        Collision_Resolution_Interface* m_resolution = nullptr;
 
     public:
         Collision_Resolver();
-        Collision_Resolver(const Collision_Resolver& _other) = delete;
-        Collision_Resolver(Collision_Resolver&& _other) = delete;
         ~Collision_Resolver();
 
-    public:
+    private:
+        Collision_Resolver(const Collision_Resolver& _other) = delete;
+        Collision_Resolver(Collision_Resolver&& _other) = delete;
 
-        void add_resolution(const std::string& _type_history_1, const std::string& _type_history_2, Collision_Resolution_Interface* _resolution);
-        void clear_resolutions();
+    public:
+        inline void set_resolution(Collision_Resolution_Interface* _ptr) { delete m_resolution; m_resolution = _ptr; }
 
     public:
         void resolve_single(const Intersection_Data& _id, float _dt) const;
