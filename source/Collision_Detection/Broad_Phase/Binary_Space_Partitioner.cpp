@@ -8,7 +8,10 @@ Border Binary_Space_Partitioner::M_calculate_rb(const Objects_List& _objects_ins
     Border result;
 
     for(Objects_List::Const_Iterator it = _objects_inside.begin(); !it.end_reached(); ++it)
-        (*it)->expand_border(result);
+    {
+        if((*it)->can_collide())
+            (*it)->expand_border(result);
+    }
 
     return result;
 }
@@ -19,6 +22,9 @@ Binary_Space_Partitioner::Objects_List Binary_Space_Partitioner::M_get_objects_i
 
     for(Objects_List::Const_Iterator it = _objects_maybe_inside.begin(); !it.end_reached(); ++it)
     {
+        if(!(*it)->can_collide())
+            continue;
+
         if((*it)->intersects_with_border(_rb))
             result.push_back(*it);
     }

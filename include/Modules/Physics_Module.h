@@ -17,10 +17,17 @@ namespace LPhys
         using On_Collision_Function = LST::Function<void(const Physics_Module*)>;
 
     private:
+        bool m_can_collide = true;
+
+    private:
         On_Collision_Function m_on_collision_func;
 
     public:
         inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
+        inline void allow_collisions(bool _value) { m_can_collide = _value; }
+
+    public:
+        inline bool can_collide() const { return m_can_collide; }
 
     public:
         inline void on_collision(const Physics_Module* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
