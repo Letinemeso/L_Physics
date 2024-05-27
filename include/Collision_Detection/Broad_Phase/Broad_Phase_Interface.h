@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Data_Structures/List.h>
+#include <Stuff/Function_Wrapper.h>
 
 #include <Modules/Physics_Module.h>
 
@@ -33,11 +34,27 @@ namespace LPhys
     protected:
         LDS::List<Colliding_Pair> m_possible_collisions;
 
+    public:
+        using Filter_Function = LST::Function<bool(const Physics_Module*, const Physics_Module*)>;
+        using Filters_List = LDS::List<Filter_Function>;
+
+    private:
+        Filters_List m_filters;
+
 	public:
 		virtual ~Broad_Phase_Interface();
 
+    public:
+        inline void reset_filters() { m_filters.clear(); }
+        inline void add_filter(const Filter_Function& _filter) { m_filters.push_back(_filter); }
+
+    public:
+        bool passes_filters(const Physics_Module* _first, const Physics_Module* _second) const;
+
 	public:
-        virtual void update(const Objects_List& _registred_objects) = 0;
+        virtual void reset() = 0;
+        virtual void add_models(const Objects_List& _objects) = 0;
+        virtual void process() = 0;
 
     public:
         inline const Colliding_Pair_List& possible_collisions() const { return m_possible_collisions; }

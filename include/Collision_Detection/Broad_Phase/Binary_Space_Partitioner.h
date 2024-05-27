@@ -17,6 +17,7 @@ namespace LPhys
         using Colliding_Pair_Tree = LDS::AVL_Tree<Colliding_Pair>;
 
     private:
+        Objects_List m_registred_objects;
         Colliding_Pair_Tree m_possible_collisions_tree;
 
     private:
@@ -29,7 +30,9 @@ namespace LPhys
         inline void set_precision(unsigned int _precision) { m_precision = _precision; }
 
     public:
-        void update(const Objects_List &_registred_objects) override;
+        void reset() override;
+        void add_models(const Objects_List& _objects) override;
+        void process() override;
 
     };
 

@@ -69,7 +69,25 @@ void Collision_Detector::update()
     L_ASSERT(m_broad_phase);
     L_ASSERT(m_narrow_phase);
 
-    m_broad_phase->update(m_registred_modules);
+    m_broad_phase->reset();
+    m_broad_phase->add_models(m_registred_modules);
+    m_broad_phase->process();
+
+    const Broad_Phase_Interface::Colliding_Pair_List& possible_collisions = m_broad_phase->possible_collisions();
+
+    m_narrow_phase->update(m_broad_phase->possible_collisions());
+}
+
+void Collision_Detector::update_with_external_models(const Registred_Modules_List& _external_models)
+{
+    L_ASSERT(m_broad_phase);
+    L_ASSERT(m_narrow_phase);
+
+    m_broad_phase->reset();
+    m_broad_phase->add_models(_external_models);
+    m_broad_phase->add_models(m_registred_modules);
+    m_broad_phase->process();
+
     const Broad_Phase_Interface::Colliding_Pair_List& possible_collisions = m_broad_phase->possible_collisions();
 
     m_narrow_phase->update(m_broad_phase->possible_collisions());

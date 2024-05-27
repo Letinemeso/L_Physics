@@ -51,6 +51,9 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _o
             if( ! (pm_1->may_intersect_with_other(*pm_2) && pm_2->may_intersect_with_other(*pm_1)) )
                 continue;
 
+            if(!passes_filters(pm_1, pm_2))
+                continue;
+
             Colliding_Pair cp(*it_1, *it_2);
 
             if( m_possible_collisions_tree.find(cp).is_ok() )
@@ -99,13 +102,21 @@ void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& 
 
 
 
-void Binary_Space_Partitioner::update(const Objects_List &_registred_objects)
+void Binary_Space_Partitioner::reset()
 {
-    m_possible_collisions.clear();
-
+    m_registred_objects.clear();
     m_possible_collisions_tree.clear();
+    m_possible_collisions.clear();
+}
 
-    M_find_possible_collisions_in_area(M_calculate_rb(_registred_objects), _registred_objects, 0);
+void Binary_Space_Partitioner::add_models(const Objects_List& _objects)
+{
+    m_registred_objects.append(_objects);
+}
+
+void Binary_Space_Partitioner::process()
+{
+    M_find_possible_collisions_in_area(M_calculate_rb(m_registred_objects), m_registred_objects, 0);
 
     for(Colliding_Pair_Tree::Iterator it = m_possible_collisions_tree.iterator(); !it.end_reached(); ++it)
         m_possible_collisions.push_back(*it);

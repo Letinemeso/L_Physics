@@ -43,6 +43,7 @@ namespace LPhys
 
 	public:
         void update();
+        void update_with_external_models(const Registred_Modules_List& _external_models);
 
 	public:
         const Intersection_Data_List& found_collisions() const;
