@@ -78,8 +78,7 @@ namespace LPhys
         Physics_Module_2D::On_Collision_Function on_collision_func;
 
     protected:
-        LV::Variable_Base* M_construct_product() const override;
-        void M_init_constructed_product(LV::Variable_Base* _product) const override;
+        INIT_BUILDER_STUB(Physics_Module_2D);
 
     public:
         virtual ~Physics_Module_2D_Stub();
