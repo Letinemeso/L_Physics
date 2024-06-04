@@ -12,6 +12,7 @@ namespace LPhys
     {
     private:
         unsigned int m_precision = 3;
+        bool m_ignore_modules_collision_restriction = false;
 
     private:
         using Colliding_Pair_Tree = LDS::AVL_Tree<Colliding_Pair>;
@@ -28,6 +29,7 @@ namespace LPhys
 
     public:
         inline void set_precision(unsigned int _precision) { m_precision = _precision; }
+        inline void ignore_modules_collision_restriction(bool _value) { m_ignore_modules_collision_restriction = _value; }
 
     public:
         void reset() override;
