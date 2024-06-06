@@ -3,50 +3,47 @@
 using namespace LPhys;
 
 
-Border Binary_Space_Partitioner::M_calculate_rb(const Objects_List& _objects_inside)
+Border Binary_Space_Partitioner::M_calculate_rb(const Temp_Objects_Container& _objects_inside)
 {
     Border result;
 
-    for(Objects_List::Const_Iterator it = _objects_inside.begin(); !it.end_reached(); ++it)
+    for(unsigned int i=0; i<_objects_inside.size(); ++i)
     {
-        if((*it)->can_collide() || m_ignore_modules_collision_restriction)
-            (*it)->expand_border(result);
+        if(_objects_inside[i]->can_collide() || m_ignore_modules_collision_restriction)
+            _objects_inside[i]->expand_border(result);
     }
 
     return result;
 }
 
-Binary_Space_Partitioner::Objects_List Binary_Space_Partitioner::M_get_objects_inside_area(const Border& _rb, const Objects_List& _objects_maybe_inside)
+Binary_Space_Partitioner::Temp_Objects_Container Binary_Space_Partitioner::M_get_objects_inside_area(const Border& _rb, const Temp_Objects_Container& _objects_maybe_inside)
 {
-    Objects_List result;
+    Temp_Objects_Container result(_objects_maybe_inside.size());
 
-    for(Objects_List::Const_Iterator it = _objects_maybe_inside.begin(); !it.end_reached(); ++it)
+    for(unsigned int i=0; i<_objects_maybe_inside.size(); ++i)
     {
-        if(!(*it)->can_collide() && !m_ignore_modules_collision_restriction)
+        if(!_objects_maybe_inside[i]->can_collide() && !m_ignore_modules_collision_restriction)
             continue;
 
-        if((*it)->intersects_with_border(_rb))
-            result.push_back(*it);
+        if(_objects_maybe_inside[i]->intersects_with_border(_rb))
+            result.push(_objects_maybe_inside[i]);
     }
 
     return result;
 }
 
-void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _objects_inside)
+void Binary_Space_Partitioner::M_save_possible_collisions(const Temp_Objects_Container& _objects_inside)
 {
     if(_objects_inside.size() < 2)
         return;
 
-    for(Objects_List::Const_Iterator it_1 = _objects_inside.begin(); !it_1.end_reached(); ++it_1)
+    for(unsigned int i_1 = 0; i_1 < _objects_inside.size(); ++i_1)
     {
-        Objects_List::Const_Iterator it_2 = it_1;
-        ++it_2;
+        const Physics_Module* pm_1 = _objects_inside[i_1];
 
-        const Physics_Module* pm_1 = *it_1;
-
-        for(; !it_2.end_reached(); ++it_2)
+        for(unsigned int i_2 = i_1 + 1; i_2 < _objects_inside.size(); ++i_2)
         {
-            const Physics_Module* pm_2 = *it_2;
+            const Physics_Module* pm_2 = _objects_inside[i_2];
 
             if( ! (pm_1->may_intersect_with_other(*pm_2) && pm_2->may_intersect_with_other(*pm_1)) )
                 continue;
@@ -54,7 +51,7 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _o
             if(!passes_filters(pm_1, pm_2))
                 continue;
 
-            Colliding_Pair cp(*it_1, *it_2);
+            Colliding_Pair cp(pm_1, pm_2);
 
             if( m_possible_collisions_tree.find(cp).is_ok() )
                 continue;
@@ -64,7 +61,7 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Objects_List& _o
     }
 }
 
-void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& _rb, const Objects_List& _objects_inside, unsigned int _same_objects_repetition)
+void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& _rb, const Temp_Objects_Container& _objects_inside, unsigned int _same_objects_repetition)
 {
     if( (_same_objects_repetition == m_precision) || (_objects_inside.size() <= 2) )
         return M_save_possible_collisions(_objects_inside);
@@ -93,8 +90,8 @@ void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& 
     rb_2.modify_size(-modifier);
     rb_2.modify_offset(modifier);
 
-    Objects_List objects_inside_1 = M_get_objects_inside_area(rb_1, _objects_inside);
-    Objects_List objects_inside_2 = M_get_objects_inside_area(rb_2, _objects_inside);
+    Temp_Objects_Container objects_inside_1 = M_get_objects_inside_area(rb_1, _objects_inside);
+    Temp_Objects_Container objects_inside_2 = M_get_objects_inside_area(rb_2, _objects_inside);
 
     M_find_possible_collisions_in_area( rb_1, objects_inside_1, (objects_inside_1.size() == _objects_inside.size() ? _same_objects_repetition + 1 : 0) );
     M_find_possible_collisions_in_area( rb_2, objects_inside_2, (objects_inside_2.size() == _objects_inside.size() ? _same_objects_repetition + 1 : 0) );
@@ -111,7 +108,9 @@ void Binary_Space_Partitioner::reset()
 
 void Binary_Space_Partitioner::add_models(const Objects_List& _objects)
 {
-    m_registred_objects.append(_objects);
+    m_registred_objects.resize(m_registred_objects.size() + _objects.size());
+    for(Objects_List::Const_Iterator it = _objects.begin(); !it.end_reached(); ++it)
+        m_registred_objects.push(*it);
 }
 
 void Binary_Space_Partitioner::process()

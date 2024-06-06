@@ -16,16 +16,17 @@ namespace LPhys
 
     private:
         using Colliding_Pair_Tree = LDS::AVL_Tree<Colliding_Pair>;
+        using Temp_Objects_Container = LDS::Vector<const Physics_Module*>;
 
     private:
-        Objects_List m_registred_objects;
+        Temp_Objects_Container m_registred_objects;
         Colliding_Pair_Tree m_possible_collisions_tree;
 
     private:
-        Border M_calculate_rb(const Objects_List& _objects_inside);
-        Objects_List M_get_objects_inside_area(const Border& _rb, const Objects_List& _objects_maybe_inside);
-        void M_save_possible_collisions(const Objects_List& _objects_inside);
-        void M_find_possible_collisions_in_area(const Border& _rb, const Objects_List& _objects_inside, unsigned int _same_objects_repetition);
+        Border M_calculate_rb(const Temp_Objects_Container& _objects_inside);
+        Temp_Objects_Container M_get_objects_inside_area(const Border& _rb, const Temp_Objects_Container& _objects_maybe_inside);
+        void M_save_possible_collisions(const Temp_Objects_Container& _objects_inside);
+        void M_find_possible_collisions_in_area(const Border& _rb, const Temp_Objects_Container& _objects_inside, unsigned int _same_objects_repetition);
 
     public:
         inline void set_precision(unsigned int _precision) { m_precision = _precision; }
