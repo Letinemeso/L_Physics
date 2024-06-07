@@ -41,13 +41,6 @@ glm::vec3 Physical_Model_2D::M_calculate_center_of_mass() const
 
 
 
-const Border& Physical_Model_2D::border() const
-{
-    return m_border;
-}
-
-
-
 Physical_Model_2D::Physical_Model_2D()
 {
 

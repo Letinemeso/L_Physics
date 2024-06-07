@@ -74,7 +74,9 @@ namespace LPhys
         virtual glm::vec3 M_calculate_center_of_mass() const;
 
 	public:
-        const Border& border() const;
+        inline const Border& border() const { return m_border; }
+        inline const float* raw_coords() const { return m_raw_coords; }
+        inline unsigned int raw_coords_count() const { return m_raw_coords_count; }
 
 	public:
 		Physical_Model_2D();
