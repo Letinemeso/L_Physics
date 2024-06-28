@@ -33,16 +33,16 @@ SAT_Models_Intersection::MinMax_Pair SAT_Models_Intersection::M_get_minmax_proje
 float SAT_Models_Intersection::M_point_to_segment_distance(const glm::vec3& _point, const glm::vec3& _seg_start, const glm::vec3& _seg_end) const
 {
     glm::vec3 segment_direction_vec = _seg_end - _seg_start;
-    LEti::Math::shrink_vector_to_1(segment_direction_vec);
-
     glm::vec3 point_to_start_vec = _point - _seg_start;
 
-    float dot = LEti::Math::dot_product(point_to_start_vec, segment_direction_vec);
+    glm::vec3 cross = LEti::Math::cross_product(point_to_start_vec, segment_direction_vec);
 
-    if(dot < 0.0f || dot > 1.0f)
-        return -1.0f;
+    float cross_length = LEti::Math::vector_length(cross);
+    float segment_length = LEti::Math::vector_length(segment_direction_vec);
 
-    return fabs(LEti::Math::dot_product(segment_direction_vec, point_to_start_vec));
+    float distance = cross_length / segment_length;
+
+    return distance;
 }
 
 
