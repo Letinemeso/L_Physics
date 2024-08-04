@@ -17,6 +17,26 @@ bool value_is_between(float _value, float _min, float _max)
     return _value >= _min && _value <= _max;
 }
 
+bool check_with_index(const glm::vec3& _point, const Polygon& _polygon, unsigned int _index, const Border& _polygon_border, const Line* _polygon_lines)
+{
+    // glm::vec3 certain_intersection = _polygon[_index] + ( (_polygon[(_index + 1) % 3] - _polygon[_index]) * 0.5f );
+
+    Line vertex_to_opposite_side_line(_polygon[_index], _point);
+
+    Lines_Intersection_Data opposite_intersection = vertex_to_opposite_side_line.calculate_intersection_with(_polygon_lines[(_index + 1) % 3]);
+
+    if(!opposite_intersection.intersection)
+        return false;
+
+    for(unsigned int i=0; i<3; ++i)
+    {
+        if(!value_is_between(_point[i], _polygon[_index][i], opposite_intersection.point[i]))
+            return false;
+    }
+
+    return true;
+}
+
 
 bool LPhys::point_is_inside_polygon(const glm::vec3& _point, const Polygon& _polygon)
 {
@@ -32,25 +52,14 @@ bool LPhys::point_is_inside_polygon(const glm::vec3& _point, const Polygon& _pol
 
         if(!polygon_lines[i].contains_point(_point))
             continue;
-
-        if(polygon_border.point_is_inside(_point))
-            return true;
     }
 
-    glm::vec3 certain_intersection = _polygon[0] + ( (_polygon[1] - _polygon[0]) * 0.5f );
-
-    Line point_to_edge_line(_point, certain_intersection);
-
-    Lines_Intersection_Data second_intersection = point_to_edge_line.calculate_intersection_with(polygon_lines[1]);
-    if(!second_intersection || !polygon_border.point_is_inside(second_intersection.point))
-        second_intersection = point_to_edge_line.calculate_intersection_with(polygon_lines[2]);
-
-    if(!second_intersection || !polygon_border.point_is_inside(second_intersection.point))
+    if(!polygon_border.point_is_inside(_point))
         return false;
 
     for(unsigned int i=0; i<3; ++i)
     {
-        if(!value_is_between(_point[i], certain_intersection[i], second_intersection.point[i]))
+        if(!check_with_index(_point, _polygon, i, polygon_border, polygon_lines))
             return false;
     }
 
