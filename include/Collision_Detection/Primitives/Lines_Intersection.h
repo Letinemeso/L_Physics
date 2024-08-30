@@ -56,7 +56,7 @@ namespace LPhys
         bool can_be_solved_by_component(Components _component) const;
         glm::vec3 solve_by_component(Components _component, float _value) const;
         glm::vec3 solve_by_multiplier(float _multiplier) const;
-        Lines_Intersection_Data calculate_intersection_with(const Line& _with) const;
+        Lines_Intersection_Data calculate_intersection_with(const Line& _with, float _tolerance = 0.0001f) const;
 
     public:
         inline bool can_be_solved_by_component(unsigned int _component) const { return can_be_solved_by_component((Components)_component); }

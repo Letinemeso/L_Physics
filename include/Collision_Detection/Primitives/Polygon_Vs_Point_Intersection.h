@@ -10,6 +10,6 @@
 namespace LPhys
 {
 
-    bool point_is_inside_polygon(const glm::vec3& _point, const Polygon& _polygon);
+    bool point_is_inside_polygon(const glm::vec3& _point, const Polygon& _polygon, float _tolerance = 0.0001f);
 
 }

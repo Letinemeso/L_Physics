@@ -17,13 +17,11 @@ bool value_is_between(float _value, float _min, float _max)
     return _value >= _min && _value <= _max;
 }
 
-bool check_with_index(const glm::vec3& _point, const Polygon& _polygon, unsigned int _index, const Border& _polygon_border, const Line* _polygon_lines)
+bool check_with_index(const glm::vec3& _point, const Polygon& _polygon, unsigned int _index, const Border& _polygon_border, const Line* _polygon_lines, float _tolerance)
 {
-    // glm::vec3 certain_intersection = _polygon[_index] + ( (_polygon[(_index + 1) % 3] - _polygon[_index]) * 0.5f );
-
     Line vertex_to_opposite_side_line(_polygon[_index], _point);
 
-    Lines_Intersection_Data opposite_intersection = vertex_to_opposite_side_line.calculate_intersection_with(_polygon_lines[(_index + 1) % 3]);
+    Lines_Intersection_Data opposite_intersection = vertex_to_opposite_side_line.calculate_intersection_with(_polygon_lines[(_index + 1) % 3], _tolerance);
 
     if(!opposite_intersection.intersection)
         return false;
@@ -38,7 +36,7 @@ bool check_with_index(const glm::vec3& _point, const Polygon& _polygon, unsigned
 }
 
 
-bool LPhys::point_is_inside_polygon(const glm::vec3& _point, const Polygon& _polygon)
+bool LPhys::point_is_inside_polygon(const glm::vec3& _point, const Polygon& _polygon, float _tolerance)
 {
     Border polygon_border;
     for(unsigned int i=0; i<3; ++i)
@@ -47,19 +45,14 @@ bool LPhys::point_is_inside_polygon(const glm::vec3& _point, const Polygon& _pol
     Line polygon_lines[3];
 
     for(unsigned int i=0; i<3; ++i)
-    {
         polygon_lines[i].init(_polygon[i], _polygon[i + 1]);
-
-        if(!polygon_lines[i].contains_point(_point))
-            continue;
-    }
 
     if(!polygon_border.point_is_inside(_point))
         return false;
 
     for(unsigned int i=0; i<3; ++i)
     {
-        if(!check_with_index(_point, _polygon, i, polygon_border, polygon_lines))
+        if(!check_with_index(_point, _polygon, i, polygon_border, polygon_lines, _tolerance))
             return false;
     }
 

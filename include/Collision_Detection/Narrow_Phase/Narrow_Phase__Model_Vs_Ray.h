@@ -20,6 +20,13 @@ private:
     };
 
 private:
+    float m_tolerance = 0.0001f;
+
+public:
+    inline void set_tolerance(float _value) { m_tolerance = _value; }
+    inline float tolerance() const { return m_tolerance; }
+
+private:
     Colliding_Modules M_cast_modules(const Broad_Phase_Interface::Colliding_Pair& _maybe_modules) const;
     Intersection_Data M_check_model_vs_ray_intersection(const Colliding_Modules& _modules);
 

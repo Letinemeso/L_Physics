@@ -26,7 +26,7 @@ Intersection_Data Narrow_Phase__Model_Vs_Ray::M_check_model_vs_ray_intersection(
 
     for(unsigned int i=0; i<polygons_amount && !result; ++i)
     {
-        Polygon_VS_Ray_Intersection_Data id = ray_intersects_polygon(_modules.ray->current_start(), _modules.ray->current_direction(), *polygons->get_polygon(i));
+        Polygon_VS_Ray_Intersection_Data id = ray_intersects_polygon(_modules.ray->current_start(), _modules.ray->current_direction(), *polygons->get_polygon(i), m_tolerance);
 
         if(!id)
             continue;

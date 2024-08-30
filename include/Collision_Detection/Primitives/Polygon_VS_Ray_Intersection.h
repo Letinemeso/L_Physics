@@ -14,6 +14,6 @@ namespace LPhys
     };
 
 
-    Polygon_VS_Ray_Intersection_Data ray_intersects_polygon(const glm::vec3& _start, const glm::vec3& _direction, const Polygon& _polygon);
+    Polygon_VS_Ray_Intersection_Data ray_intersects_polygon(const glm::vec3& _start, const glm::vec3& _direction, const Polygon& _polygon, float _tolerance = 0.0001f);
 
 }

@@ -5,7 +5,7 @@
 using namespace LPhys;
 
 
-Polygon_VS_Ray_Intersection_Data LPhys::ray_intersects_polygon(const glm::vec3& _start, const glm::vec3& _direction, const Polygon& _polygon)       //  note to self: this code was mostly written by chat-gpt, don't try to remember what it does
+Polygon_VS_Ray_Intersection_Data LPhys::ray_intersects_polygon(const glm::vec3& _start, const glm::vec3& _direction, const Polygon& _polygon, float _tolerance)       //  note to self: this code was mostly written by chat-gpt, don't try to remember what it does
 {
     Polygon_VS_Ray_Intersection_Data result;
 
@@ -36,7 +36,7 @@ Polygon_VS_Ray_Intersection_Data LPhys::ray_intersects_polygon(const glm::vec3& 
         return result;
 
     glm::vec3 intersectionPoint = _start + _direction * t;
-    result.intersection = point_is_inside_polygon(intersectionPoint, _polygon);
+    result.intersection = point_is_inside_polygon(intersectionPoint, _polygon, _tolerance);
     if(!result)
         return result;
 

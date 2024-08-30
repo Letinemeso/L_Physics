@@ -109,7 +109,7 @@ glm::vec3 Line::solve_by_multiplier(float _multiplier) const
     return result;
 }
 
-Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
+Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with, float _tolerance) const
 {
     unsigned int easy_solution_component = M_get_easy_solution_component(_with);
 
@@ -117,7 +117,7 @@ Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) con
     {
         float multiplier = (_with.m_initial_offset[easy_solution_component] - m_initial_offset[easy_solution_component]) / m_direction[easy_solution_component];
         glm::vec3 maybe_result_point = solve_by_multiplier(multiplier);
-        if(_with.contains_point(maybe_result_point))
+        if(_with.contains_point(maybe_result_point, _tolerance))
             return { Lines_Intersection_Data::Intersection, maybe_result_point };
         return {};
     }
@@ -128,7 +128,7 @@ Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) con
     {
         float multiplier = (m_initial_offset[easy_solution_component] - _with.m_initial_offset[easy_solution_component]) / _with.m_direction[easy_solution_component];
         glm::vec3 maybe_result_point = _with.solve_by_multiplier(multiplier);
-        if(contains_point(maybe_result_point))
+        if(contains_point(maybe_result_point, _tolerance))
             return { Lines_Intersection_Data::Intersection, maybe_result_point };
         return {};
     }
