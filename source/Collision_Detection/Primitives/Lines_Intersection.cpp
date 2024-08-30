@@ -134,8 +134,6 @@ Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) con
     }
 
 
-
-
     float comp_mult = 0.0f;
     float comp_offs = 0.0f;
 
@@ -183,95 +181,3 @@ Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) con
 
     return { Lines_Intersection_Data::Intersection, intersection_point };
 }
-
-/*Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
-{
-    glm::vec3 line_between_starts = _with.m_initial_offset - m_initial_offset;
-
-    glm::vec3 cross = LEti::Math::cross_product(m_direction, _with.m_direction);
-
-    if(LEti::Math::floats_are_equal(LEti::Math::vector_length(cross), 0.0f))
-        return {};
-
-    float multiplier_first = (line_between_starts.x * cross.x + line_between_starts.y * cross.y + line_between_starts.z * cross.z) /
-                             (cross.x * cross.x + cross.y * cross.y + cross.z * cross.z);
-
-    float multiplier_second = (m_direction.x != 0) ? (line_between_starts.x + multiplier_first * m_direction.x) / _with.m_direction.x :
-                                                     (m_direction.y != 0) ? (line_between_starts.y + multiplier_first * m_direction.y) / _with.m_direction.y :
-                                                                            (line_between_starts.z + multiplier_first * m_direction.z) / _with.m_direction.z;
-
-    Lines_Intersection_Data result;
-    result.has_intersection = true;
-
-    for(unsigned int i=0; i<3; ++i)
-        result.point[i] = (m_direction[i] * multiplier_first) + m_initial_offset[i];
-
-    return result;
-}*/
-
-/*Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
-{
-    float a1 = m_direction.x;
-    float b1 = m_direction.y;
-    float c1 = m_direction.z;
-    float d1 = -a1 * m_initial_offset.x - b1 * m_initial_offset.y - c1 * m_initial_offset.z;
-
-    // Вычисление параметров для прямой line2
-    float a2 = _with.m_direction.x;
-    float b2 = _with.m_direction.y;
-    float c2 = _with.m_direction.z;
-    float d2 = -a2 * _with.m_initial_offset.x - b2 * _with.m_initial_offset.y - c2 * _with.m_initial_offset.z;
-
-    // Вычисление пересечения прямых
-    float det = a1 * b2 - a2 * b1;
-    if (det == 0) {
-        std::cerr << "Прямые параллельны или совпадают, точка пересечения не существует.\n";
-        return {}; // Возвращаем какой-то дефолтный результат
-    } else {
-        float x = (b1 * d2 - b2 * d1) / det;
-        float y = (a2 * d1 - a1 * d2) / det;
-        float z;
-        if ( !LEti::Math::floats_are_equal(c1, 0.0f) )
-            z = (-a1 * x - b1 * y - d1) / c1;
-        else if ( !LEti::Math::floats_are_equal(c2, 0.0f) )
-            z = (-a2 * x - b2 * y - d2) / c2;
-        else
-            z = 0.0f;
-
-        return {true, {x, y, z}};
-    }
-}*/
-
-/*Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with) const
-{
-    float a1 = m_direction.x;               //  this stuff (and above) was provided by ChatGPT and does works bad. i was too lazy to implement it myself, but got a better idea for dependent part. i'll leave it like this for now
-    float b1 = m_direction.y;
-    float c1 = m_direction.z;
-    float d1 = -a1 * m_initial_offset.x - b1 * m_initial_offset.y - c1 * m_initial_offset.z;
-
-    float a2 = _with.m_direction.x;
-    float b2 = _with.m_direction.y;
-    float c2 = _with.m_direction.z;
-    float d2 = -a2 * _with.m_initial_offset.x - b2 * _with.m_initial_offset.y - c2 * _with.m_initial_offset.z;
-
-    float det = a1 * b2 - a2 * b1;
-    if (det == 0)
-        return {};
-
-    float x = (b1 * d2 - b2 * d1) / det;
-    if(m_direction.y * _with.m_direction.y < 0.0f)
-        x = -x;
-
-    float y = (a2 * d1 - a1 * d2) / det;
-    if(m_direction.x * _with.m_direction.x < 0.0f)
-        y = -y;
-
-    float z = 0.0;
-    if (c1 != 0 && c2 != 0) {
-        z = (-a1 * x - b1 * y - d1) / c1;
-    } else if (c1 == 0 && c2 != 0) {
-        z = (-a2 * x - b2 * y - d2) / c2;
-    }
-    return {true, {x, y, z}};
-}
-*/
