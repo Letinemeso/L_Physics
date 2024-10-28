@@ -34,14 +34,15 @@ void Physics_Module_2D::init_physical_model()
 void Physics_Module_2D::init_prev_state()
 {
     delete m_physical_model_prev_state;
-    m_physical_model_prev_state = nullptr;
-
     m_physical_model_prev_state = m_physical_model->create_imprint();
 }
 
 void Physics_Module_2D::setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
 {
     m_physical_model->setup(_raw_coords, _raw_coords_count, _collision_permissions);
+
+    if(!m_physical_model_prev_state)
+        init_prev_state();
 }
 
 
@@ -101,8 +102,9 @@ void Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _prod
     Physics_Module_2D* result = (Physics_Module_2D*)_product;
 
     result->init_physical_model();
-    result->setup_base_data(coords, coords_count, collision_permissions);
-    result->init_prev_state();
+
+    if(coords != nullptr && coords_count > 0 && collision_permissions)
+        result->setup_base_data(coords, coords_count, collision_permissions);
 
     if(on_collision_func)
         result->set_on_collision_function(on_collision_func);
