@@ -39,7 +39,6 @@ namespace LPhys
 
 	private:
         Intersection_Data get_precise_time_ratio_of_collision(const Physics_Module_2D& _first, const Physics_Module_2D& _second, float _min_ratio, float _max_ratio) const;
-        Intersection_Data collision__moving_vs_moving(const Physics_Module_2D& _moving_1, const Physics_Module_2D& _moving_2) const;
 
 	public:
         Intersection_Data objects_collide(const Physics_Module_2D& _first, const Physics_Module_2D& _second) const;

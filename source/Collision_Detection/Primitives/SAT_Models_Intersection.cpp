@@ -220,38 +220,6 @@ LDS::List<glm::vec3> SAT_Models_Intersection::M_points_of_contact(const Polygon_
 }
 
 
-//LEti::Geometry::Simple_Intersection_Data SAT_Models_Intersection::intersection__polygon_vs_point(const Polygon& _polygon, const glm::vec3& _point) const
-//{
-//    LEti::Geometry_2D::Equasion_Data AB_eq(_polygon[0], _polygon[1]);
-//    LEti::Geometry_2D::Equasion_Data BC_eq(_polygon[1], _polygon[2]);
-//    LEti::Geometry_2D::Equasion_Data CA_eq(_polygon[2], _polygon[0]);
-
-//	float AB_y_proj = AB_eq.solve_by_x(_point.x);
-//	float BC_y_proj = BC_eq.solve_by_x(_point.x);
-//	float CA_y_proj = CA_eq.solve_by_x(_point.x);
-
-//	bool AB_right_side = AB_eq.is_vertical() ? ( _polygon[1].y < _polygon[0].y ? _point.x >= _polygon[0].x : _point.x <= _polygon[0].x ) : ( AB_eq.goes_left() ? AB_y_proj > _point.y : AB_y_proj < _point.y );
-//	bool BC_right_side = BC_eq.is_vertical() ? ( _polygon[2].y < _polygon[1].y ? _point.x >= _polygon[1].x : _point.x <= _polygon[1].x ) : ( BC_eq.goes_left() ? BC_y_proj > _point.y : BC_y_proj < _point.y );
-//	bool CA_right_side = CA_eq.is_vertical() ? ( _polygon[0].y < _polygon[2].y ? _point.x >= _polygon[2].x : _point.x <= _polygon[2].x ) : ( CA_eq.goes_left() ? CA_y_proj > _point.y : CA_y_proj < _point.y );
-
-//	if (AB_right_side && BC_right_side && CA_right_side)
-//        return LEti::Geometry::Simple_Intersection_Data(LEti::Geometry::Simple_Intersection_Data::Type::intersection, _point);
-//    return LEti::Geometry::Simple_Intersection_Data();
-//}
-
-
-
-//LEti::Geometry::Simple_Intersection_Data SAT_Models_Intersection::collision__model_vs_point(const Physical_Model_2D &_model, const glm::vec3 &_point) const
-//{
-//	for (unsigned int i = 0; i < _model.get_polygons_count(); ++i)
-//	{
-//        LEti::Geometry::Simple_Intersection_Data id = intersection__polygon_vs_point(*_model.get_polygon(i), _point);
-//		if(id)
-//			return id;
-//	}
-//    return LEti::Geometry::Simple_Intersection_Data();
-//}
-
 
 LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
 {
@@ -260,7 +228,7 @@ LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(cons
     unsigned int first_collided_polygon = 0;
     unsigned int second_collided_polygon = 0;
 
-    SAT_Models_Intersection::Intersection_Data f_id;
+    SAT_Models_Intersection::Intersection_Data final_id;
 	for(unsigned int i=0; i<_pols_amount_1; ++i)
 	{
 		for(unsigned int j=0; j<_pols_amount_2; ++j)
@@ -270,25 +238,26 @@ LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(cons
 			if(!id.intersection)
 				continue;
 
-            if(!(f_id.min_dist < 0.0f || f_id.min_dist > id.min_dist))
+            // if(final_id.min_dist >= 0.0f && final_id.min_dist <= id.min_dist)        //  it *kinda* worked before, so maybe it worth leaving for now
+            if(final_id.min_dist > id.min_dist)
                 continue;
 
-            f_id = id;
+            final_id = id;
             first_collided_polygon = i;
             second_collided_polygon = j;
 		}
 	}
 
-	if(!f_id.intersection)
+    if(!final_id.intersection)
         return {};
 
-    result.normal = -f_id.min_dist_axis;
+    result.normal = -final_id.min_dist_axis;
 	LEti::Math::shrink_vector_to_1(result.normal);
-    result.depth = f_id.min_dist;
+    result.depth = final_id.min_dist;
 
     LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _pols_amount_1, _polygon_holder_2, _pols_amount_2);
 	if(points.size() == 0)
-		return {};
+        return {};
 
 	for(LDS::List<glm::vec3>::Iterator it = points.begin(); !it.end_reached(); ++it)
 		result.point += *it;
