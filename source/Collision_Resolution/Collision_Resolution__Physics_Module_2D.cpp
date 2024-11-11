@@ -1,4 +1,5 @@
 #include <Collision_Resolution/Collision_Resolution__Physics_Module_2D.h>
+#include <Modules/Physics_Module_2D.h>
 
 using namespace LPhys;
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Collision_Resolution/Collision_Resolver.h>
-#include <Modules/Physics_Module_2D.h>
+#include <Collision_Resolution/Collision_Resolution_Interface.h>
 
 
 namespace LPhys
