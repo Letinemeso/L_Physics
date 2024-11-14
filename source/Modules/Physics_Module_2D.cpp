@@ -23,6 +23,17 @@ Physical_Model_2D* Physics_Module_2D::M_create_physical_model() const
 
 
 
+void Physics_Module_2D::M_can_collide_changed()
+{
+    if(!can_collide())
+        return;
+
+    update(0.0f);
+    update_prev_state();
+}
+
+
+
 void Physics_Module_2D::init_physical_model()
 {
 	delete m_physical_model;
@@ -55,6 +66,9 @@ void Physics_Module_2D::move_raw(const glm::vec3 &_stride)
 
 void Physics_Module_2D::update_prev_state()
 {
+    if(!can_collide())
+        return;
+
 	L_ASSERT(!(!m_physical_model || !m_physical_model_prev_state));
 
 	m_physical_model_prev_state->update_to_current_model_state();
@@ -62,6 +76,9 @@ void Physics_Module_2D::update_prev_state()
 
 void Physics_Module_2D::update(float /*_dt*/)
 {
+    if(!can_collide())
+        return;
+
     L_ASSERT(m_physical_model && m_physical_model_prev_state && transformation_data());
 
     transformation_data()->update_matrix();

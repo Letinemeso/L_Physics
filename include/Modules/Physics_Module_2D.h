@@ -30,6 +30,9 @@ namespace LPhys
     private:
         virtual Physical_Model_2D* M_create_physical_model() const;
 
+    protected:
+        void M_can_collide_changed() override;
+
     public:
         void init_physical_model(); //	allocates physical_model
         void init_prev_state();	    //	allocates physical_model_imprint with physical_model's data

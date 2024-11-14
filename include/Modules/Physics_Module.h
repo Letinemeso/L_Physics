@@ -22,9 +22,12 @@ namespace LPhys
     private:
         On_Collision_Function m_on_collision_func;
 
+    protected:
+        virtual void M_can_collide_changed() { }
+
     public:
         inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
-        inline void allow_collisions(bool _value) { m_can_collide = _value; }
+        inline void allow_collisions(bool _value) { m_can_collide = _value; M_can_collide_changed(); }
 
     public:
         inline bool can_collide() const { return m_can_collide; }
