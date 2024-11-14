@@ -104,7 +104,10 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const P
     if(id)
     {
         id.time_of_intersection_ratio = curr_time_point /*- step_diff*/;
-        if(id.time_of_intersection_ratio < 0.0f) id.time_of_intersection_ratio = 0.0f;
+        if(id.time_of_intersection_ratio < 0.0f)
+            id.time_of_intersection_ratio = 0.0f;
+        if(id.time_of_intersection_ratio > 1.0f)
+            id.time_of_intersection_ratio = 1.0f;
     }
     return id;
 }

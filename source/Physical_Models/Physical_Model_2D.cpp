@@ -67,7 +67,7 @@ void Physical_Model_2D::setup(const float* _raw_coords, unsigned int _raw_coords
     for(unsigned int i=0; i<m_raw_coords_count / 3; ++i)
         m_collision_permissions[i] = _collision_permissions[i];
 
-    delete[] m_polygons_holder;
+    delete m_polygons_holder;
     m_polygons_holder = M_create_polygons_holder();
 
     m_polygons_count = m_raw_coords_count / 9;
