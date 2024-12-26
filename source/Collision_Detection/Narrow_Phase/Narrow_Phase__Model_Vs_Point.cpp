@@ -5,7 +5,7 @@ using namespace LPhys;
 
 Narrow_Phase__Model_Vs_Point::Colliding_Modules Narrow_Phase__Model_Vs_Point::M_cast_modules(const Broad_Phase_Interface::Colliding_Pair& _maybe_modules) const
 {
-    const Physics_Module_2D* model = LV::cast_variable<Physics_Module_2D>(_maybe_modules.first);
+    Physics_Module_2D* model = LV::cast_variable<Physics_Module_2D>(_maybe_modules.first);
 
     if(model)
         return { model, LV::cast_variable<Physics_Module__Point>(_maybe_modules.second) };

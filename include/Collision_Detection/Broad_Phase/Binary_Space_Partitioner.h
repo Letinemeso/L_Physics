@@ -16,7 +16,7 @@ namespace LPhys
 
     private:
         using Colliding_Pair_Tree = LDS::AVL_Tree<Colliding_Pair>;
-        using Temp_Objects_Container = LDS::Vector<const Physics_Module*>;
+        using Temp_Objects_Container = LDS::Vector<Physics_Module*>;
 
     private:
         Temp_Objects_Container m_registred_objects;

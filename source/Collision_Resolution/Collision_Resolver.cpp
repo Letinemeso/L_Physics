@@ -27,4 +27,12 @@ void Collision_Resolver::resolve_all(const LDS::List<Intersection_Data>& _ids, f
 {
     for(LDS::List<Intersection_Data>::Const_Iterator it = _ids.begin(); !it.end_reached(); ++it)
         resolve_single(*it, _dt);
+
+    for(LDS::List<Intersection_Data>::Const_Iterator it = _ids.begin(); !it.end_reached(); ++it)
+    {
+        const Intersection_Data& id = *it;
+
+        id.first->apply_data_after_collisions();
+        id.second->apply_data_after_collisions();
+    }
 }

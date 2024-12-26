@@ -24,8 +24,8 @@ namespace LPhys
         glm::vec3 point{0.0f, 0.0f, 0.0f};
         glm::vec3 normal{0.0f, 0.0f, 0.0f};
         float depth = 0.0f;
-        const Physics_Module* first = nullptr;
-        const Physics_Module* second = nullptr;
+        Physics_Module* first = nullptr;
+        Physics_Module* second = nullptr;
         unsigned int first_collided_polygon_index = 0;
         unsigned int second_collided_polygon_index = 0;
         float time_of_intersection_ratio = 1.0f;

@@ -39,11 +39,11 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Temp_Objects_Con
 
     for(unsigned int i_1 = 0; i_1 < _objects_inside.size(); ++i_1)
     {
-        const Physics_Module* pm_1 = _objects_inside[i_1];
+        Physics_Module* pm_1 = _objects_inside[i_1];
 
         for(unsigned int i_2 = i_1 + 1; i_2 < _objects_inside.size(); ++i_2)
         {
-            const Physics_Module* pm_2 = _objects_inside[i_2];
+            Physics_Module* pm_2 = _objects_inside[i_2];
 
             if( ! (pm_1->may_intersect_with_other(*pm_2) && pm_2->may_intersect_with_other(*pm_1)) )
                 continue;

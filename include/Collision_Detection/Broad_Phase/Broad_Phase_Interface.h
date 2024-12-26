@@ -12,12 +12,13 @@ namespace LPhys
 	class Broad_Phase_Interface
 	{
 	public:
-        using Objects_List = LDS::List<const Physics_Module*>;
+        using Objects_List = LDS::List<Physics_Module*>;
 
 		struct Colliding_Pair
 		{
-            const Physics_Module* first = nullptr, * second = nullptr;
-            Colliding_Pair(const Physics_Module* _first, const Physics_Module* _second) : first(_first), second(_second) { L_ASSERT(!(first == second));}
+            Physics_Module* first = nullptr;
+            Physics_Module* second = nullptr;
+            Colliding_Pair(Physics_Module* _first, Physics_Module* _second) : first(_first), second(_second) { L_ASSERT(!(first == second));}
 			bool operator==(const Colliding_Pair& _other) const { return (first == _other.first && second == _other.second) || (first == _other.second && second == _other.first); }
 			bool operator<(const Colliding_Pair& _other) const
 			{

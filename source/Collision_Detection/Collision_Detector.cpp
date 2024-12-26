@@ -30,7 +30,7 @@ void Collision_Detector::set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_
 
 
 
-void Collision_Detector::register_module(const Physics_Module *_module)
+void Collision_Detector::register_module(Physics_Module *_module)
 {
     L_DEBUG_FUNC_1ARG([this](const Physics_Module* _module)
     {
@@ -43,7 +43,7 @@ void Collision_Detector::register_module(const Physics_Module *_module)
     m_registred_modules.push_back(_module);
 }
 
-void Collision_Detector::unregister_module(const Physics_Module *_module)
+void Collision_Detector::unregister_module(Physics_Module *_module)
 {
     Registred_Modules_List::Iterator it = m_registred_modules.begin();
     while(!it.end_reached())

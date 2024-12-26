@@ -21,7 +21,7 @@ namespace LPhys
         Narrow_Phase_Interface* m_narrow_phase = nullptr;
 
     public:
-        using Registred_Modules_List = LDS::List<const Physics_Module*>;
+        using Registred_Modules_List = LDS::List<Physics_Module*>;
 
     private:
         Registred_Modules_List m_registred_modules;
@@ -34,8 +34,8 @@ namespace LPhys
         void set_narrow_phase(Narrow_Phase_Interface* _narrow_phase_impl);
 
 	public:
-        void register_module(const Physics_Module* _module);
-        void unregister_module(const Physics_Module* _module);
+        void register_module(Physics_Module* _module);
+        void unregister_module(Physics_Module* _module);
         void unregister_all_modules();
 
     public:

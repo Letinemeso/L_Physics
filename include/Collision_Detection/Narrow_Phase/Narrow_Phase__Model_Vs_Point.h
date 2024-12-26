@@ -14,8 +14,8 @@ namespace LPhys
     private:
         struct Colliding_Modules
         {
-            const Physics_Module_2D* model = nullptr;
-            const Physics_Module__Point* point = nullptr;
+            Physics_Module_2D* model = nullptr;
+            Physics_Module__Point* point = nullptr;
 
             inline operator bool() const { return model && point; }
         };
