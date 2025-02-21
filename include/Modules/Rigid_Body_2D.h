@@ -64,16 +64,13 @@ namespace LPhys
         INIT_VARIABLE(LPhys::Rigid_Body_2D__Stub, LPhys::Physics_Module_2D_Stub)
 
         INIT_FIELDS
-        ADD_FIELD(float*, masses)
+        ADD_FIELD(LDS::Vector<float>, masses)
         ADD_FIELD(float, mass_multiplier)
         FIELDS_END
 
     public:
-        float* masses = nullptr;
+        LDS::Vector<float> masses;
         float mass_multiplier = 1.0f;
-
-    public:
-        ~Rigid_Body_2D__Stub();
 
     protected:
         LV::Variable_Base* M_construct_product() const override;

@@ -120,17 +120,9 @@ void Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _prod
 
     result->init_physical_model();
 
-    if(coords != nullptr && coords_count > 0 && collision_permissions)
-        result->setup_base_data(coords, coords_count, collision_permissions);
+    if(coords.size() > 0)
+        result->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
 
     if(on_collision_func)
         result->set_on_collision_function(on_collision_func);
-}
-
-
-
-Physics_Module_2D_Stub::~Physics_Module_2D_Stub()
-{
-    delete[] coords;
-    delete[] collision_permissions;
 }

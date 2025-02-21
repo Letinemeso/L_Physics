@@ -79,13 +79,6 @@ void Rigid_Body_2D::update(float _dt)
 
 
 
-Rigid_Body_2D__Stub::~Rigid_Body_2D__Stub()
-{
-    delete[] masses;
-}
-
-
-
 LV::Variable_Base* Rigid_Body_2D__Stub::M_construct_product() const
 {
     return new Rigid_Body_2D;
@@ -96,8 +89,8 @@ void Rigid_Body_2D__Stub::M_init_constructed_product(LV::Variable_Base* _product
     Rigid_Body_2D* result = (Rigid_Body_2D*)_product;
 
     result->init_physical_model();
-    result->setup_base_data(coords, coords_count, collision_permissions);
-    result->set_masses(masses);
+    result->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
+    result->set_masses(masses.raw_data());
     result->set_mass_multiplier(mass_multiplier);
     result->init_prev_state();
 }

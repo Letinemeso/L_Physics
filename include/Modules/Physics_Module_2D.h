@@ -66,16 +66,13 @@ namespace LPhys
         INIT_VARIABLE(LPhys::Physics_Module_2D_Stub, LPhys::Physics_Module_Stub)
 
         INIT_FIELDS
-        ADD_FIELD(unsigned int, coords_count)
-        ADD_FIELD(float*, coords)
-        ADD_FIELD(bool*, collision_permissions)
+        ADD_FIELD(LDS::Vector<float>, coords)
+        ADD_FIELD(LDS::Vector<bool>, collision_permissions)
         FIELDS_END
 
     public:
-        unsigned int coords_count = 0;
-        float* coords = nullptr;
-
-        bool* collision_permissions = nullptr;
+        LDS::Vector<float> coords;
+        LDS::Vector<bool> collision_permissions;
 
     public:
         Physics_Module_2D::On_Collision_Function on_collision_func;
@@ -83,8 +80,6 @@ namespace LPhys
     protected:
         INIT_BUILDER_STUB(Physics_Module_2D);
 
-    public:
-        virtual ~Physics_Module_2D_Stub();
     };
 
 }
