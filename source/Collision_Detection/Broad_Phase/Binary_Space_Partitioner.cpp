@@ -45,15 +45,15 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Temp_Objects_Con
         {
             Physics_Module* pm_2 = _objects_inside[i_2];
 
+            Colliding_Pair cp(pm_1, pm_2);
+
+            if( m_possible_collisions_tree.find(cp).is_ok() )
+                continue;
+
             if( ! (pm_1->may_intersect_with_other(*pm_2) && pm_2->may_intersect_with_other(*pm_1)) )
                 continue;
 
             if(!passes_filters(pm_1, pm_2))
-                continue;
-
-            Colliding_Pair cp(pm_1, pm_2);
-
-            if( m_possible_collisions_tree.find(cp).is_ok() )
                 continue;
 
             m_possible_collisions_tree.insert(cp);
