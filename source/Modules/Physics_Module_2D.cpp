@@ -92,7 +92,7 @@ void Physics_Module_2D::update(float /*_dt*/)
 
 void Physics_Module_2D::expand_border(Border& _border) const
 {
-    _border = _border || m_border;
+    _border.expand_with(m_border);
 }
 
 bool Physics_Module_2D::may_intersect_with_other(const Physics_Module& _other) const
@@ -102,7 +102,7 @@ bool Physics_Module_2D::may_intersect_with_other(const Physics_Module& _other) c
 
 bool Physics_Module_2D::intersects_with_border(const Border& _border) const
 {
-    return m_border && _border;
+    return m_border.intersects_with(_border);
 }
 
 
