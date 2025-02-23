@@ -32,31 +32,51 @@ Binary_Space_Partitioner::Temp_Objects_Container Binary_Space_Partitioner::M_get
     return result;
 }
 
+Binary_Space_Partitioner::Exclusion_Tree& Binary_Space_Partitioner::M_get_exclusion_tree(const Physics_Module* _for)
+{
+    Exclusion_Trees_Map::Iterator exclusion_tree_it = m_exclusion_trees.find(_for);
+    if(!exclusion_tree_it.is_ok())
+        exclusion_tree_it = m_exclusion_trees.insert_and_get_iterator(_for, {});
+
+    return *exclusion_tree_it;
+}
+
 void Binary_Space_Partitioner::M_save_possible_collisions(const Temp_Objects_Container& _objects_inside)
 {
     if(_objects_inside.size() < 2)
         return;
 
+    Colliding_Pair cp;
+
     for(unsigned int i_1 = 0; i_1 < _objects_inside.size(); ++i_1)
     {
-        Physics_Module* pm_1 = _objects_inside[i_1];
+        cp.first = _objects_inside[i_1];
+
+        Exclusion_Tree& exclusion_tree_first = M_get_exclusion_tree(cp.first);
 
         for(unsigned int i_2 = i_1 + 1; i_2 < _objects_inside.size(); ++i_2)
         {
-            Physics_Module* pm_2 = _objects_inside[i_2];
+            cp.second = _objects_inside[i_2];
 
-            Colliding_Pair cp(pm_1, pm_2);
+            Exclusion_Tree::Iterator maybe_excluded_it = exclusion_tree_first.find(cp.second);
+            if(maybe_excluded_it.is_ok())
+                continue;
+            exclusion_tree_first.insert(cp.second);
 
-            if( m_possible_collisions_tree.find(cp).is_ok() )
+            Exclusion_Tree& exclusion_tree_second = M_get_exclusion_tree(cp.second);
+            maybe_excluded_it = exclusion_tree_second.find(cp.first);
+            if(maybe_excluded_it.is_ok())
+                continue;
+            exclusion_tree_second.insert(cp.first);
+
+
+            if( ! (cp.first->may_intersect_with_other(*cp.second) && cp.second->may_intersect_with_other(*cp.first)) )
                 continue;
 
-            if( ! (pm_1->may_intersect_with_other(*pm_2) && pm_2->may_intersect_with_other(*pm_1)) )
+            if(!passes_filters(cp.first, cp.second))
                 continue;
 
-            if(!passes_filters(pm_1, pm_2))
-                continue;
-
-            m_possible_collisions_tree.insert(cp);
+            m_possible_collisions.push_back(cp);
         }
     }
 }
@@ -102,7 +122,7 @@ void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& 
 void Binary_Space_Partitioner::reset()
 {
     m_registred_objects.clear();
-    m_possible_collisions_tree.clear();
+    m_exclusion_trees.clear();
     m_possible_collisions.clear();
 }
 
@@ -116,7 +136,4 @@ void Binary_Space_Partitioner::add_models(const Objects_List& _objects)
 void Binary_Space_Partitioner::process()
 {
     M_find_possible_collisions_in_area(M_calculate_rb(m_registred_objects), m_registred_objects, 0);
-
-    for(Colliding_Pair_Tree::Iterator it = m_possible_collisions_tree.iterator(); !it.end_reached(); ++it)
-        m_possible_collisions.push_back(*it);
 }

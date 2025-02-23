@@ -15,16 +15,18 @@ namespace LPhys
         bool m_ignore_modules_collision_restriction = false;
 
     private:
-        using Colliding_Pair_Tree = LDS::AVL_Tree<Colliding_Pair>;
+        using Exclusion_Tree = LDS::AVL_Tree<const Physics_Module*>;
+        using Exclusion_Trees_Map = LDS::Map<const Physics_Module*, Exclusion_Tree>;
         using Temp_Objects_Container = LDS::Vector<Physics_Module*>;
 
     private:
+        Exclusion_Trees_Map m_exclusion_trees;
         Temp_Objects_Container m_registred_objects;
-        Colliding_Pair_Tree m_possible_collisions_tree;
 
     private:
         Border M_calculate_rb(const Temp_Objects_Container& _objects_inside);
         Temp_Objects_Container M_get_objects_inside_area(const Border& _rb, const Temp_Objects_Container& _objects_maybe_inside);
+        Exclusion_Tree& M_get_exclusion_tree(const Physics_Module* _for);
         void M_save_possible_collisions(const Temp_Objects_Container& _objects_inside);
         void M_find_possible_collisions_in_area(const Border& _rb, const Temp_Objects_Container& _objects_inside, unsigned int _same_objects_repetition);
 

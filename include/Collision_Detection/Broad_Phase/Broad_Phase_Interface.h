@@ -14,10 +14,11 @@ namespace LPhys
 	public:
         using Objects_List = LDS::List<Physics_Module*>;
 
-		struct Colliding_Pair
-		{
+        struct Colliding_Pair
+        {
             Physics_Module* first = nullptr;
             Physics_Module* second = nullptr;
+            Colliding_Pair() { }
             Colliding_Pair(Physics_Module* _first, Physics_Module* _second) : first(_first), second(_second) { L_ASSERT(!(first == second));}
 			bool operator==(const Colliding_Pair& _other) const { return (first == _other.first && second == _other.second) || (first == _other.second && second == _other.first); }
 			bool operator<(const Colliding_Pair& _other) const
