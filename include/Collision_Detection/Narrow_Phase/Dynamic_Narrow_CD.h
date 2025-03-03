@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Stuff/Thread_Pool.h>
+
 #include <Collision_Detection/Narrow_Phase/Narrow_Phase_Interface.h>
 #include <Collision_Detection/Primitives/SAT_Models_Intersection.h>
 
@@ -15,6 +17,9 @@ namespace LPhys
     private:
         SAT_Models_Intersection m_intersection_detector;
 
+        LST::Thread_Pool m_thread_pool;
+        std::mutex m_save_intersection_mutex;
+
     public:
         inline void set_precision(unsigned int _precision) { m_precision = _precision; }
 
@@ -26,7 +31,7 @@ namespace LPhys
 
             inline void consider_value(float _value)
             {
-                if(_value < 0.0f || _value > 1.0f)
+                if((_value < 0.0f) || (_value > 1.0f))
                     return;
 
                 if(min < _value)

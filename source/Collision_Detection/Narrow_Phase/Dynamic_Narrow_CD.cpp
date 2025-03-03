@@ -160,12 +160,20 @@ void Dynamic_Narrow_CD::update(const Broad_Phase_Interface::Colliding_Pair_List 
         Physics_Module_2D* first = (Physics_Module_2D*)itm->first;
         Physics_Module_2D* second = (Physics_Module_2D*)itm->second;
 
-        Intersection_Data id = objects_collide(*first, *second);
-        if(!id)
-            continue;
+        m_thread_pool.add_task([this, first, second]()
+        {
+            Intersection_Data id = objects_collide(*first, *second);
+            if(!id)
+                return;
 
-        id.first = first;
-        id.second = second;
-        m_collisions.push_back(id);
+            id.first = first;
+            id.second = second;
+
+            m_save_intersection_mutex.lock();
+            m_collisions.push_back(id);
+            m_save_intersection_mutex.unlock();
+        });
     }
+
+    m_thread_pool.wait_for_completion();
 }
