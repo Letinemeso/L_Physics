@@ -185,7 +185,9 @@ void Binary_Space_Partitioner::process()
     m_exclusions_size = M_calculate_exclusions_amount(m_registred_objects.size());
     m_exclusions = new bool[m_exclusions_size]{false};
 
-    M_find_possible_collisions_in_area(M_calculate_rb(m_registred_objects), m_registred_objects, 0);
+    Border initial_border = M_calculate_rb(m_registred_objects);
+    Temp_Objects_Container objects_in_initial_border = M_get_objects_inside_area(initial_border, m_registred_objects);
+    M_find_possible_collisions_in_area(initial_border, objects_in_initial_border, 0);
 
     delete[] m_exclusions;
 }
