@@ -238,7 +238,6 @@ LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(cons
 			if(!id.intersection)
 				continue;
 
-            // if(final_id.min_dist >= 0.0f && final_id.min_dist <= id.min_dist)        //  it *kinda* worked before, so maybe it worth leaving for now
             if(final_id.min_dist > id.min_dist)
                 continue;
 
