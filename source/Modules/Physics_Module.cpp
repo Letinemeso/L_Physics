@@ -25,26 +25,36 @@ void Physics_Module::apply_data_after_collisions()
     if(m_transformations_after_collisions.size() == 0)
         return;
 
-    glm::vec3 average_position(0.0f, 0.0f, 0.0f);
+    glm::vec3 modified_position(0.0f, 0.0f, 0.0f);
     glm::vec3 average_rotation(0.0f, 0.0f, 0.0f);
     glm::vec3 average_scale(0.0f, 0.0f, 0.0f);
+
+    glm::vec3 largest_movement_vec(0.0f, 0.0f, 0.0f);
 
     for(Transformations_List::Iterator it = m_transformations_after_collisions.begin(); !it.end_reached(); ++it)
     {
         const LEti::Transformation_Data& transformation = *it;
 
-        average_position += transformation.position();
+        glm::vec3 movement_vec = transformation.position() - transformation_data()->position();
+
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            if(fabs(largest_movement_vec[i]) >= fabs(movement_vec[i]))
+                continue;
+
+            largest_movement_vec[i] = movement_vec[i];
+        }
+
         average_rotation += transformation.rotation();
         average_scale += transformation.scale();
     }
 
     float multiplier = 1.0f / (float)(m_transformations_after_collisions.size());
 
-    average_position *= multiplier;
     average_rotation *= multiplier;
     average_scale *= multiplier;
 
-    transformation_data()->set_position(average_position);
+    transformation_data()->move(largest_movement_vec);
     transformation_data()->set_rotation(average_rotation);
     transformation_data()->set_scale(average_scale);
 
