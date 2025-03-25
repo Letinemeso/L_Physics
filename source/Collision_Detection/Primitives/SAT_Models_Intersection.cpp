@@ -16,7 +16,7 @@ SAT_Models_Intersection::MinMax_Pair SAT_Models_Intersection::M_get_minmax_proje
     MinMax_Pair result;
 
     result.min = LEti::Math::dot_product(_pol[0], _axis);      //  point to axis projection
-    result.max = LEti::Math::dot_product(_pol[0], _axis);
+    result.max = result.min;
 
 	for(unsigned int i=1; i<3; ++i)
 	{
@@ -64,7 +64,7 @@ SAT_Models_Intersection::Intersection_Data SAT_Models_Intersection::M_polygons_c
         MinMax_Pair s = M_get_minmax_projections(axis, _second);
 
         if(f.min > s.max || s.min > f.max)
-			return Intersection_Data();
+            return Intersection_Data();
 
 		result.intersection = true;
 
@@ -223,36 +223,54 @@ LDS::List<glm::vec3> SAT_Models_Intersection::M_points_of_contact(const Polygon_
 
 LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
 {
-    LPhys::Intersection_Data result(LPhys::Intersection_Data::Type::intersection);
+    unsigned int first_collided_polygon = 0xFFFFFFFF;
+    unsigned int second_collided_polygon = 0xFFFFFFFF;
 
-    unsigned int first_collided_polygon = 0;
-    unsigned int second_collided_polygon = 0;
+    glm::vec3 push_out_vector(0.0f, 0.0f, 0.0f);
 
-    SAT_Models_Intersection::Intersection_Data final_id;
-	for(unsigned int i=0; i<_pols_amount_1; ++i)
+    for(unsigned int p_0 = 0; p_0 < _pols_amount_1; ++p_0)
 	{
-		for(unsigned int j=0; j<_pols_amount_2; ++j)
-		{
-            SAT_Models_Intersection::Intersection_Data id = M_polygons_collision(*_polygon_holder_1->get_polygon(i), *_polygon_holder_2->get_polygon(j));
+        const Polygon& first_polygon = *_polygon_holder_1->get_polygon(p_0);
+
+        for(unsigned int p_1 = 0; p_1 < _pols_amount_2; ++p_1)
+        {
+            const Polygon& second_polygon = *_polygon_holder_2->get_polygon(p_1);
+
+            SAT_Models_Intersection::Intersection_Data id = M_polygons_collision(first_polygon, second_polygon);
 
 			if(!id.intersection)
 				continue;
 
-            if(final_id.min_dist > id.min_dist)
-                continue;
+            glm::vec3 local_push_out_vector = id.min_dist_axis;
+            LEti::Math::extend_vector_to_length(local_push_out_vector, id.min_dist);
 
-            final_id = id;
-            first_collided_polygon = i;
-            second_collided_polygon = j;
+            for(unsigned int i = 0; i < 3; ++i)
+            {
+                if(fabsf(push_out_vector[i]) >= fabsf(local_push_out_vector[i]))
+                    continue;
+
+                push_out_vector[i] = local_push_out_vector[i];
+                first_collided_polygon = p_0;
+                second_collided_polygon = p_1;
+            }
 		}
-	}
+    }
 
-    if(!final_id.intersection)
+    if(first_collided_polygon == 0xFFFFFFFF)
         return {};
 
-    result.normal = -final_id.min_dist_axis;
+    float depth = LEti::Math::vector_length(push_out_vector);
+    if(depth > 0.00001f)
+        push_out_vector /= depth;
+
+    LPhys::Intersection_Data result(LPhys::Intersection_Data::Type::intersection);
+
+    result.normal = -push_out_vector;
 	LEti::Math::shrink_vector_to_1(result.normal);
-    result.depth = final_id.min_dist;
+    result.depth = depth;
+
+    if(result.normal.y < -0.999f)
+        std::cout << "ass" << std::endl;
 
     LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _pols_amount_1, _polygon_holder_2, _pols_amount_2);
 	if(points.size() == 0)

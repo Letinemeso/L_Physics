@@ -76,23 +76,24 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const P
 
     Intersection_Data id;
 
+    Physical_Model_2D_Imprint first_impr = *_first.get_physical_model_prev_state();
+    Physical_Model_2D_Imprint second_impr = *_second.get_physical_model_prev_state();
+
     float curr_time_point = _min_ratio;
     while(curr_time_point <= _max_ratio)
     {
-        Physical_Model_2D_Imprint first_impr = *_first.get_physical_model_prev_state();
-        first_impr.update(
-                    LEti::Transformation_Data::get_translation_matrix_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point),
-                    LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point),
-                    LEti::Transformation_Data::get_scale_matrix_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point));
+        LEti::Transformation_Data first_transform = LEti::Transformation_Data::get_transformation_data_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point);
+        LEti::Transformation_Data second_transform = LEti::Transformation_Data::get_transformation_data_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point);
 
-        Physical_Model_2D_Imprint second_impr = *_second.get_physical_model_prev_state();
-        second_impr.update(
-                    LEti::Transformation_Data::get_translation_matrix_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point),
-                    LEti::Transformation_Data::get_rotation_matrix_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point),
-                    LEti::Transformation_Data::get_scale_matrix_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point));
+        first_transform.update_matrix();
+        second_transform.update_matrix();
+
+        first_impr.update_with_single_matrix(first_transform.matrix());
+        second_impr.update_with_single_matrix(second_transform.matrix());
 
         id = m_intersection_detector.collision__model_vs_model(first_impr.get_polygons(), first_impr.get_polygons_count(), second_impr.get_polygons(), second_impr.get_polygons_count());
-        if(id) break;
+        if(id)
+            break;
 
         curr_time_point += step_diff;
     }
@@ -103,7 +104,7 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const P
 
     if(id)
     {
-        id.time_of_intersection_ratio = curr_time_point /*- step_diff*/;
+        id.time_of_intersection_ratio = curr_time_point;
         if(id.time_of_intersection_ratio < 0.0f)
             id.time_of_intersection_ratio = 0.0f;
         if(id.time_of_intersection_ratio > 1.0f)
