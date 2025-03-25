@@ -269,9 +269,6 @@ LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(cons
 	LEti::Math::shrink_vector_to_1(result.normal);
     result.depth = depth;
 
-    if(result.normal.y < -0.999f)
-        std::cout << "ass" << std::endl;
-
     LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _pols_amount_1, _polygon_holder_2, _pols_amount_2);
 	if(points.size() == 0)
         return {};
