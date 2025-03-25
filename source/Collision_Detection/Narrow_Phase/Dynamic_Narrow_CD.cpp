@@ -117,6 +117,18 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const P
 
 Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module_2D& _first, const Physics_Module_2D& _second) const
 {
+    if(m_precision < 2)
+    {
+        Intersection_Data result = m_intersection_detector.collision__model_vs_model(_first.get_physical_model()->get_polygons(), _first.get_physical_model()->get_polygons_count(),
+                                                                                     _second.get_physical_model()->get_polygons(), _second.get_physical_model()->get_polygons_count());
+
+        if(!result)
+            return Intersection_Data();
+
+        result.time_of_intersection_ratio = 1.0f;
+        return result;
+    }
+
     Ratio_Pair possible_intersection_ratio = M_find_possible_collision_timeframe(_first, _second);
     Ratio_Pair possible_intersection_ratio_reverse = M_find_possible_collision_timeframe(_second, _first);
     if(possible_intersection_ratio.min > possible_intersection_ratio_reverse.min)
@@ -124,27 +136,22 @@ Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module_2D& _f
     if(possible_intersection_ratio.max < possible_intersection_ratio_reverse.max)
         possible_intersection_ratio.max = possible_intersection_ratio_reverse.max;
 
-    if((possible_intersection_ratio.min <= 1.0f && possible_intersection_ratio.max >= 0.0f))
-    {
+    if(possible_intersection_ratio.min > 1.0f)
+        possible_intersection_ratio.min = 0.0f;
+    else
         possible_intersection_ratio.min -= 0.02f;
+
+    if(possible_intersection_ratio.max < 0.0f)
+        possible_intersection_ratio.max = 1.0f;
+    else
         possible_intersection_ratio.max += 0.02f;
 
-        if(possible_intersection_ratio.min < 0.0f)
-            possible_intersection_ratio.min = 0.0f;
-        if(possible_intersection_ratio.max > 1.0f)
-            possible_intersection_ratio.max = 1.0f;
+    if(possible_intersection_ratio.min < 0.0f)
+        possible_intersection_ratio.min = 0.0f;
+    if(possible_intersection_ratio.max > 1.0f)
+        possible_intersection_ratio.max = 1.0f;
 
-        return get_precise_time_ratio_of_collision(_first, _second, possible_intersection_ratio.min, possible_intersection_ratio.max);
-    }
-
-    Intersection_Data result = m_intersection_detector.collision__model_vs_model(_first.get_physical_model_prev_state()->get_polygons(), _first.get_physical_model_prev_state()->get_polygons_count(),
-                                                              _second.get_physical_model_prev_state()->get_polygons(), _second.get_physical_model_prev_state()->get_polygons_count());
-
-    if(!result)
-        return Intersection_Data();
-
-    result.time_of_intersection_ratio = 1.0f;
-    return result;
+    return get_precise_time_ratio_of_collision(_first, _second, possible_intersection_ratio.min, possible_intersection_ratio.max);
 }
 
 
