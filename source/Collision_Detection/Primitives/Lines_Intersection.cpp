@@ -1,5 +1,7 @@
 #include <Collision_Detection/Primitives/Lines_Intersection.h>
 
+#include <L_Debug/L_Debug.h>
+
 using namespace LPhys;
 
 

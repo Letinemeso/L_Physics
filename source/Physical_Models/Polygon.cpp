@@ -1,5 +1,7 @@
 #include <Physical_Models/Polygon.h>
 
+#include <L_Debug/L_Debug.h>
+
 using namespace LPhys;
 
 
