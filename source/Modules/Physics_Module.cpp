@@ -60,3 +60,18 @@ void Physics_Module::apply_data_after_collisions()
 
     m_transformations_after_collisions.clear();
 }
+
+
+
+
+
+BUILDER_STUB_NULL_CONSTRUCTION_FUNC(Physics_Module_Stub)
+
+BUILDER_STUB_INITIALIZATION_FUNC(Physics_Module_Stub)
+{
+    BUILDER_STUB_PARENT_INITIALIZATION;
+    BUILDER_STUB_CAST_PRODUCT;
+
+    if(!allow_collisions)
+        product->allow_collisions(false);
+}

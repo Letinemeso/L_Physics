@@ -109,20 +109,18 @@ bool Physics_Module_2D::intersects_with_border(const Border& _border) const
 
 
 
-LV::Variable_Base* Physics_Module_2D_Stub::M_construct_product() const
-{
-    return new Physics_Module_2D;
-}
+BUILDER_STUB_DEFAULT_CONSTRUCTION_FUNC(Physics_Module_2D_Stub)
 
-void Physics_Module_2D_Stub::M_init_constructed_product(LV::Variable_Base* _product) const
+BUILDER_STUB_INITIALIZATION_FUNC(Physics_Module_2D_Stub)
 {
-    Physics_Module_2D* result = (Physics_Module_2D*)_product;
+    BUILDER_STUB_PARENT_INITIALIZATION;
+    BUILDER_STUB_CAST_PRODUCT;
 
-    result->init_physical_model();
+    product->init_physical_model();
 
     if(coords.size() > 0)
-        result->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
+        product->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
 
     if(on_collision_func)
-        result->set_on_collision_function(on_collision_func);
+        product->set_on_collision_function(on_collision_func);
 }

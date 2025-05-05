@@ -59,6 +59,16 @@ namespace LPhys
     public:
         INIT_VARIABLE(LPhys::Physics_Module_Stub, LEti::Module_Stub);
 
+        INIT_FIELDS
+        ADD_FIELD(bool, allow_collisions)
+        FIELDS_END
+
+    public:
+        bool allow_collisions = true;
+
+    public:
+        INIT_BUILDER_STUB(Physics_Module)
+
     };
 
 }

@@ -79,18 +79,16 @@ void Rigid_Body_2D::update(float _dt)
 
 
 
-LV::Variable_Base* Rigid_Body_2D__Stub::M_construct_product() const
-{
-    return new Rigid_Body_2D;
-}
+BUILDER_STUB_DEFAULT_CONSTRUCTION_FUNC(Rigid_Body_2D__Stub)
 
-void Rigid_Body_2D__Stub::M_init_constructed_product(LV::Variable_Base* _product) const
+BUILDER_STUB_INITIALIZATION_FUNC(Rigid_Body_2D__Stub)
 {
-    Rigid_Body_2D* result = (Rigid_Body_2D*)_product;
+    BUILDER_STUB_PARENT_INITIALIZATION;
+    BUILDER_STUB_CAST_PRODUCT;
 
-    result->init_physical_model();
-    result->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
-    result->set_masses(masses.raw_data());
-    result->set_mass_multiplier(mass_multiplier);
-    result->init_prev_state();
+    product->init_physical_model();
+    product->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
+    product->set_masses(masses.raw_data());
+    product->set_mass_multiplier(mass_multiplier);
+    product->init_prev_state();
 }
