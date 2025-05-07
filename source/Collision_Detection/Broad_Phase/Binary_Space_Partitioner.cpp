@@ -156,6 +156,10 @@ void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& 
         M_find_possible_collisions_in_area( rb_1, objects_inside_1, _same_objects_repetition + 1 );
         M_find_possible_collisions_in_area( rb_2, objects_inside_2, _same_objects_repetition + 1 );
     }
+    else if(M_object_lists_same(_objects_inside, objects_inside_1))
+    {
+        M_find_possible_collisions_in_area( rb_1, objects_inside_1, _same_objects_repetition + 1 );
+    }
     else
     {
         M_find_possible_collisions_in_area( rb_1, objects_inside_1, 0 );
