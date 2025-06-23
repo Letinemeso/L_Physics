@@ -15,7 +15,7 @@ float Collision_Resolution__Rigid_Body_2D::M_calculate_kinetic_energy(const glm:
 
 
 
-void Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, float _dt)
+bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, float _dt)
 {
     Rigid_Body_2D* pm1 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.first);
     Rigid_Body_2D* pm2 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.second);
@@ -104,4 +104,6 @@ void Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, 
 
     pm1->update(_dt * (1.0f - _id.time_of_intersection_ratio));
     pm2->update(_dt * (1.0f - _id.time_of_intersection_ratio));
+
+    return true;
 }

@@ -4,7 +4,7 @@
 using namespace LPhys;
 
 
-void Collision_Resolution__Physics_Module_2D::resolve(const Intersection_Data &_id, float _dt)
+bool Collision_Resolution__Physics_Module_2D::resolve(const Intersection_Data &_id, float _dt)
 {
     L_ASSERT(LV::cast_variable<Physics_Module_2D>(_id.first));
     L_ASSERT(LV::cast_variable<Physics_Module_2D>(_id.second));
@@ -41,4 +41,6 @@ void Collision_Resolution__Physics_Module_2D::resolve(const Intersection_Data &_
 
     pm1->add_transformation_after_collision(transformation_data_after_collision_1);
     pm2->add_transformation_after_collision(transformation_data_after_collision_2);
+
+    return true;
 }

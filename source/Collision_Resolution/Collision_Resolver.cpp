@@ -17,10 +17,11 @@ Collision_Resolver::~Collision_Resolver()
 
 void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt) const
 {
-    m_resolution->resolve(_id, _dt);
-
-    _id.first->on_collision(_id.second);
-    _id.second->on_collision(_id.first);
+    if(m_resolution->resolve(_id, _dt))
+    {
+        _id.first->on_collision(_id.second);
+        _id.second->on_collision(_id.first);
+    }
 }
 
 void Collision_Resolver::resolve_all(const LDS::List<Intersection_Data>& _ids, float _dt) const

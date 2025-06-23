@@ -13,7 +13,7 @@ namespace LPhys
         float M_calculate_kinetic_energy(const glm::vec3& _velocity, float _angular_velocity, float _mass, float _moment_of_inertia) const;
 
 	public:
-        void resolve(const Intersection_Data &_id, float _dt = 0.0f) override;
+        bool resolve(const Intersection_Data &_id, float _dt = 0.0f) override;
 
 	};
 

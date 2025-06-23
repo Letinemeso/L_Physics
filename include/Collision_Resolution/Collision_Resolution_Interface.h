@@ -13,7 +13,7 @@ namespace LPhys
         virtual ~Collision_Resolution_Interface() { }
 
     public:
-        virtual void resolve(const Intersection_Data& _id, float _dt) = 0;
+        virtual bool resolve(const Intersection_Data& _id, float _dt) = 0;
 
     };
 
