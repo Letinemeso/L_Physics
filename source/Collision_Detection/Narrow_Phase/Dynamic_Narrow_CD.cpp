@@ -85,9 +85,6 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const P
         LEti::Transformation_Data first_transform = LEti::Transformation_Data::get_transformation_data_for_ratio(*_first.transformation_data_prev_state(), *_first.transformation_data(), curr_time_point);
         LEti::Transformation_Data second_transform = LEti::Transformation_Data::get_transformation_data_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), curr_time_point);
 
-        first_transform.update_matrix();
-        second_transform.update_matrix();
-
         first_impr.update_with_single_matrix(first_transform.matrix());
         second_impr.update_with_single_matrix(second_transform.matrix());
 

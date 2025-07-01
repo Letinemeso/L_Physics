@@ -53,8 +53,6 @@ bool Physics_Module__Ray::intersects_with_border(const Border& _border) const
 
 void Physics_Module__Ray::update(float _dt)
 {
-    transformation_data()->update_matrix();
-
     m_current_start = transformation_data()->matrix() * glm::vec4(m_base_start, 1.0f);
     m_current_direction = transformation_data()->rotation_matrix() * glm::vec4(m_base_direction, 1.0f);
 }

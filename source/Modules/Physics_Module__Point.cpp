@@ -32,8 +32,6 @@ void Physics_Module__Point::update(float _dt)
     if(!transformation_data())
         return;
 
-    transformation_data()->update_matrix();
-
     m_current_point = transformation_data()->matrix() * glm::vec4(m_raw_point, 1.0f);
 }
 

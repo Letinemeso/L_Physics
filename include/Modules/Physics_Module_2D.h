@@ -32,6 +32,7 @@ namespace LPhys
 
     protected:
         void M_can_collide_changed() override;
+        void M_on_parent_object_set() override;
 
     public:
         void init_physical_model(); //	allocates physical_model
@@ -43,6 +44,7 @@ namespace LPhys
     public:
         void update_prev_state() override;
         void update(float _dt) override;
+        void update_physical_model();
 
     public:
         void expand_border(Border& _border) const override;

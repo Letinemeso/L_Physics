@@ -32,6 +32,11 @@ void Physics_Module_2D::M_can_collide_changed()
     update_prev_state();
 }
 
+void Physics_Module_2D::M_on_parent_object_set()
+{
+    update_physical_model();
+}
+
 
 
 void Physics_Module_2D::init_physical_model()
@@ -51,6 +56,9 @@ void Physics_Module_2D::init_prev_state()
 void Physics_Module_2D::setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
 {
     m_physical_model->setup(_raw_coords, _raw_coords_count, _collision_permissions);
+
+    if(transformation_data())
+        m_physical_model->update(transformation_data()->matrix());
 
     if(!m_physical_model_prev_state)
         init_prev_state();
@@ -81,10 +89,21 @@ void Physics_Module_2D::update(float /*_dt*/)
 
     L_ASSERT(m_physical_model && m_physical_model_prev_state && transformation_data());
 
-    transformation_data()->update_matrix();
+    if(transformation_data()->modified())
+        m_physical_model->update(transformation_data()->matrix());
+
+    m_border = get_physical_model_prev_state()->border() || get_physical_model()->border();
+}
+
+void Physics_Module_2D::update_physical_model()
+{
+    if(!m_physical_model)
+        return;
+    if(m_physical_model->get_polygons_count() == 0)
+        return;
 
     m_physical_model->update(transformation_data()->matrix());
-
+    m_physical_model_prev_state->update_to_current_model_state();
     m_border = get_physical_model_prev_state()->border() || get_physical_model()->border();
 }
 
