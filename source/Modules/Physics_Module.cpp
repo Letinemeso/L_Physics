@@ -59,6 +59,8 @@ void Physics_Module::apply_data_after_collisions()
     transformation_data()->set_scale(average_scale);
 
     m_transformations_after_collisions.clear();
+
+    update(0.0f);
 }
 
 
