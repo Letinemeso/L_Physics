@@ -35,8 +35,6 @@ namespace LPhys
         void M_on_parent_object_set() override;
 
     public:
-        void init_physical_model(); //	allocates physical_model
-        void init_prev_state();	    //	allocates physical_model_imprint with physical_model's data
         void setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
 
         void move_raw(const glm::vec3 &_stride);

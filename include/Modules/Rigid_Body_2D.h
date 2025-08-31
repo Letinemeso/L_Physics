@@ -1,5 +1,4 @@
-#ifndef Rigid_Body_2D_H
-#define Rigid_Body_2D_H
+#pragma once
 
 #include <Stuff/Function_Wrapper.h>
 
@@ -77,6 +76,3 @@ namespace LPhys
     };
 
 }
-
-
-#endif // Rigid_Body_2D_H

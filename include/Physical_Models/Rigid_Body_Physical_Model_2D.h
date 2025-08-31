@@ -1,5 +1,4 @@
-#ifndef RIGID_BODY_PHYSICAL_MODEL_2D_H
-#define RIGID_BODY_PHYSICAL_MODEL_2D_H
+#pragma once
 
 #include <Physical_Models/Physical_Model_2D.h>
 #include <Physical_Models/Rigid_Body_Polygon.h>
@@ -39,5 +38,3 @@ namespace LPhys
     };
 
 }
-
-#endif // RIGID_BODY_PHYSICAL_MODEL_2D_H

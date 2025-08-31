@@ -1,5 +1,4 @@
-#ifndef RIGID_BODY_POLYGON_H
-#define RIGID_BODY_POLYGON_H
+#pragma once
 
 #include <Physical_Models/Polygon.h>
 
@@ -27,5 +26,3 @@ namespace LPhys
     };
 
 }
-
-#endif // RIGID_BODY_POLYGON_H

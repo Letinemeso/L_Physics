@@ -32,10 +32,10 @@ void Rigid_Body_2D::align_to_center_of_mass()
     if(m_on_alignment)
         m_on_alignment();
 
-	glm::vec3 stride = -calculate_raw_center_of_mass();
+    glm::vec3 stride = -calculate_raw_center_of_mass();
 
-	get_physical_model()->move_raw(stride);
-	get_physical_model_prev_state()->update_to_current_model_state();
+    get_physical_model()->move_raw(stride);
+    get_physical_model_prev_state()->update_to_current_model_state();
 }
 
 
@@ -83,12 +83,10 @@ BUILDER_STUB_DEFAULT_CONSTRUCTION_FUNC(Rigid_Body_2D__Stub)
 
 BUILDER_STUB_INITIALIZATION_FUNC(Rigid_Body_2D__Stub)
 {
-    BUILDER_STUB_PARENT_INITIALIZATION;
+    // BUILDER_STUB_PARENT_INITIALIZATION;
     BUILDER_STUB_CAST_PRODUCT;
 
-    product->init_physical_model();
     product->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
     product->set_masses(masses.raw_data());
     product->set_mass_multiplier(mass_multiplier);
-    product->init_prev_state();
 }
