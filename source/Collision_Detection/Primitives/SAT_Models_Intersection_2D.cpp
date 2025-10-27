@@ -1,9 +1,9 @@
-#include <Collision_Detection/Primitives/SAT_Models_Intersection.h>
+#include <Collision_Detection/Primitives/SAT_Models_Intersection_2D.h>
 
 using namespace LPhys;
 
 
-void SAT_Models_Intersection::M_rotate_2D_vector_perpendicular(glm::vec3& _vec) const
+void SAT_Models_Intersection_2D::M_rotate_2D_vector_perpendicular(glm::vec3& _vec) const
 {
     float x = _vec.x;
     _vec.x = -_vec.y;
@@ -11,7 +11,7 @@ void SAT_Models_Intersection::M_rotate_2D_vector_perpendicular(glm::vec3& _vec) 
 }
 
 
-SAT_Models_Intersection::MinMax_Pair SAT_Models_Intersection::M_get_minmax_projections(const glm::vec3 &_axis, const Polygon &_pol) const
+SAT_Models_Intersection_2D::MinMax_Pair SAT_Models_Intersection_2D::M_get_minmax_projections(const glm::vec3 &_axis, const Polygon &_pol) const
 {
     MinMax_Pair result;
 
@@ -30,7 +30,7 @@ SAT_Models_Intersection::MinMax_Pair SAT_Models_Intersection::M_get_minmax_proje
     return result;
 }
 
-float SAT_Models_Intersection::M_point_to_segment_distance(const glm::vec3& _point, const glm::vec3& _seg_start, const glm::vec3& _seg_end) const
+float SAT_Models_Intersection_2D::M_point_to_segment_distance(const glm::vec3& _point, const glm::vec3& _seg_start, const glm::vec3& _seg_end) const
 {
     glm::vec3 segment_direction_vec = _seg_end - _seg_start;
     glm::vec3 point_to_start_vec = _point - _seg_start;
@@ -46,9 +46,9 @@ float SAT_Models_Intersection::M_point_to_segment_distance(const glm::vec3& _poi
 }
 
 
-SAT_Models_Intersection::Intersection_Data SAT_Models_Intersection::M_polygons_collision(const Polygon &_first, const Polygon &_second) const
+SAT_Models_Intersection_2D::Intersection_Data SAT_Models_Intersection_2D::M_polygons_collision(const Polygon &_first, const Polygon &_second) const
 {
-	SAT_Models_Intersection::Intersection_Data result;
+    SAT_Models_Intersection_2D::Intersection_Data result;
 
 	for(unsigned int i=0; i<3; ++i)
     {
@@ -119,7 +119,7 @@ SAT_Models_Intersection::Intersection_Data SAT_Models_Intersection::M_polygons_c
 }
 
 
-float SAT_Models_Intersection::M_smallest_point_to_polygon_distance(const glm::vec3 &_point, const Polygon &_pol) const
+float SAT_Models_Intersection_2D::M_smallest_point_to_polygon_distance(const glm::vec3 &_point, const Polygon &_pol) const
 {
 	float min_dist = -1.0f;
 
@@ -140,7 +140,7 @@ float SAT_Models_Intersection::M_smallest_point_to_polygon_distance(const glm::v
 	return min_dist;
 }
 
-LDS::List<glm::vec3> SAT_Models_Intersection::M_points_of_contact(const Polygon_Holder_Base* _f_pols, unsigned int _f_count, const Polygon_Holder_Base* _s_pols, unsigned int _s_count) const
+LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polygon_Holder_Base* _f_pols, unsigned int _f_count, const Polygon_Holder_Base* _s_pols, unsigned int _s_count) const
 {
 	float min_dist = -1.0f;
 
@@ -221,7 +221,7 @@ LDS::List<glm::vec3> SAT_Models_Intersection::M_points_of_contact(const Polygon_
 
 
 
-LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
+LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
 {
     unsigned int first_collided_polygon = 0xFFFFFFFF;
     unsigned int second_collided_polygon = 0xFFFFFFFF;
@@ -236,7 +236,7 @@ LPhys::Intersection_Data SAT_Models_Intersection::collision__model_vs_model(cons
         {
             const Polygon& second_polygon = *_polygon_holder_2->get_polygon(p_1);
 
-            SAT_Models_Intersection::Intersection_Data id = M_polygons_collision(first_polygon, second_polygon);
+            SAT_Models_Intersection_2D::Intersection_Data id = M_polygons_collision(first_polygon, second_polygon);
 
 			if(!id.intersection)
 				continue;

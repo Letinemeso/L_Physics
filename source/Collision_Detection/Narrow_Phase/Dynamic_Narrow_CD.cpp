@@ -3,6 +3,18 @@
 using namespace LPhys;
 
 
+Dynamic_Narrow_CD::Dynamic_Narrow_CD()
+{
+
+}
+
+Dynamic_Narrow_CD::~Dynamic_Narrow_CD()
+{
+    delete m_intersection_detector;
+}
+
+
+
 Dynamic_Narrow_CD::Ratio_Pair Dynamic_Narrow_CD::M_find_possible_collision_timeframe(const Physics_Module__Mesh& _first, const Physics_Module__Mesh& _second) const
 {
     Ratio_Pair result;

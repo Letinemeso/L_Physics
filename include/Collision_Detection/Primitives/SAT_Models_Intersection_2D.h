@@ -12,11 +12,11 @@
 namespace LPhys
 {
 
-    class SAT_Models_Intersection : public Primitives_Intersection_Detector
+    class SAT_Models_Intersection_2D : public Primitives_Intersection_Detector
     {
     public:
-        SAT_Models_Intersection() {}
-        ~SAT_Models_Intersection() {}
+        SAT_Models_Intersection_2D() {}
+        ~SAT_Models_Intersection_2D() {}
 
     private:
         struct Intersection_Data
