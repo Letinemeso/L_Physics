@@ -47,9 +47,9 @@ namespace LPhys
     };
 
 
-    class Physical_Model_2D_Imprint;
+    class Physical_Model_Imprint;
 
-	class Physical_Model_2D
+    class Physical_Model
     {
 	private:
 		float* m_raw_coords = nullptr;
@@ -79,17 +79,17 @@ namespace LPhys
         inline unsigned int raw_coords_count() const { return m_raw_coords_count; }
 
 	public:
-		Physical_Model_2D();
-		Physical_Model_2D(const Physical_Model_2D& _other);
+        Physical_Model();
+        Physical_Model(const Physical_Model& _other);
 		void setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
 		void move_raw(const glm::vec3& _stride);
 
-        virtual ~Physical_Model_2D();
+        virtual ~Physical_Model();
 
         virtual void update(const glm::mat4x4& _matrix);
-		void copy_real_coordinates(const Physical_Model_2D& _other);
+        void copy_real_coordinates(const Physical_Model& _other);
 
-        Physical_Model_2D_Imprint* create_imprint() const;
+        Physical_Model_Imprint* create_imprint() const;
 
 	public:
         const Polygon* get_polygon(unsigned int _index) const;
@@ -100,10 +100,10 @@ namespace LPhys
 
 	};
 
-    class Physical_Model_2D_Imprint
+    class Physical_Model_Imprint
     {
     private:
-        const Physical_Model_2D* m_parent = nullptr;
+        const Physical_Model* m_parent = nullptr;
 
     private:
         Polygon_Holder_Base* m_polygons_holder = nullptr;
@@ -111,10 +111,10 @@ namespace LPhys
         Border m_border;
 
     public:
-        Physical_Model_2D_Imprint(const Physical_Model_2D* _parent);
-        Physical_Model_2D_Imprint(Physical_Model_2D_Imprint&& _other);
-        Physical_Model_2D_Imprint(const Physical_Model_2D_Imprint& _other);
-        ~Physical_Model_2D_Imprint();
+        Physical_Model_Imprint(const Physical_Model* _parent);
+        Physical_Model_Imprint(Physical_Model_Imprint&& _other);
+        Physical_Model_Imprint(const Physical_Model_Imprint& _other);
+        ~Physical_Model_Imprint();
 
     private:
         void M_update_border();
@@ -124,7 +124,7 @@ namespace LPhys
         void update_with_single_matrix(const glm::mat4x4& _matrix);
         void update_to_current_model_state();
 
-        const Physical_Model_2D* get_parent() const;
+        const Physical_Model* get_parent() const;
         const Polygon* get_polygon(unsigned int _index) const;
         const Polygon_Holder_Base* get_polygons() const;
         unsigned int get_polygons_count() const;

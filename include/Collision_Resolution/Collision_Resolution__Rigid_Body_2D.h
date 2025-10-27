@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Collision_Resolution/Collision_Resolver.h>
-#include <Modules/Rigid_Body_2D.h>
+#include <Modules/Rigid_Body.h>
 
 
 namespace LPhys

@@ -1,16 +1,16 @@
 #include <Collision_Resolution/Collision_Resolution__Physics_Module_2D.h>
-#include <Modules/Physics_Module_2D.h>
+#include <Modules/Physics_Module__Mesh.h>
 
 using namespace LPhys;
 
 
 bool Collision_Resolution__Physics_Module_2D::resolve(const Intersection_Data &_id, float _dt)
 {
-    L_ASSERT(LV::cast_variable<Physics_Module_2D>(_id.first));
-    L_ASSERT(LV::cast_variable<Physics_Module_2D>(_id.second));
+    L_ASSERT(LV::cast_variable<Physics_Module__Mesh>(_id.first));
+    L_ASSERT(LV::cast_variable<Physics_Module__Mesh>(_id.second));
 
-    Physics_Module_2D* pm1 = (Physics_Module_2D*)_id.first;
-    Physics_Module_2D* pm2 = (Physics_Module_2D*)_id.second;
+    Physics_Module__Mesh* pm1 = (Physics_Module__Mesh*)_id.first;
+    Physics_Module__Mesh* pm2 = (Physics_Module__Mesh*)_id.second;
 
     LEti::Transformation_Data transformation_data_after_collision_1 = LEti::Transformation_Data::get_transformation_data_for_ratio(*pm1->transformation_data_prev_state(), *pm1->transformation_data(), _id.time_of_intersection_ratio);
     LEti::Transformation_Data transformation_data_after_collision_2 = LEti::Transformation_Data::get_transformation_data_for_ratio(*pm2->transformation_data_prev_state(), *pm2->transformation_data(), _id.time_of_intersection_ratio);

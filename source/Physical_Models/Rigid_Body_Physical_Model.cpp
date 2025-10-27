@@ -1,38 +1,38 @@
-#include <Physical_Models/Rigid_Body_Physical_Model_2D.h>
+#include <Physical_Models/Rigid_Body_Physical_Model.h>
 
 using namespace LPhys;
 
 
 
-Rigid_Body_Physical_Model_2D::Rigid_Body_Physical_Model_2D()
-    : Physical_Model_2D()
+Rigid_Body_Physical_Model::Rigid_Body_Physical_Model()
+    : Physical_Model()
 {
 
 }
 
-Rigid_Body_Physical_Model_2D::Rigid_Body_Physical_Model_2D(const Rigid_Body_Physical_Model_2D &_other)
-    : Physical_Model_2D(_other)
+Rigid_Body_Physical_Model::Rigid_Body_Physical_Model(const Rigid_Body_Physical_Model &_other)
+    : Physical_Model(_other)
 {
     m_masses = new float[get_polygons_count()];
     for(unsigned int i=0; i<get_polygons_count(); ++i)
         m_masses[i] = _other.m_masses[i];
 }
 
-Rigid_Body_Physical_Model_2D::~Rigid_Body_Physical_Model_2D()
+Rigid_Body_Physical_Model::~Rigid_Body_Physical_Model()
 {
     delete[] m_masses;
 }
 
 
 
-Polygon_Holder_Base* Rigid_Body_Physical_Model_2D::M_create_polygons_holder() const
+Polygon_Holder_Base* Rigid_Body_Physical_Model::M_create_polygons_holder() const
 {
     return new Polygon_Holder<Rigid_Body_Polygon>;
 }
 
 
 
-glm::vec3 Rigid_Body_Physical_Model_2D::M_calculate_center_of_mass() const
+glm::vec3 Rigid_Body_Physical_Model::M_calculate_center_of_mass() const
 {
     glm::vec3 result(0.0f, 0.0f, 0.0f);
 
@@ -46,7 +46,7 @@ glm::vec3 Rigid_Body_Physical_Model_2D::M_calculate_center_of_mass() const
     return result;
 }
 
-float Rigid_Body_Physical_Model_2D::M_calculate_moment_of_inertia() const
+float Rigid_Body_Physical_Model::M_calculate_moment_of_inertia() const
 {
     float result = 0.0f;
 
@@ -75,16 +75,16 @@ float Rigid_Body_Physical_Model_2D::M_calculate_moment_of_inertia() const
 
 
 
-void Rigid_Body_Physical_Model_2D::update(const glm::mat4x4 &_matrix)
+void Rigid_Body_Physical_Model::update(const glm::mat4x4 &_matrix)
 {
-    Physical_Model_2D::update(_matrix);
+    Physical_Model::update(_matrix);
 
     m_moment_of_inertia = M_calculate_moment_of_inertia();
 }
 
 
 
-void Rigid_Body_Physical_Model_2D::set_masses(const float* _masses)
+void Rigid_Body_Physical_Model::set_masses(const float* _masses)
 {
     delete[] m_masses;
 

@@ -7,12 +7,12 @@ using namespace LPhys;
 
 Narrow_Phase__Model_Vs_Ray::Colliding_Modules Narrow_Phase__Model_Vs_Ray::M_cast_modules(const Broad_Phase_Interface::Colliding_Pair& _maybe_modules) const
 {
-    Physics_Module_2D* model = LV::cast_variable<Physics_Module_2D>(_maybe_modules.first);
+    Physics_Module__Mesh* model = LV::cast_variable<Physics_Module__Mesh>(_maybe_modules.first);
 
     if(model)
         return { model, LV::cast_variable<Physics_Module__Ray>(_maybe_modules.second) };
 
-    return { LV::cast_variable<Physics_Module_2D>(_maybe_modules.second), LV::cast_variable<Physics_Module__Ray>(_maybe_modules.first) };
+    return { LV::cast_variable<Physics_Module__Mesh>(_maybe_modules.second), LV::cast_variable<Physics_Module__Ray>(_maybe_modules.first) };
 }
 
 Intersection_Data Narrow_Phase__Model_Vs_Ray::M_check_model_vs_ray_intersection(const Colliding_Modules& _modules)

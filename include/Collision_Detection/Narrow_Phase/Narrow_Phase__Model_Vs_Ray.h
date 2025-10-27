@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Collision_Detection/Narrow_Phase/Narrow_Phase_Interface.h>
-#include <Modules/Physics_Module_2D.h>
+#include <Modules/Physics_Module__Mesh.h>
 #include <Modules/Physics_Module__Ray.h>
 
 
@@ -13,7 +13,7 @@ class Narrow_Phase__Model_Vs_Ray : public Narrow_Phase_Interface
 private:
     struct Colliding_Modules
     {
-        Physics_Module_2D* model = nullptr;
+        Physics_Module__Mesh* model = nullptr;
         Physics_Module__Ray* ray = nullptr;
 
         inline operator bool() const { return model && ray; }

@@ -17,8 +17,8 @@ float Collision_Resolution__Rigid_Body_2D::M_calculate_kinetic_energy(const glm:
 
 bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, float _dt)
 {
-    Rigid_Body_2D* pm1 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.first);
-    Rigid_Body_2D* pm2 = LV::cast_variable<Rigid_Body_2D>((Physics_Module_2D*)_id.second);
+    Rigid_Body* pm1 = LV::cast_variable<Rigid_Body>((Physics_Module__Mesh*)_id.first);
+    Rigid_Body* pm2 = LV::cast_variable<Rigid_Body>((Physics_Module__Mesh*)_id.second);
 
     L_ASSERT(pm1 && pm2);
 
@@ -69,8 +69,8 @@ bool Collision_Resolution__Rigid_Body_2D::resolve(const Intersection_Data &_id, 
     float avA = LEti::Math::cross_product(ra, impulse).z / A_moment_of_inertia;
     float avB = LEti::Math::cross_product(rb, impulse).z / B_moment_of_inertia;
 
-    Rigid_Body_2D* heavier_pm = pm1->mass() > pm2->mass() ? pm1 : pm2;
-    Rigid_Body_2D* lighter_pm = heavier_pm == pm1 ? pm2 : pm1;
+    Rigid_Body* heavier_pm = pm1->mass() > pm2->mass() ? pm1 : pm2;
+    Rigid_Body* lighter_pm = heavier_pm == pm1 ? pm2 : pm1;
 
     float masses_ratio = lighter_pm->mass() / heavier_pm->mass();
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Physical_Models/Physical_Model_2D.h>
+#include <Physical_Models/Physical_Model.h>
 #include <Physical_Models/Rigid_Body_Polygon.h>
 
 namespace LPhys
 {
 
-    class Rigid_Body_Physical_Model_2D : public Physical_Model_2D
+    class Rigid_Body_Physical_Model : public Physical_Model
     {
     private:
         float* m_masses = nullptr;
@@ -14,9 +14,9 @@ namespace LPhys
         float m_moment_of_inertia = 0.0f;
 
     public:
-        Rigid_Body_Physical_Model_2D();
-        Rigid_Body_Physical_Model_2D(const Rigid_Body_Physical_Model_2D& _other);
-        ~Rigid_Body_Physical_Model_2D();
+        Rigid_Body_Physical_Model();
+        Rigid_Body_Physical_Model(const Rigid_Body_Physical_Model& _other);
+        ~Rigid_Body_Physical_Model();
 
     private:
         Polygon_Holder_Base* M_create_polygons_holder() const override;

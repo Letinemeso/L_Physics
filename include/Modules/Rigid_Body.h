@@ -2,17 +2,17 @@
 
 #include <Stuff/Function_Wrapper.h>
 
-#include <Modules/Physics_Module_2D.h>
-#include <Physical_Models/Rigid_Body_Physical_Model_2D.h>
+#include <Modules/Physics_Module__Mesh.h>
+#include <Physical_Models/Rigid_Body_Physical_Model.h>
 
 
 namespace LPhys
 {
 
-    class Rigid_Body_2D : public Physics_Module_2D
+    class Rigid_Body : public Physics_Module__Mesh
 	{
     public:
-        INIT_VARIABLE(LPhys::Rigid_Body_2D, LPhys::Physics_Module_2D)
+        INIT_VARIABLE(LPhys::Rigid_Body, LPhys::Physics_Module__Mesh)
 
 	private:
         float m_mass_multiplier = 1.0f;
@@ -22,7 +22,7 @@ namespace LPhys
         LST::Function<void()> m_on_alignment;
 
     private:
-        Physical_Model_2D* M_create_physical_model() const override;
+        Physical_Model* M_create_physical_model() const override;
 
     public:
         glm::vec3 calculate_raw_center_of_mass() const;
@@ -57,10 +57,10 @@ namespace LPhys
 
 
 
-    class Rigid_Body_2D__Stub : public Physics_Module_2D_Stub
+    class Rigid_Body__Stub : public Physics_Module_Stub__Mesh
     {
     public:
-        INIT_VARIABLE(LPhys::Rigid_Body_2D__Stub, LPhys::Physics_Module_2D_Stub)
+        INIT_VARIABLE(LPhys::Rigid_Body__Stub, LPhys::Physics_Module_Stub__Mesh)
 
         INIT_FIELDS
         ADD_FIELD(LDS::Vector<float>, masses)
@@ -72,7 +72,7 @@ namespace LPhys
         float mass_multiplier = 1.0f;
 
     protected:
-        INIT_BUILDER_STUB(Rigid_Body_2D)
+        INIT_BUILDER_STUB(Rigid_Body)
     };
 
 }

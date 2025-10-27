@@ -1,5 +1,4 @@
-#ifndef POLYGON_H
-#define POLYGON_H
+#pragma once
 
 #include <Math_Stuff.h>
 
@@ -39,5 +38,3 @@ namespace LPhys
     };
 
 }
-
-#endif // POLYGON_H

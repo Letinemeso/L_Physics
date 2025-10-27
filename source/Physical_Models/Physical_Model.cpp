@@ -1,11 +1,11 @@
-#include <Physical_Models/Physical_Model_2D.h>
+#include <Physical_Models/Physical_Model.h>
 
 using namespace LPhys;
 
 
-//  Physical_Model_2D
+//  Physical_Model
 
-Polygon_Holder_Base* Physical_Model_2D::M_create_polygons_holder() const
+Polygon_Holder_Base* Physical_Model::M_create_polygons_holder() const
 {
     Polygon_Holder_Base* holder = new Polygon_Holder<Polygon>;
     return holder;
@@ -13,7 +13,7 @@ Polygon_Holder_Base* Physical_Model_2D::M_create_polygons_holder() const
 
 
 
-void Physical_Model_2D::M_update_border()
+void Physical_Model::M_update_border()
 {
     L_ASSERT(m_polygons_holder);
 
@@ -28,7 +28,7 @@ void Physical_Model_2D::M_update_border()
     }
 }
 
-glm::vec3 Physical_Model_2D::M_calculate_center_of_mass() const
+glm::vec3 Physical_Model::M_calculate_center_of_mass() const
 {
     glm::vec3 result(0.0f, 0.0f, 0.0f);
 
@@ -41,18 +41,18 @@ glm::vec3 Physical_Model_2D::M_calculate_center_of_mass() const
 
 
 
-Physical_Model_2D::Physical_Model_2D()
+Physical_Model::Physical_Model()
 {
 
 }
 
-Physical_Model_2D::Physical_Model_2D(const Physical_Model_2D& _other)
+Physical_Model::Physical_Model(const Physical_Model& _other)
 {
     setup(_other.m_raw_coords, _other.m_raw_coords_count, _other.m_collision_permissions);
     copy_real_coordinates(_other);
 }
 
-void Physical_Model_2D::setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
+void Physical_Model::setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
 {
     delete[] m_raw_coords;
 
@@ -76,7 +76,7 @@ void Physical_Model_2D::setup(const float* _raw_coords, unsigned int _raw_coords
         m_polygons_holder->get_polygon(i)->setup(&m_raw_coords[i * 9], &m_collision_permissions[i * 3]);
 }
 
-void Physical_Model_2D::move_raw(const glm::vec3 &_stride)
+void Physical_Model::move_raw(const glm::vec3 &_stride)
 {
     for(unsigned int i=0; i<m_raw_coords_count; i += 3)
     {
@@ -89,7 +89,7 @@ void Physical_Model_2D::move_raw(const glm::vec3 &_stride)
         m_polygons_holder->get_polygon(i)->calculate_center();
 }
 
-Physical_Model_2D::~Physical_Model_2D()
+Physical_Model::~Physical_Model()
 {
     delete[] m_raw_coords;
     delete[] m_collision_permissions;
@@ -97,7 +97,7 @@ Physical_Model_2D::~Physical_Model_2D()
 }
 
 
-void Physical_Model_2D::update(const glm::mat4x4& _matrix)
+void Physical_Model::update(const glm::mat4x4& _matrix)
 {
     L_ASSERT(m_polygons_holder);
 
@@ -108,7 +108,7 @@ void Physical_Model_2D::update(const glm::mat4x4& _matrix)
     m_center_of_mass = M_calculate_center_of_mass();
 }
 
-void Physical_Model_2D::copy_real_coordinates(const Physical_Model_2D &_other)
+void Physical_Model::copy_real_coordinates(const Physical_Model &_other)
 {
     for (unsigned int i = 0; i < m_polygons_count; ++i)
     {
@@ -119,35 +119,35 @@ void Physical_Model_2D::copy_real_coordinates(const Physical_Model_2D &_other)
 }
 
 
-Physical_Model_2D_Imprint* Physical_Model_2D::create_imprint() const
+Physical_Model_Imprint* Physical_Model::create_imprint() const
 {
-    return new Physical_Model_2D_Imprint(this);
+    return new Physical_Model_Imprint(this);
 }
 
 
 
-const Polygon* Physical_Model_2D::get_polygon(unsigned int _index) const
+const Polygon* Physical_Model::get_polygon(unsigned int _index) const
 {
     L_ASSERT(m_polygons_holder && _index < m_polygons_count);
 
     return m_polygons_holder->get_polygon(_index);
 }
 
-const Polygon_Holder_Base* Physical_Model_2D::get_polygons() const
+const Polygon_Holder_Base* Physical_Model::get_polygons() const
 {
     return m_polygons_holder;
 }
 
-unsigned int Physical_Model_2D::get_polygons_count() const
+unsigned int Physical_Model::get_polygons_count() const
 {
     return m_polygons_count;
 }
 
 
 
-//  Physical_Model_2D_Imprint
+//  Physical_Model_Imprint
 
-Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(const Physical_Model_2D* _parent)
+Physical_Model_Imprint::Physical_Model_Imprint(const Physical_Model* _parent)
 {
     m_parent = _parent;
     m_polygons_count = m_parent->get_polygons_count();
@@ -159,7 +159,7 @@ Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(const Physical_Model_2D* _p
 }
 
 
-Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(Physical_Model_2D_Imprint&& _other)
+Physical_Model_Imprint::Physical_Model_Imprint(Physical_Model_Imprint&& _other)
 {
     m_polygons_holder = _other.m_polygons_holder;
     _other.m_polygons_holder = nullptr;
@@ -170,7 +170,7 @@ Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(Physical_Model_2D_Imprint&&
     m_border = _other.m_border;
 }
 
-Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(const Physical_Model_2D_Imprint& _other)
+Physical_Model_Imprint::Physical_Model_Imprint(const Physical_Model_Imprint& _other)
 {
     m_parent = _other.m_parent;
     m_polygons_count = _other.m_polygons_count;
@@ -181,14 +181,14 @@ Physical_Model_2D_Imprint::Physical_Model_2D_Imprint(const Physical_Model_2D_Imp
     m_border = _other.m_border;
 }
 
-Physical_Model_2D_Imprint::~Physical_Model_2D_Imprint()
+Physical_Model_Imprint::~Physical_Model_Imprint()
 {
     delete m_polygons_holder;
 }
 
 
 
-void Physical_Model_2D_Imprint::M_update_border()
+void Physical_Model_Imprint::M_update_border()
 {
     L_ASSERT(m_polygons_holder);
 
@@ -205,7 +205,7 @@ void Physical_Model_2D_Imprint::M_update_border()
 
 
 
-void Physical_Model_2D_Imprint::update(const glm::mat4x4 &_translation, const glm::mat4x4 &_rotation, const glm::mat4x4 &_scale)
+void Physical_Model_Imprint::update(const glm::mat4x4 &_translation, const glm::mat4x4 &_rotation, const glm::mat4x4 &_scale)
 {
     L_ASSERT(m_polygons_holder);
 
@@ -214,7 +214,7 @@ void Physical_Model_2D_Imprint::update(const glm::mat4x4 &_translation, const gl
     update_with_single_matrix(result_matrix);
 }
 
-void Physical_Model_2D_Imprint::update_with_single_matrix(const glm::mat4x4& _matrix)
+void Physical_Model_Imprint::update_with_single_matrix(const glm::mat4x4& _matrix)
 {
     L_ASSERT(m_polygons_holder);
 
@@ -223,7 +223,7 @@ void Physical_Model_2D_Imprint::update_with_single_matrix(const glm::mat4x4& _ma
     M_update_border();
 }
 
-void Physical_Model_2D_Imprint::update_to_current_model_state()
+void Physical_Model_Imprint::update_to_current_model_state()
 {
     L_ASSERT(m_polygons_holder);
 
@@ -238,29 +238,29 @@ void Physical_Model_2D_Imprint::update_to_current_model_state()
 }
 
 
-const Physical_Model_2D* Physical_Model_2D_Imprint::get_parent() const
+const Physical_Model* Physical_Model_Imprint::get_parent() const
 {
     return m_parent;
 }
 
-const Polygon* Physical_Model_2D_Imprint::get_polygon(unsigned int _index) const
+const Polygon* Physical_Model_Imprint::get_polygon(unsigned int _index) const
 {
     L_ASSERT(m_polygons_holder && _index < m_polygons_count);
 
     return m_polygons_holder->get_polygon(_index);
 }
 
-const Polygon_Holder_Base* Physical_Model_2D_Imprint::get_polygons() const
+const Polygon_Holder_Base* Physical_Model_Imprint::get_polygons() const
 {
     return m_polygons_holder;
 }
 
-unsigned int Physical_Model_2D_Imprint::get_polygons_count() const
+unsigned int Physical_Model_Imprint::get_polygons_count() const
 {
     return m_parent->get_polygons_count();
 }
 
-const Border& Physical_Model_2D_Imprint::border() const
+const Border& Physical_Model_Imprint::border() const
 {
     return m_border;
 }

@@ -2,7 +2,7 @@
 
 #include <Collision_Detection/Narrow_Phase/Narrow_Phase_Interface.h>
 #include <Collision_Detection/Primitives/Polygon_Vs_Point_Intersection.h>
-#include <Modules/Physics_Module_2D.h>
+#include <Modules/Physics_Module__Mesh.h>
 #include <Modules/Physics_Module__Point.h>
 
 
@@ -14,7 +14,7 @@ namespace LPhys
     private:
         struct Colliding_Modules
         {
-            Physics_Module_2D* model = nullptr;
+            Physics_Module__Mesh* model = nullptr;
             Physics_Module__Point* point = nullptr;
 
             inline operator bool() const { return model && point; }
