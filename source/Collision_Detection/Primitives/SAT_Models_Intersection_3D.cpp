@@ -20,7 +20,7 @@ namespace LPhys
     {
         MinMax_Pair result;
 
-        for (unsigned int i = 0; i < 3; ++i)
+        for(unsigned int i = 0; i < 3; ++i)
         {
             float projection = LEti::Math::dot_product(_polygon[i], _axis);
             result.min = std::min(result.min, projection);
@@ -64,14 +64,17 @@ namespace LPhys
 
         construct_and_push_axis(_first[0] - _first[1], _first[2] - _first[1]);
         construct_and_push_axis(_second[0] - _second[1], _second[2] - _second[1]);
-        construct_and_push_axis(_first[1] - _first[0], _second[1] - _second[0]);
-        construct_and_push_axis(_first[1] - _first[0], _second[2] - _second[0]);
-        construct_and_push_axis(_first[2] - _first[0], _second[1] - _second[0]);
-        construct_and_push_axis(_first[2] - _first[0], _second[2] - _second[0]);
-        construct_and_push_axis(_first[1] - _first[0], _second[2] - _second[1]);
-        construct_and_push_axis(_first[2] - _first[1], _second[1] - _second[0]);
-        construct_and_push_axis(_first[2] - _first[1], _second[2] - _second[0]);
-        construct_and_push_axis(_first[2] - _first[1], _second[2] - _second[1]);
+
+        for(unsigned int i_1 = 0; i_1 < 3; ++i_1)
+        {
+            glm::vec3 first_edge = _first[i_1 + 1] - _first[i_1];
+            for(unsigned int i_2 = 0; i_2 < 3; ++i_2)
+            {
+                glm::vec3 second_edge = _second[i_2 + 1] - _second[i_2];
+                construct_and_push_axis(first_edge, second_edge);
+                construct_and_push_axis(second_edge, first_edge);
+            }
+        }
 
         float min_overlap = std::numeric_limits<float>::max();
         glm::vec3 min_axis;
@@ -86,7 +89,10 @@ namespace LPhys
             MinMax_Pair pair_1 = project_polygon(_first, axis);
             MinMax_Pair pair_2 = project_polygon(_second, axis);
 
-            float overlap = std::min(pair_1.max, pair_2.max) - std::max(pair_1.min, pair_2.min);
+            float overlap_1 = pair_1.max - pair_2.min;
+            float overlap_2 = pair_2.max - pair_1.min;
+
+            float overlap = std::min(overlap_1, overlap_2);
             if (overlap < min_overlap)
             {
                 min_overlap = overlap;
@@ -155,13 +161,16 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
     if(intersections_amount == 0)
         return {};
 
+    if(LEti::Math::vector_length_squared(result_push_out_vector) < 0.0001f)
+        return {};
+
     result_point /= (float)intersections_amount;
 
     Intersection_Data result;
     result.type = Intersection_Data::Type::intersection;
     result.depth = LEti::Math::vector_length(result_push_out_vector);
     LEti::Math::shrink_vector_to_1(result_push_out_vector);
-    result.normal = result_push_out_vector;
+    result.normal = -result_push_out_vector;
     result.point = result_point;
 
     return result;

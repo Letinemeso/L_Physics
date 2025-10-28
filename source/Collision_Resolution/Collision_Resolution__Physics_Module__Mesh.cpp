@@ -1,10 +1,10 @@
-#include <Collision_Resolution/Collision_Resolution__Physics_Module_2D.h>
+#include <Collision_Resolution/Collision_Resolution__Physics_Module__Mesh.h>
 #include <Modules/Physics_Module__Mesh.h>
 
 using namespace LPhys;
 
 
-bool Collision_Resolution__Physics_Module_2D::resolve(const Intersection_Data &_id, float _dt)
+bool Collision_Resolution__Physics_Module__Mesh::resolve(const Intersection_Data &_id, float _dt)
 {
     L_ASSERT(LV::cast_variable<Physics_Module__Mesh>(_id.first));
     L_ASSERT(LV::cast_variable<Physics_Module__Mesh>(_id.second));
