@@ -10,34 +10,6 @@ using namespace LPhys;
 namespace LPhys
 {
 
-    struct MinMax_Pair
-    {
-        float min = std::numeric_limits<float>::max();
-        float max = std::numeric_limits<float>::min();
-    };
-
-    MinMax_Pair project_polygon(const Polygon& _polygon, const glm::vec3& _axis)
-    {
-        MinMax_Pair result;
-
-        for(unsigned int i = 0; i < 3; ++i)
-        {
-            float projection = LEti::Math::dot_product(_polygon[i], _axis);
-            result.min = std::min(result.min, projection);
-            result.max = std::max(result.max, projection);
-        }
-
-        return result;
-    }
-
-    bool overlap_on_axis(const Polygon& _polygon_1, const Polygon& _polygon_2, const glm::vec3& _axis)
-    {
-        MinMax_Pair pair_1 = project_polygon(_polygon_1, _axis);
-        MinMax_Pair pair_2 = project_polygon(_polygon_2, _axis);
-
-        return !(pair_1.max < pair_2.min || pair_2.max < pair_1.min);
-    }
-
     struct Polygons_Intersection_Data
     {
         bool intersection = false;
@@ -48,82 +20,52 @@ namespace LPhys
 
     Polygons_Intersection_Data check_triangles_intersection(const Polygon& _first, const Polygon& _second)
     {
-        Polygons_Intersection_Data result;
+        glm::vec3 first_normal = LEti::Math::cross_product(_first[0] - _first[1], _first[2] - _first[1]);
+        glm::vec3 second_normal = LEti::Math::cross_product(_second[0] - _second[1], _second[2] - _second[1]);
+        LEti::Math::shrink_vector_to_1(first_normal);
+        LEti::Math::shrink_vector_to_1(second_normal);
 
-        LDS::Vector<glm::vec3> test_axes(10);
+        float min_depth = std::numeric_limits<float>::max();
+        glm::vec3 median_intersection_point = {0.0f, 0.0f, 0.0f};
 
-        auto construct_and_push_axis = [&test_axes](const glm::vec3& _vec_1, const glm::vec3& _vec_2)
-        {
-            glm::vec3 axis = LEti::Math::cross_product(_vec_1, _vec_2);
-            if(LEti::Math::vector_length_squared(axis) < 0.0001f)
-                return;
-
-            LEti::Math::shrink_vector_to_1(axis);
-            test_axes.push(axis);
-        };
-
-        construct_and_push_axis(_first[0] - _first[1], _first[2] - _first[1]);
-        construct_and_push_axis(_second[0] - _second[1], _second[2] - _second[1]);
-
-        for(unsigned int i_1 = 0; i_1 < 3; ++i_1)
-        {
-            glm::vec3 first_edge = _first[i_1 + 1] - _first[i_1];
-            for(unsigned int i_2 = 0; i_2 < 3; ++i_2)
-            {
-                glm::vec3 second_edge = _second[i_2 + 1] - _second[i_2];
-                construct_and_push_axis(first_edge, second_edge);
-                construct_and_push_axis(second_edge, first_edge);
-            }
-        }
-
-        float min_overlap = std::numeric_limits<float>::max();
-        glm::vec3 min_axis;
-
-        for(unsigned int i = 0; i < test_axes.size(); ++i)
-        {
-            const glm::vec3& axis = test_axes[i];
-
-            if (!overlap_on_axis(_first, _second, axis))
-                return result;
-
-            MinMax_Pair pair_1 = project_polygon(_first, axis);
-            MinMax_Pair pair_2 = project_polygon(_second, axis);
-
-            float overlap_1 = pair_1.max - pair_2.min;
-            float overlap_2 = pair_2.max - pair_1.min;
-
-            float overlap = std::min(overlap_1, overlap_2);
-            if (overlap < min_overlap)
-            {
-                min_overlap = overlap;
-                min_axis = axis;
-            }
-        }
-
-        result.intersection = true;
-        result.depth = min_overlap;
-        result.normal = min_axis;
-
-        result.point = { 0.0f, 0.0f, 0.0f };
-        unsigned int points_amount = 0;
-
+        unsigned int found_intersections = 0;
         for(unsigned int i = 0; i < 3; ++i)
         {
             Polygon_VS_Ray_Intersection_Data id = segment_intersects_polygon(_first[i], _first[i + 1], _second);
             if(!id.intersection)
                 continue;
 
-            result.point += id.point;
-            ++points_amount;
+            const glm::vec3& intersection_point = id.point;
+            median_intersection_point += intersection_point;
+
+            float ip_projection = LEti::Math::dot_product(intersection_point, second_normal);
+            float segment_start_proj = LEti::Math::dot_product(_first[i], second_normal) - ip_projection;
+            float segment_end_proj = LEti::Math::dot_product(_first[i + 1], second_normal) - ip_projection;
+
+            float depth;
+            if(segment_start_proj < 0.0f)
+                depth = fabsf(segment_start_proj);
+            else
+                depth = fabsf(segment_end_proj);
+
+            if(min_depth > depth)
+                min_depth = depth;
+
+            ++found_intersections;
         }
 
-        if(points_amount == 0)
-            result.point = (_first.center() + _second.center()) * 0.5f;
-        else
-            result.point /= (float)points_amount;
+        if(found_intersections == 0)
+            return {};
+
+        Polygons_Intersection_Data result;
+        result.intersection = true;
+        result.point = median_intersection_point / (float)found_intersections;
+        result.normal = second_normal;
+        result.depth = min_depth;
 
         return result;
     }
+
 }
 
 
@@ -142,8 +84,15 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
             const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
 
             Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2);
+            Polygons_Intersection_Data id_reverse = check_triangles_intersection(polygon_2, polygon_1);
+            if(!id.intersection)
+                id = id_reverse;
+
             if(!id.intersection)
                 continue;
+
+            if(id_reverse.intersection && id.depth > id_reverse.depth)
+                id = id_reverse;
 
             ++intersections_amount;
 
