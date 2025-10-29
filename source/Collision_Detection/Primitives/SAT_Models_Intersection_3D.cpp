@@ -20,9 +20,7 @@ namespace LPhys
 
     Polygons_Intersection_Data check_triangles_intersection(const Polygon& _first, const Polygon& _second)
     {
-        glm::vec3 first_normal = LEti::Math::cross_product(_first[0] - _first[1], _first[2] - _first[1]);
-        glm::vec3 second_normal = LEti::Math::cross_product(_second[0] - _second[1], _second[2] - _second[1]);
-        LEti::Math::shrink_vector_to_1(first_normal);
+        glm::vec3 second_normal = LEti::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
         LEti::Math::shrink_vector_to_1(second_normal);
 
         float min_depth = std::numeric_limits<float>::max();
@@ -74,6 +72,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 {
     glm::vec3 result_point = { 0.0f, 0.0f, 0.0f };
     glm::vec3 result_push_out_vector = { 0.0f, 0.0f, 0.0f };
+    float min_depth = std::numeric_limits<float>::max();
     unsigned int intersections_amount = 0;
 
     for(unsigned int i_1 = 0; i_1 < _pols_amount_1; ++i_1)
@@ -85,25 +84,36 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 
             Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2);
             Polygons_Intersection_Data id_reverse = check_triangles_intersection(polygon_2, polygon_1);
+
+            bool reversed = false;
+
             if(!id.intersection)
+            {
                 id = id_reverse;
+                reversed = true;
+            }
 
             if(!id.intersection)
                 continue;
 
-            if(id_reverse.intersection && id.depth > id_reverse.depth)
+            if(id_reverse.intersection && id.depth < id_reverse.depth)
+            {
                 id = id_reverse;
+                reversed = true;
+            }
 
             ++intersections_amount;
 
             result_point += id.point;
 
-            glm::vec3 push_out_vector = id.normal * id.depth;
-            for(unsigned int i = 0; i < 3; ++i)
-            {
-                if(fabsf(result_push_out_vector[i]) < fabsf(push_out_vector[i]))
-                    result_push_out_vector[i] = push_out_vector[i];
-            }
+            if(min_depth < id.depth)
+                continue;
+
+            min_depth = id.depth;
+            result_push_out_vector = id.normal;
+
+            if(reversed)
+                result_push_out_vector *= -1.0f;
         }
     }
 
@@ -117,9 +127,8 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 
     Intersection_Data result;
     result.type = Intersection_Data::Type::intersection;
-    result.depth = LEti::Math::vector_length(result_push_out_vector);
-    LEti::Math::shrink_vector_to_1(result_push_out_vector);
-    result.normal = -result_push_out_vector;
+    result.depth = min_depth;
+    result.normal = result_push_out_vector;
     result.point = result_point;
 
     return result;
