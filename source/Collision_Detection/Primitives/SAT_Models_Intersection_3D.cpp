@@ -81,10 +81,15 @@ namespace LPhys
             if(distance_squared >= min_distance_squared)
                 continue;
 
-            if(distance_squared < 1e-11f)
+            if(distance_squared == 0.0f)
             {
-                std::cout << "skipping edge-edge collision with distance: " << distance_squared << std::endl;
-                continue;
+                glm::vec3 polygon_normal = LEti::Math::cross_product(_polygon[2] - _polygon[0], _polygon[1] - _polygon[0]);
+                LEti::Math::shrink_vector_to_1(polygon_normal);
+
+                result = id;
+                result.point_2 += polygon_normal * 0.000001f;
+
+                return result;
             }
 
             min_distance_squared = distance_squared;
@@ -134,21 +139,10 @@ namespace LPhys
             Segments_Closest_Points_Data edge_to_edge_id = calculate_minimal_edge_to_edge_intersection(_first[i], _first[i + 1], _second, depth);
             if(edge_to_edge_id.found)
             {
-                // glm::vec3 edge = _first[i + 1] - _first[i];
-                // glm::vec3 push_out_axis = LEti::Math::rotate_vector(edge, first_normal, -LEti::Math::HALF_PI);
-                // LEti::Math::shrink_vector_to_1(push_out_axis);
-
-                // glm::vec3 point_1_projected = LEti::Math::calculate_projection(edge_to_edge_id.point_1, push_out_axis);
-                // glm::vec3 point_2_projected = LEti::Math::calculate_projection(edge_to_edge_id.point_2, push_out_axis);
-
-                // glm::vec3 push_out_vector = point_1_projected - point_2_projected;
                 glm::vec3 push_out_vector = edge_to_edge_id.point_1 - edge_to_edge_id.point_2;
                 float length = LEti::Math::vector_length(push_out_vector);
                 depth = length * 1.1f;
-                // axis = push_out_axis;
                 axis = push_out_vector / length;
-
-                // std::cout << "found closer edge-edge contact" << std::endl;
             }
             else
             {
@@ -173,8 +167,6 @@ namespace LPhys
         result.normal = second_normal;
         result.depth = min_depth;
 
-        std::cout << "found collision, dot between normals: " << normals_dot << std::endl;
-
         return result;
     }
 
@@ -184,55 +176,6 @@ namespace LPhys
 
 LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
 {
-    /*
-    glm::vec3 result_point = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 result_push_out_vector = { 0.0f, 0.0f, 0.0f };
-    float min_depth = std::numeric_limits<float>::max();
-    unsigned int intersections_amount = 0;
-
-    for(unsigned int i_1 = 0; i_1 < _pols_amount_1; ++i_1)
-    {
-        for(unsigned int i_2 = 0; i_2 < _pols_amount_2; ++i_2)
-        {
-            const Polygon& polygon_1 = *_polygon_holder_1->get_polygon(i_1);
-            const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
-
-            Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2);
-            Polygons_Intersection_Data id_reverse = check_triangles_intersection(polygon_2, polygon_1);
-
-            bool reversed = false;
-
-            if(!id.intersection)
-            {
-                id = id_reverse;
-                reversed = true;
-            }
-
-            if(!id.intersection)
-                continue;
-
-            if(id_reverse.intersection && id.depth < id_reverse.depth)
-            {
-                id = id_reverse;
-                reversed = true;
-            }
-
-            ++intersections_amount;
-
-            result_point += id.point;
-
-            if(min_depth < id.depth)
-                continue;
-
-            min_depth = id.depth;
-            result_push_out_vector = id.normal;
-
-            if(reversed)
-                result_push_out_vector *= -1.0f;
-        }
-    }
-    */
-
     glm::vec3 result_point = { 0.0f, 0.0f, 0.0f };
     glm::vec3 result_push_out_vector = { 0.0f, 0.0f, 0.0f };
     unsigned int intersections_amount = 0;
@@ -283,16 +226,10 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
     if(intersections_amount == 0)
         return {};
 
-    if(LEti::Math::vector_length_squared(result_push_out_vector) < 1e-11f)
+    if(LEti::Math::vector_length_squared(result_push_out_vector) == 0.0f)
         return {};
 
     result_point /= (float)intersections_amount;
-
-    // Intersection_Data result;
-    // result.type = Intersection_Data::Type::intersection;
-    // result.depth = min_depth;
-    // result.normal = result_push_out_vector;
-    // result.point = result_point;
 
     Intersection_Data result;
     result.type = Intersection_Data::Type::intersection;
