@@ -234,6 +234,8 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
     Intersection_Data result;
     result.type = Intersection_Data::Type::intersection;
     result.depth = LEti::Math::vector_length(result_push_out_vector);
+    if(result.depth < 1e-7f)
+        result.depth *= 1.1f;
     result.normal = result_push_out_vector / result.depth;
     result.point = result_point;
 
