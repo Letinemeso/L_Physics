@@ -1,7 +1,8 @@
 #include <Collision_Detection/Primitives/SAT_Models_Intersection_3D.h>
 
-#include <algorithm>
 #include <limits>
+
+#include <Data_Structures/Vector.h>
 
 #include <Collision_Detection/Primitives/Polygon_VS_Ray_Intersection.h>
 
@@ -11,52 +12,6 @@ using namespace LPhys;
 namespace LPhys
 {
 
-    struct Segments_Closest_Points_Data
-    {
-        bool found = false;
-        glm::vec3 point_1;
-        glm::vec3 point_2;
-    };
-
-    Segments_Closest_Points_Data find_closest_points_between_segments(const glm::vec3& _first_start, const glm::vec3& _first_end, const glm::vec3& _second_start, const glm::vec3& _second_end)
-    {
-        constexpr float EPSILON = 1e-6f;
-
-        glm::vec3 ab = _first_end - _first_start;
-        glm::vec3 cd = _second_end - _second_start;
-        glm::vec3 ac = _second_start - _first_start;
-
-        float ab_ab = LEti::Math::dot_product(ab, ab);
-        float cd_cd = LEti::Math::dot_product(cd, cd);
-        float ab_cd = LEti::Math::dot_product(ab, cd);
-        float ab_ac = LEti::Math::dot_product(ab, ac);
-        float cd_ac = LEti::Math::dot_product(cd, ac);
-
-        float denominator = ab_cd * ab_cd - ab_ab * cd_cd;
-
-        float ratio_1 = 0.0f;
-        float ratio_2 = 0.0f;
-
-
-        if (fabsf(denominator) <= EPSILON)
-            return {};
-
-        denominator = 1.0f / denominator;
-        ratio_1 = (ab_cd * cd_ac - cd_cd * ab_ac) * denominator;
-        ratio_2 = (ab_ab * cd_ac - ab_cd * ab_ac) * denominator;
-
-        ratio_1 = std::clamp(ratio_1, 0.0f, 1.0f);
-        ratio_2 = std::clamp(ratio_2, 0.0f, 1.0f);
-
-        Segments_Closest_Points_Data result;
-        result.found = true;
-
-        result.point_1 = _first_start + ratio_1 * (_first_end - _first_start);
-        result.point_2 = _second_start + ratio_2 * (_second_end - _second_start);
-
-        return result;
-    }
-
     struct Polygons_Intersection_Data
     {
         bool intersection = false;
@@ -65,36 +20,108 @@ namespace LPhys
         float depth = 0.0f;
     };
 
-    Segments_Closest_Points_Data calculate_minimal_edge_to_edge_intersection(const glm::vec3& _segment_start, const glm::vec3& _segment_end, const Polygon& _polygon, float _min_distance)
+    Polygons_Intersection_Data calculate_intersection_point(const Polygon& _first, const Polygon& _second)
     {
-        Segments_Closest_Points_Data result;
-
-        float min_distance_squared = _min_distance * _min_distance;
+        unsigned int intersections_amount = 0;
+        glm::vec3 median_intersection_point = {0.0f, 0.0f, 0.0f};
 
         for(unsigned int i = 0; i < 3; ++i)
         {
-            Segments_Closest_Points_Data id = find_closest_points_between_segments(_segment_start, _segment_end, _polygon[i], _polygon[i + 1]);
-            if(!id.found)
+            Polygon_VS_Ray_Intersection_Data id = segment_intersects_polygon(_first[i], _first[i + 1], _second);
+            if(!id.intersection)
                 continue;
 
-            float distance_squared = LEti::Math::vector_length_squared(id.point_2 - id.point_1);
-            if(distance_squared >= min_distance_squared)
-                continue;
-
-            if(distance_squared == 0.0f)
-            {
-                glm::vec3 polygon_normal = LEti::Math::cross_product(_polygon[2] - _polygon[0], _polygon[1] - _polygon[0]);
-                LEti::Math::shrink_vector_to_1(polygon_normal);
-
-                result = id;
-                result.point_2 += polygon_normal * 0.000001f;
-
-                return result;
-            }
-
-            min_distance_squared = distance_squared;
-            result = id;
+            median_intersection_point += id.point;
+            ++intersections_amount;
         }
+
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            Polygon_VS_Ray_Intersection_Data id = segment_intersects_polygon(_second[i], _second[i + 1], _first);
+            if(!id.intersection)
+                continue;
+
+            median_intersection_point += id.point;
+            ++intersections_amount;
+        }
+
+        if(intersections_amount == 0)
+            return {};
+
+        Polygons_Intersection_Data result;
+        result.intersection = true;
+        result.point = median_intersection_point / (float)intersections_amount;
+
+        return result;
+    }
+
+    struct MinMax_Pair
+    {
+        float min = std::numeric_limits<float>::max();
+        float max = -std::numeric_limits<float>::max();
+
+        inline void add_value(float _value)
+        {
+            if(_value < min)
+                min = _value;
+            if(_value > max)
+                max = _value;
+        }
+
+        inline bool value_is_between(float _value)
+        {
+            constexpr float tolerance = 1e-6f;
+            return _value > min - tolerance && _value < max - tolerance;
+        }
+    };
+
+    struct Axis_Intersection
+    {
+        bool intersection = false;
+        float depth = 0.0f;
+        bool flip_normal = false;
+    };
+
+    Axis_Intersection check_intersection_on_axis(const glm::vec3& _axis, const Polygon& _first, const Polygon& _second)
+    {
+        MinMax_Pair first_pair;
+        MinMax_Pair second_pair;
+
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            float projection = LEti::Math::dot_product(_first[i], _axis);
+            first_pair.add_value(projection);
+        }
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            float projection = LEti::Math::dot_product(_second[i], _axis);
+            second_pair.add_value(projection);
+        }
+
+        if( !(first_pair.value_is_between(second_pair.min) || first_pair.value_is_between(second_pair.max) || (second_pair.value_is_between(first_pair.min) || second_pair.value_is_between(first_pair.max))) )
+            return {};
+
+        float dist_1 = first_pair.max - second_pair.min;
+        float dist_2 = second_pair.max - first_pair.min;
+
+        Axis_Intersection result;
+
+        if(dist_1 <= 0.0f)
+        {
+            dist_1 = dist_2;
+            result.flip_normal = true;
+        }
+        if(dist_2 > 0.0f && dist_1 > dist_2)
+        {
+            dist_1 = dist_2;
+            result.flip_normal = true;
+        }
+
+        if(dist_1 <= 0.0f)
+            return {};
+
+        result.intersection = true;
+        result.depth = dist_1;
 
         return result;
     }
@@ -110,62 +137,52 @@ namespace LPhys
         if(normals_dot > 0.0f)
             return {};
 
-        float min_depth = std::numeric_limits<float>::max();
-        glm::vec3 min_depth_axis;
-        glm::vec3 median_intersection_point = {0.0f, 0.0f, 0.0f};
+        LDS::Vector<glm::vec3> axes(8);
+        axes.push(first_normal);
+        axes.push(second_normal);
 
-        unsigned int found_intersections = 0;
-        for(unsigned int i = 0; i < 3; ++i)
+        for(unsigned int f_i = 0; f_i < 3; ++f_i)
         {
-            Polygon_VS_Ray_Intersection_Data id = segment_intersects_polygon(_first[i], _first[i + 1], _second);
-            if(!id.intersection)
-                continue;
-
-            const glm::vec3& intersection_point = id.point;
-            median_intersection_point += intersection_point;
-
-            float ip_projection = LEti::Math::dot_product(intersection_point, second_normal);
-            float segment_start_proj = LEti::Math::dot_product(_first[i], second_normal) - ip_projection;
-            float segment_end_proj = LEti::Math::dot_product(_first[i + 1], second_normal) - ip_projection;
-
-            float depth;
-            if(segment_start_proj < 0.00001f)
-                depth = fabsf(segment_start_proj);
-            else
-                depth = fabsf(segment_end_proj);
-
-            glm::vec3 axis;
-
-            Segments_Closest_Points_Data edge_to_edge_id = calculate_minimal_edge_to_edge_intersection(_first[i], _first[i + 1], _second, depth);
-            if(edge_to_edge_id.found)
+            glm::vec3 f_edge = _first[f_i + 1] - _first[f_i];
+            for(unsigned int s_i = 0; s_i < 3; ++s_i)
             {
-                glm::vec3 push_out_vector = edge_to_edge_id.point_1 - edge_to_edge_id.point_2;
-                float length = LEti::Math::vector_length(push_out_vector);
-                depth = length * 1.1f;
-                axis = push_out_vector / length;
-            }
-            else
-            {
-                axis = second_normal;
-            }
+                glm::vec3 s_edge = _second[s_i + 1] - _second[s_i];
 
-            if(min_depth > depth)
-            {
-                min_depth = depth;
-                min_depth_axis = axis;
-            }
+                glm::vec3 axis = LEti::Math::cross_product(f_edge, s_edge);
+                if(LEti::Math::vector_length_squared(axis) < 1e-6f)
+                    continue;
 
-            ++found_intersections;
+                LEti::Math::shrink_vector_to_1(axis);
+                axes.push(axis);
+            }
         }
 
-        if(found_intersections == 0)
+        Polygons_Intersection_Data result;
+        result.depth = std::numeric_limits<float>::max();
+
+        for(unsigned int i = 0; i < axes.size(); ++i)
+        {
+            const glm::vec3& axis = axes[i];
+
+            Axis_Intersection id = check_intersection_on_axis(axis, _first, _second);
+            if(!id.intersection)
+                return result;
+
+            if(id.depth >= result.depth)
+                continue;
+
+            result.depth = id.depth;
+            result.normal = axis;
+            if(id.flip_normal)
+                result.normal *= -1.0f;
+        }
+
+        Polygons_Intersection_Data id = calculate_intersection_point(_first, _second);
+        if(!id.intersection)
             return {};
 
-        Polygons_Intersection_Data result;
+        result.point = id.point;
         result.intersection = true;
-        result.point = median_intersection_point / (float)found_intersections;
-        result.normal = second_normal;
-        result.depth = min_depth;
 
         return result;
     }
@@ -188,32 +205,15 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
             const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
 
             Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2);
-            Polygons_Intersection_Data id_reverse = check_triangles_intersection(polygon_2, polygon_1);
-
-            bool reversed = false;
-
-            if(!id.intersection)
-            {
-                id = id_reverse;
-                reversed = true;
-            }
 
             if(!id.intersection)
                 continue;
-
-            if(id_reverse.intersection && id.depth < id_reverse.depth)
-            {
-                id = id_reverse;
-                reversed = true;
-            }
 
             ++intersections_amount;
 
             result_point += id.point;
 
-            glm::vec3 push_out_vector = id.normal * id.depth;
-            if(reversed)
-                push_out_vector *= -1.0f;
+            glm::vec3 push_out_vector = -id.normal * id.depth;
 
             for(unsigned int i = 0; i < 3; ++i)
             {
