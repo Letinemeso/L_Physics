@@ -2,6 +2,8 @@
 
 #include <Stuff/Function_Wrapper.h>
 
+#include <Data_Provider.h>
+
 #include <Builder_Stub.h>
 
 #include <Modules/Physics_Module.h>
@@ -70,12 +72,25 @@ namespace LPhys
         ADD_FIELD(LDS::Vector<bool>, collision_permissions)
         FIELDS_END
 
+        INIT_CHILDS
+        ADD_CHILD("data_provider", data_provider)
+        CHILDS_END
+
     public:
         LDS::Vector<float> coords;
         LDS::Vector<bool> collision_permissions;
 
     public:
+        LEti::Data_Provider* data_provider = nullptr;
+
+    public:
         Physics_Module__Mesh::On_Collision_Function on_collision_func;
+
+    public:
+        ~Physics_Module_Stub__Mesh();
+
+    private:
+        const LDS::Vector<float>& M_select_data() const;
 
     protected:
         INIT_BUILDER_STUB(Physics_Module__Mesh);

@@ -119,6 +119,26 @@ bool Physics_Module__Mesh::intersects_with_border(const Border& _border) const
 
 
 
+Physics_Module_Stub__Mesh::~Physics_Module_Stub__Mesh()
+{
+    delete data_provider;
+}
+
+
+
+const LDS::Vector<float>& Physics_Module_Stub__Mesh::M_select_data() const
+{
+    if(coords.size() > 0)
+        return coords;
+
+    if(!data_provider)
+        return coords;
+
+    return data_provider->get_data();
+}
+
+
+
 BUILDER_STUB_DEFAULT_CONSTRUCTION_FUNC(Physics_Module_Stub__Mesh)
 
 BUILDER_STUB_INITIALIZATION_FUNC(Physics_Module_Stub__Mesh)
@@ -126,8 +146,16 @@ BUILDER_STUB_INITIALIZATION_FUNC(Physics_Module_Stub__Mesh)
     BUILDER_STUB_PARENT_INITIALIZATION;
     BUILDER_STUB_CAST_PRODUCT;
 
-    if(coords.size() > 0)
-        product->setup_base_data(coords.raw_data(), coords.size(), collision_permissions.raw_data());
+    const LDS::Vector<float>& data = M_select_data();
+
+    if(data.size() > 0)
+    {
+        const bool* raw_collisions_permissions = nullptr;
+        if(collision_permissions.size() > 0)
+            raw_collisions_permissions = collision_permissions.raw_data();
+
+        product->setup_base_data(data.raw_data(), data.size(), raw_collisions_permissions);
+    }
 
     if(on_collision_func)
         product->set_on_collision_function(on_collision_func);
