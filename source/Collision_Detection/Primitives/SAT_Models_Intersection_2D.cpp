@@ -221,18 +221,18 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 
 
 
-LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _pols_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _pols_amount_2) const
+LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2) const
 {
     unsigned int first_collided_polygon = 0xFFFFFFFF;
     unsigned int second_collided_polygon = 0xFFFFFFFF;
 
     glm::vec3 push_out_vector(0.0f, 0.0f, 0.0f);
 
-    for(unsigned int p_0 = 0; p_0 < _pols_amount_1; ++p_0)
+    for(unsigned int p_0 = 0; p_0 < _polygons_amount_1; ++p_0)
 	{
         const Polygon& first_polygon = *_polygon_holder_1->get_polygon(p_0);
 
-        for(unsigned int p_1 = 0; p_1 < _pols_amount_2; ++p_1)
+        for(unsigned int p_1 = 0; p_1 < _polygons_amount_2; ++p_1)
         {
             const Polygon& second_polygon = *_polygon_holder_2->get_polygon(p_1);
 
@@ -269,7 +269,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(c
 	LEti::Math::shrink_vector_to_1(result.normal);
     result.depth = depth;
 
-    LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _pols_amount_1, _polygon_holder_2, _pols_amount_2);
+    LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2);
 	if(points.size() == 0)
         return {};
 
