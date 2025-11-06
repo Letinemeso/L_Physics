@@ -195,6 +195,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 {
     glm::vec3 result_point = { 0.0f, 0.0f, 0.0f };
     glm::vec3 result_push_out_vector = { 0.0f, 0.0f, 0.0f };
+    float total_depth = 0.0f;
     unsigned int intersections_amount = 0;
 
     for(unsigned int i_1 = 0; i_1 < _pols_amount_1; ++i_1)
@@ -215,28 +216,24 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 
             glm::vec3 push_out_vector = -id.normal * id.depth;
 
-            for(unsigned int i = 0; i < 3; ++i)
-            {
-                if(fabsf(result_push_out_vector[i]) < fabsf(push_out_vector[i]))
-                    result_push_out_vector[i] = push_out_vector[i];
-            }
+            total_depth += id.depth;
+            result_push_out_vector += push_out_vector;
         }
     }
 
-    if(intersections_amount == 0)
-        return {};
-
-    if(LEti::Math::vector_length_squared(result_push_out_vector) == 0.0f)
+    if(intersections_amount == 0 || total_depth < 1e-7f)
         return {};
 
     result_point /= (float)intersections_amount;
 
+    LEti::Math::shrink_vector_to_1(result_push_out_vector);
+
     Intersection_Data result;
     result.type = Intersection_Data::Type::intersection;
-    result.depth = LEti::Math::vector_length(result_push_out_vector);
+    result.depth = total_depth / (float)intersections_amount;
     if(result.depth < 1e-7f)
         result.depth *= 1.1f;
-    result.normal = result_push_out_vector / result.depth;
+    result.normal = result_push_out_vector;
     result.point = result_point;
 
     return result;
