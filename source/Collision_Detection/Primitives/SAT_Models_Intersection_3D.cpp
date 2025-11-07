@@ -126,7 +126,7 @@ namespace LPhys
         return result;
     }
 
-    Polygons_Intersection_Data check_triangles_intersection(const Polygon& _first, const Polygon& _second)
+    Polygons_Intersection_Data check_triangles_intersection(const Polygon& _first, const Polygon& _second, float _min_plane_edge_difference)
     {
         glm::vec3 first_normal = LEti::Math::cross_product(_first[2] - _first[1], _first[0] - _first[1]);
         glm::vec3 second_normal = LEti::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
@@ -137,10 +137,11 @@ namespace LPhys
         if(normals_dot > 0.0f)
             return {};
 
-        LDS::Vector<glm::vec3> axes(8);
-        axes.push(first_normal);
-        axes.push(second_normal);
+        LDS::Vector<glm::vec3> plane_axes(6);
+        plane_axes.push(first_normal);
+        plane_axes.push(second_normal);
 
+        LDS::Vector<glm::vec3> edge_axes(6);
         for(unsigned int f_i = 0; f_i < 3; ++f_i)
         {
             glm::vec3 f_edge = _first[f_i + 1] - _first[f_i];
@@ -153,28 +154,61 @@ namespace LPhys
                     continue;
 
                 LEti::Math::shrink_vector_to_1(axis);
-                axes.push(axis);
+                edge_axes.push(axis);
             }
         }
 
-        Polygons_Intersection_Data result;
-        result.depth = std::numeric_limits<float>::max();
+        Polygons_Intersection_Data plane_id;
+        plane_id.depth = std::numeric_limits<float>::max();
 
-        for(unsigned int i = 0; i < axes.size(); ++i)
+        for(unsigned int i = 0; i < plane_axes.size(); ++i)
         {
-            const glm::vec3& axis = axes[i];
+            const glm::vec3& axis = plane_axes[i];
 
             Axis_Intersection id = check_intersection_on_axis(axis, _first, _second);
             if(!id.intersection)
-                return result;
+                return plane_id;
 
-            if(id.depth >= result.depth)
+            if(id.depth >= plane_id.depth)
                 continue;
 
-            result.depth = id.depth;
-            result.normal = axis;
+            plane_id.depth = id.depth;
+            plane_id.normal = axis;
             if(id.flip_normal)
-                result.normal *= -1.0f;
+                plane_id.normal *= -1.0f;
+        }
+
+        Polygons_Intersection_Data edge_id;
+        edge_id.depth = std::numeric_limits<float>::max();
+
+        for(unsigned int i = 0; i < edge_axes.size(); ++i)
+        {
+            const glm::vec3& axis = edge_axes[i];
+
+            Axis_Intersection id = check_intersection_on_axis(axis, _first, _second);
+            if(!id.intersection)
+                return edge_id;
+
+            if(id.depth >= edge_id.depth)
+                continue;
+
+            edge_id.depth = id.depth;
+            edge_id.normal = axis;
+            if(id.flip_normal)
+                edge_id.normal *= -1.0f;
+        }
+
+        Polygons_Intersection_Data result;
+
+        if(plane_id.depth < edge_id.depth)
+            result = plane_id;
+        else
+        {
+            float plane_edge_depth_difference = plane_id.depth - edge_id.depth;
+            if(plane_edge_depth_difference < _min_plane_edge_difference)
+                result = plane_id;
+            else
+                result = edge_id;
         }
 
         Polygons_Intersection_Data id = calculate_intersection_point(_first, _second);
@@ -188,24 +222,36 @@ namespace LPhys
     }
 
 
+    glm::vec3 combine_push_out_vectors(const glm::vec3& _first, const glm::vec3& _second)
+    {
+        glm::vec3 result;
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            if(fabsf(_first[i]) > fabsf(_second[i]))
+                result[i] = _first[i];
+            else
+                result[i] = _second[i];
+        }
+        return result;
+    }
+
+
     struct Common_Intersection_Data
     {
         glm::vec3 point = { 0.0f, 0.0f, 0.0f };
         glm::vec3 push_out_vector = { 0.0f, 0.0f, 0.0f };
-        float total_depth = 0.0f;
         unsigned int intersections_amount = 0;
 
         void operator+=(const Common_Intersection_Data& _other)
         {
             point += _other.point;
-            push_out_vector += _other.push_out_vector;
-            total_depth += _other.total_depth;
+            push_out_vector = combine_push_out_vectors(push_out_vector, _other.push_out_vector);
             intersections_amount += _other.intersections_amount;
         }
     };
 
 
-    Common_Intersection_Data calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2)
+    Common_Intersection_Data calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2, float _min_plane_edge_difference)
     {
         Common_Intersection_Data result;
 
@@ -216,7 +262,7 @@ namespace LPhys
                 const Polygon& polygon_1 = *_polygon_holder_1->get_polygon(i_1);
                 const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
 
-                Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2);
+                Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2, _min_plane_edge_difference);
 
                 if(!id.intersection)
                     continue;
@@ -227,8 +273,7 @@ namespace LPhys
 
                 glm::vec3 push_out_vector = -id.normal * id.depth;
 
-                result.total_depth += id.depth;
-                result.push_out_vector += push_out_vector;
+                result.push_out_vector = combine_push_out_vectors(result.push_out_vector, push_out_vector);
             }
         }
 
@@ -238,7 +283,7 @@ namespace LPhys
 
     using Polygons_Vec = LDS::Vector<const Polygon*>;
 
-    Common_Intersection_Data calculate_common_intersection(const Polygons_Vec& _p1, const Polygons_Vec& _p2)
+    Common_Intersection_Data calculate_common_intersection(const Polygons_Vec& _p1, const Polygons_Vec& _p2, float _min_plane_edge_difference)
     {
         Common_Intersection_Data result;
 
@@ -249,7 +294,7 @@ namespace LPhys
                 const Polygon& polygon_1 = *_p1[i_1];
                 const Polygon& polygon_2 = *_p2[i_2];
 
-                Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2);
+                Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2, _min_plane_edge_difference);
 
                 if(!id.intersection)
                     continue;
@@ -260,8 +305,7 @@ namespace LPhys
 
                 glm::vec3 push_out_vector = -id.normal * id.depth;
 
-                result.total_depth += id.depth;
-                result.push_out_vector += push_out_vector;
+                result.push_out_vector = combine_push_out_vectors(result.push_out_vector, push_out_vector);
             }
         }
 
@@ -344,16 +388,16 @@ namespace LPhys
         return true;
     }
 
-    Common_Intersection_Data calculate_common_intersection_in_area(const Polygons_Vec& _p1, const Polygons_Vec& _p2, const Border& _border, unsigned int _min_polygons, unsigned int _repeated_depth_limit)
+    Common_Intersection_Data calculate_common_intersection_in_area(const Polygons_Vec& _p1, const Polygons_Vec& _p2, const Border& _border, unsigned int _min_polygons, unsigned int _repeated_depth_limit, float _min_plane_edge_difference)
     {
         if(_p1.size() == 0 || _p2.size() == 0)
             return {};
 
         if(_repeated_depth_limit >= 3)
-            return calculate_common_intersection(_p1, _p2);
+            return calculate_common_intersection(_p1, _p2, _min_plane_edge_difference);
 
         if(_p1.size() < _min_polygons && _p2.size() < _min_polygons)
-            return calculate_common_intersection(_p1, _p2);
+            return calculate_common_intersection(_p1, _p2, _min_plane_edge_difference);
 
         Border b1 = _border;
         Border b2 = _border;
@@ -395,15 +439,15 @@ namespace LPhys
             counter_2 = _repeated_depth_limit + 1;
 
         if(same_polygons(p1.polygons_1, p2.polygons_1) && same_polygons(p1.polygons_2, p2.polygons_2))
-            return calculate_common_intersection_in_area(p1.polygons_1, p1.polygons_2, p1.area, _min_polygons, counter_1);
+            return calculate_common_intersection_in_area(p1.polygons_1, p1.polygons_2, p1.area, _min_polygons, counter_1, _min_plane_edge_difference);
 
-        Common_Intersection_Data result = calculate_common_intersection_in_area(p1.polygons_1, p1.polygons_2, p1.area, _min_polygons, counter_1);
-        result += calculate_common_intersection_in_area(p2.polygons_1, p2.polygons_2, p2.area, _min_polygons, counter_2);
+        Common_Intersection_Data result = calculate_common_intersection_in_area(p1.polygons_1, p1.polygons_2, p1.area, _min_polygons, counter_1, _min_plane_edge_difference);
+        result += calculate_common_intersection_in_area(p2.polygons_1, p2.polygons_2, p2.area, _min_polygons, counter_2, _min_plane_edge_difference);
 
         return result;
     }
 
-    Common_Intersection_Data calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2, unsigned int _min_polygons)
+    Common_Intersection_Data calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2, unsigned int _min_polygons, float _min_plane_edge_difference)
     {
         Polygons_Vec polygons_1(_polygons_amount_1);
         Polygons_Vec polygons_2(_polygons_amount_2);
@@ -427,7 +471,7 @@ namespace LPhys
                 common_area.consider_point(polygon[i]);
         }
 
-        Common_Intersection_Data result = calculate_common_intersection_in_area(polygons_1, polygons_2, common_area, _min_polygons, 0);
+        Common_Intersection_Data result = calculate_common_intersection_in_area(polygons_1, polygons_2, common_area, _min_polygons, 0, _min_plane_edge_difference);
         return result;
     }
 
@@ -439,21 +483,23 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 {
     Common_Intersection_Data id;
     if(_polygons_amount_1 < m_min_polygons_for_optimization && _polygons_amount_2 < m_min_polygons_for_optimization)
-        id = calculate_common_intersection(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2);
+        id = calculate_common_intersection(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2, m_min_plane_edge_difference);
     else
-        id = calculate_common_intersection_optimized(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2, m_min_polygons_for_optimization);
+        id = calculate_common_intersection_optimized(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2, m_min_polygons_for_optimization, m_min_plane_edge_difference);
 
-    if(id.intersections_amount == 0 || id.total_depth < 1e-7f)
+    float push_out_vector_length = LEti::Math::vector_length(id.push_out_vector);
+
+    if(id.intersections_amount == 0 || push_out_vector_length < 1e-7f)
         return {};
 
-    LEti::Math::shrink_vector_to_1(id.push_out_vector);
+    // LEti::Math::shrink_vector_to_1(id.push_out_vector);
 
     Intersection_Data result;
     result.type = Intersection_Data::Type::intersection;
-    result.depth = id.total_depth / (float)id.intersections_amount;
+    result.depth = push_out_vector_length;
     if(result.depth < 1e-7f)
         result.depth *= 1.1f;
-    result.normal = id.push_out_vector;
+    result.normal = id.push_out_vector / push_out_vector_length;
     result.point = id.point / (float)id.intersections_amount;
 
     return result;
