@@ -76,4 +76,6 @@ BUILDER_STUB_INITIALIZATION_FUNC(Physics_Module_Stub)
 
     if(!allow_collisions)
         product->allow_collisions(false);
+
+    product->set_static(is_static);
 }

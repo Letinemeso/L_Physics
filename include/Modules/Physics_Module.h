@@ -20,6 +20,7 @@ namespace LPhys
 
     private:
         bool m_can_collide = true;
+        bool m_is_static = false;
 
     private:
         using Transformations_List = LDS::List<LEti::Transformation_Data>;
@@ -35,10 +36,12 @@ namespace LPhys
     public:
         inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
         inline void allow_collisions(bool _value) { m_can_collide = _value; M_can_collide_changed(); }
+        inline void set_static(bool _value) { m_is_static = _value; }
         inline void add_transformation_after_collision(const LEti::Transformation_Data& _data) { m_transformations_after_collisions.push_back(_data); }
 
     public:
         inline bool can_collide() const { return m_can_collide; }
+        inline bool is_static() const { return m_is_static; }
 
     public:
         inline void on_collision(const Physics_Module* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
@@ -61,10 +64,12 @@ namespace LPhys
 
         INIT_FIELDS
         ADD_FIELD(bool, allow_collisions)
+        ADD_FIELD(bool, is_static)
         FIELDS_END
 
     public:
         bool allow_collisions = true;
+        bool is_static = false;
 
     public:
         INIT_BUILDER_STUB(Physics_Module)
