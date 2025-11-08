@@ -137,11 +137,13 @@ namespace LPhys
         if(normals_dot > 0.0f)
             return {};
 
-        LDS::Vector<glm::vec3> plane_axes(6);
-        plane_axes.push(first_normal);
-        plane_axes.push(second_normal);
+        unsigned int plane_axes_amount = 2;
+        glm::vec3 plane_axes[2];
+        plane_axes[0] = first_normal;
+        plane_axes[1] = second_normal;
 
-        LDS::Vector<glm::vec3> edge_axes(6);
+        glm::vec3 edge_axes[9];
+        unsigned int edge_axes_amount = 0;
         for(unsigned int f_i = 0; f_i < 3; ++f_i)
         {
             glm::vec3 f_edge = _first[f_i + 1] - _first[f_i];
@@ -154,14 +156,15 @@ namespace LPhys
                     continue;
 
                 LEti::Math::shrink_vector_to_1(axis);
-                edge_axes.push(axis);
+                edge_axes[edge_axes_amount] = axis;
+                ++edge_axes_amount;
             }
         }
 
         Polygons_Intersection_Data plane_id;
         plane_id.depth = std::numeric_limits<float>::max();
 
-        for(unsigned int i = 0; i < plane_axes.size(); ++i)
+        for(unsigned int i = 0; i < plane_axes_amount; ++i)
         {
             const glm::vec3& axis = plane_axes[i];
 
@@ -181,7 +184,7 @@ namespace LPhys
         Polygons_Intersection_Data edge_id;
         edge_id.depth = std::numeric_limits<float>::max();
 
-        for(unsigned int i = 0; i < edge_axes.size(); ++i)
+        for(unsigned int i = 0; i < edge_axes_amount; ++i)
         {
             const glm::vec3& axis = edge_axes[i];
 
