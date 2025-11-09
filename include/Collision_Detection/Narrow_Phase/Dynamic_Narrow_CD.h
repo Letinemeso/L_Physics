@@ -49,7 +49,7 @@ namespace LPhys
         Ratio_Pair M_find_possible_collision_timeframe(const Physics_Module__Mesh& _first, const Physics_Module__Mesh& _second) const;
 
 	private:
-        Intersection_Data get_precise_time_ratio_of_collision(const Physics_Module__Mesh& _first, const Physics_Module__Mesh& _second, float _min_ratio, float _max_ratio) const;
+        Intersection_Data M_get_precise_time_ratio_of_collision(const Physics_Module__Mesh& _first, const Physics_Module__Mesh& _second, float _min_ratio, float _max_ratio) const;
 
 	public:
         Intersection_Data objects_collide(const Physics_Module__Mesh& _first, const Physics_Module__Mesh& _second) const;

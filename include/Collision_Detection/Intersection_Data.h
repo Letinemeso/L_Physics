@@ -29,6 +29,7 @@ namespace LPhys
         unsigned int first_collided_polygon_index = 0;
         unsigned int second_collided_polygon_index = 0;
         float time_of_intersection_ratio = 1.0f;
+        float time_of_intersection_ratio_step = 1.0f;
 
     public:
         Intersection_Data();

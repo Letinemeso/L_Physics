@@ -81,7 +81,7 @@ Dynamic_Narrow_CD::Ratio_Pair Dynamic_Narrow_CD::M_find_possible_collision_timef
     return result;
 }
 
-Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const Physics_Module__Mesh& _first, const Physics_Module__Mesh& _second, float _min_ratio, float _max_ratio) const
+Intersection_Data Dynamic_Narrow_CD::M_get_precise_time_ratio_of_collision(const Physics_Module__Mesh& _first, const Physics_Module__Mesh& _second, float _min_ratio, float _max_ratio) const
 {
     L_ASSERT(!(_min_ratio < 0.0f || _max_ratio < 0.0f || _min_ratio > 1.0f || _max_ratio > 1.0f));
 
@@ -121,6 +121,9 @@ Intersection_Data Dynamic_Narrow_CD::get_precise_time_ratio_of_collision(const P
         if(id.time_of_intersection_ratio > 1.0f)
             id.time_of_intersection_ratio = 1.0f;
     }
+
+    id.time_of_intersection_ratio_step = step_diff;
+
     return id;
 }
 
@@ -162,7 +165,7 @@ Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module__Mesh&
     if(possible_intersection_ratio.max > 1.0f)
         possible_intersection_ratio.max = 1.0f;
 
-    return get_precise_time_ratio_of_collision(_first, _second, possible_intersection_ratio.min, possible_intersection_ratio.max);
+    return M_get_precise_time_ratio_of_collision(_first, _second, possible_intersection_ratio.min, possible_intersection_ratio.max);
 }
 
 
