@@ -17,7 +17,7 @@ namespace LPhys
         inline void set_min_plane_edge_difference(float _value) { m_min_plane_edge_difference = _value; }
 
     public:
-        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2) const override;
+        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const override;
 
     };
 

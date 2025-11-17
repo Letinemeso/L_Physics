@@ -13,8 +13,8 @@ Rigid_Body_Physical_Model::Rigid_Body_Physical_Model()
 Rigid_Body_Physical_Model::Rigid_Body_Physical_Model(const Rigid_Body_Physical_Model &_other)
     : Physical_Model(_other)
 {
-    m_masses = new float[get_polygons_count()];
-    for(unsigned int i=0; i<get_polygons_count(); ++i)
+    m_masses = new float[get_polygons()->amount()];
+    for(unsigned int i=0; i<get_polygons()->amount(); ++i)
         m_masses[i] = _other.m_masses[i];
 }
 
@@ -36,9 +36,9 @@ glm::vec3 Rigid_Body_Physical_Model::M_calculate_center_of_mass() const
 {
     glm::vec3 result(0.0f, 0.0f, 0.0f);
 
-    for(unsigned int i=0; i<get_polygons_count(); ++i)
+    for(unsigned int i=0; i<get_polygons()->amount(); ++i)
     {
-        Rigid_Body_Polygon* polygon = (Rigid_Body_Polygon*)get_polygon(i);
+        Rigid_Body_Polygon* polygon = (Rigid_Body_Polygon*)get_polygons()->get_polygon(i);
         result += polygon->center() * polygon->mass();
     }
     result /= m_total_mass;
@@ -52,9 +52,9 @@ float Rigid_Body_Physical_Model::M_calculate_moment_of_inertia() const
 
     unsigned int counted_points = 0;
 
-    for(unsigned int p=0; p<get_polygons_count(); ++p)
+    for(unsigned int p=0; p<get_polygons()->amount(); ++p)
     {
-        const Rigid_Body_Polygon& polygon = (const Rigid_Body_Polygon&)*get_polygon(p);
+        const Rigid_Body_Polygon& polygon = (const Rigid_Body_Polygon&)*get_polygons()->get_polygon(p);
         float point_mass = polygon.mass() * 0.3333333f;
 
         for(unsigned int v=0; v < 3; ++v)
@@ -89,13 +89,13 @@ void Rigid_Body_Physical_Model::set_masses(const float* _masses)
     delete[] m_masses;
 
     m_total_mass = 0.0f;
-    m_masses = new float[get_polygons_count()];
-    for(unsigned int i=0; i<get_polygons_count(); ++i)
+    m_masses = new float[get_polygons()->amount()];
+    for(unsigned int i=0; i<get_polygons()->amount(); ++i)
     {
         m_masses[i] = _masses[i];
         m_total_mass += _masses[i];
 
-        Rigid_Body_Polygon* polygon = (Rigid_Body_Polygon*)get_polygon(i);
+        Rigid_Body_Polygon* polygon = (Rigid_Body_Polygon*)get_polygons()->get_polygon(i);
         polygon->set_mass(m_masses[i]);
     }
 }

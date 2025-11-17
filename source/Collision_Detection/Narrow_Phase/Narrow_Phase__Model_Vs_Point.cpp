@@ -18,7 +18,7 @@ Intersection_Data Narrow_Phase__Model_Vs_Point::M_check_model_vs_point_intersect
     L_ASSERT(_modules);
 
     const Polygon_Holder_Base* polygons = _modules.model->get_physical_model()->get_polygons();
-    unsigned int polygons_amount = _modules.model->get_physical_model()->get_polygons_count();
+    unsigned int polygons_amount = _modules.model->get_physical_model()->get_polygons()->amount();
 
     Intersection_Data result;
 

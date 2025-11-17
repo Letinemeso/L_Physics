@@ -90,7 +90,7 @@ void Physics_Module__Mesh::update_physical_model()
 {
     if(!m_physical_model)
         return;
-    if(m_physical_model->get_polygons_count() == 0)
+    if(m_physical_model->get_polygons()->amount() == 0)
         return;
 
     m_physical_model->update(transformation_data()->matrix());

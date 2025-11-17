@@ -14,9 +14,9 @@ glm::vec3 Rigid_Body::calculate_raw_center_of_mass() const
 {
     glm::vec3 result(0.0f, 0.0f, 0.0f);
 
-    for(unsigned int i=0; i<get_physical_model()->get_polygons_count(); ++i)
+    for(unsigned int i=0; i<get_physical_model()->get_polygons()->amount(); ++i)
     {
-        const Rigid_Body_Polygon& polygon = (const Rigid_Body_Polygon&)*get_physical_model()->get_polygon(i);
+        const Rigid_Body_Polygon& polygon = (const Rigid_Body_Polygon&)*get_physical_model()->get_polygons()->get_polygon(i);
         result += polygon.center_raw() * polygon.mass();
     }
 

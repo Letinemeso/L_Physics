@@ -206,23 +206,21 @@ namespace LPhys
 
 
 Possible_Colliding_Polygons LPhys::find_possible_colliding_polygons(const Polygon_Holder_Base& _polygons_1,
-                                                                    unsigned int _amount_1,
                                                                     const Polygon_Holder_Base& _polygons_2,
-                                                                    unsigned int _amount_2,
                                                                     unsigned int _min_polygons_in_area)
 {
-    unsigned int total_polygon_amount = _amount_1 + _amount_2;
+    unsigned int total_polygon_amount = _polygons_1.amount() + _polygons_2.amount();
     unsigned int exclusions_size = calculate_exclusions_amount(total_polygon_amount);
     LDS::Vector<bool> exclusions(exclusions_size, false);
 
     Possible_Colliding_Polygons result(exclusions_size);
 
-    Polygons_Vec polygons_1(_amount_1);
-    Polygons_Vec polygons_2(_amount_2);
+    Polygons_Vec polygons_1(_polygons_1.amount());
+    Polygons_Vec polygons_2(_polygons_2.amount());
 
     Border common_area;
 
-    for(unsigned int p_i = 0; p_i < _amount_1; ++p_i)
+    for(unsigned int p_i = 0; p_i < _polygons_1.amount(); ++p_i)
     {
         const Polygon& polygon = *_polygons_1.get_polygon(p_i);
         polygons_1.push({&polygon, p_i});
@@ -230,10 +228,10 @@ Possible_Colliding_Polygons LPhys::find_possible_colliding_polygons(const Polygo
         for(unsigned int i = 0; i < 3; ++i)
             common_area.consider_point(polygon[i]);
     }
-    for(unsigned int p_i = 0; p_i < _amount_2; ++p_i)
+    for(unsigned int p_i = 0; p_i < _polygons_2.amount(); ++p_i)
     {
         const Polygon& polygon = *_polygons_2.get_polygon(p_i);
-        polygons_2.push({&polygon, p_i + _amount_1});
+        polygons_2.push({&polygon, p_i + _polygons_1.amount()});
 
         for(unsigned int i = 0; i < 3; ++i)
             common_area.consider_point(polygon[i]);

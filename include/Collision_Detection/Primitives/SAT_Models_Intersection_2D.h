@@ -41,10 +41,10 @@ namespace LPhys
         Intersection_Data M_polygons_collision(const Polygon& _first, const Polygon& _second) const;
 
         float M_smallest_point_to_polygon_distance(const glm::vec3& _point, const Polygon& _pol) const;
-        LDS::List<glm::vec3> M_points_of_contact(const Polygon_Holder_Base* _f_pols, unsigned int _f_count, const Polygon_Holder_Base* _s_pols, unsigned int _s_count) const;
+        LDS::List<glm::vec3> M_points_of_contact(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const;
 
     public:
-        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2) const override;
+        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const override;
     };
 
 }

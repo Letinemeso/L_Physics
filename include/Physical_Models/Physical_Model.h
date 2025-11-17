@@ -17,13 +17,19 @@ namespace LPhys
 
     class Polygon_Holder_Base
     {
+    private:
+        unsigned int m_amount = 0;
+
     public:
         Polygon_Holder_Base() { }
         virtual ~Polygon_Holder_Base() { }
 
     public:
+        inline unsigned int amount() const { return m_amount; }
+
+    public:
         virtual Polygon_Holder_Base* create_copy() const = 0;
-        virtual void allocate(unsigned int _amount) = 0;
+        virtual void allocate(unsigned int _amount) { m_amount = _amount; };
         virtual Polygon* get_polygon(unsigned int _index) = 0;
         virtual const Polygon* get_polygon(unsigned int _index) const = 0;
 
@@ -37,9 +43,9 @@ namespace LPhys
 
     public:
         inline Polygon_Holder_Base* create_copy() const override { return new Polygon_Holder<T>; }
-        inline void allocate(unsigned int _amount) override { delete[] polygons;  polygons = new T[_amount]; }
-        inline Polygon* get_polygon(unsigned int _index) override { return &polygons[_index]; }
-        inline const Polygon* get_polygon(unsigned int _index) const override { return &polygons[_index]; }
+        inline void allocate(unsigned int _amount) override { Polygon_Holder_Base::allocate(_amount); delete[] polygons; polygons = new T[_amount]; }
+        inline Polygon* get_polygon(unsigned int _index) override { L_ASSERT(_index < amount()); return &polygons[_index]; }
+        inline const Polygon* get_polygon(unsigned int _index) const override { L_ASSERT(_index < amount()); return &polygons[_index]; }
 
     public:
         ~Polygon_Holder() { delete[] polygons; }
@@ -58,7 +64,6 @@ namespace LPhys
 		bool* m_collision_permissions = nullptr;
 
         Polygon_Holder_Base* m_polygons_holder = nullptr;
-		unsigned int m_polygons_count = 0;
 
     private:
         glm::vec3 m_center_of_mass{0.0f, 0.0f, 0.0f};
@@ -91,10 +96,8 @@ namespace LPhys
 
         Physical_Model_Imprint* create_imprint() const;
 
-	public:
-        const Polygon* get_polygon(unsigned int _index) const;
+    public:
         const Polygon_Holder_Base* get_polygons() const;
-        unsigned int get_polygons_count() const;
 
         inline const glm::vec3& center_of_mass() const { return m_center_of_mass; }
 
@@ -127,7 +130,6 @@ namespace LPhys
         const Physical_Model* get_parent() const;
         const Polygon* get_polygon(unsigned int _index) const;
         const Polygon_Holder_Base* get_polygons() const;
-        unsigned int get_polygons_count() const;
         const Border& border() const;
 
     };

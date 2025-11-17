@@ -256,16 +256,14 @@ namespace LPhys
 
 
     Common_Intersection_Data calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1,
-                                                           unsigned int _polygons_amount_1,
                                                            const Polygon_Holder_Base* _polygon_holder_2,
-                                                           unsigned int _polygons_amount_2,
                                                            float _min_plane_edge_difference)
     {
         Common_Intersection_Data result;
 
-        for(unsigned int i_1 = 0; i_1 < _polygons_amount_1; ++i_1)
+        for(unsigned int i_1 = 0; i_1 < _polygon_holder_1->amount(); ++i_1)
         {
-            for(unsigned int i_2 = 0; i_2 < _polygons_amount_2; ++i_2)
+            for(unsigned int i_2 = 0; i_2 < _polygon_holder_2->amount(); ++i_2)
             {
                 const Polygon& polygon_1 = *_polygon_holder_1->get_polygon(i_1);
                 const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
@@ -289,15 +287,13 @@ namespace LPhys
     }
 
     Common_Intersection_Data calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1,
-                                                                     unsigned int _polygons_amount_1,
                                                                      const Polygon_Holder_Base* _polygon_holder_2,
-                                                                     unsigned int _polygons_amount_2,
                                                                      float _min_polygons_for_optimization,
                                                                      float _min_plane_edge_difference)
     {
         Common_Intersection_Data result;
 
-        Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, _polygons_amount_1, *_polygon_holder_2, _polygons_amount_2, 3);
+        Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, *_polygon_holder_2, 3);
 
         for(unsigned int i = 0; i < possible_colliding_polygons.size(); ++i)
         {
@@ -324,13 +320,13 @@ namespace LPhys
 
 
 
-LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2) const
+LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const
 {
     Common_Intersection_Data id;
-    if(_polygons_amount_1 < m_min_polygons_for_optimization && _polygons_amount_2 < m_min_polygons_for_optimization)
-        id = calculate_common_intersection(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2, m_min_plane_edge_difference);
+    if(_polygon_holder_1->amount() < m_min_polygons_for_optimization && _polygon_holder_2->amount() < m_min_polygons_for_optimization)
+        id = calculate_common_intersection(_polygon_holder_1, _polygon_holder_2, m_min_plane_edge_difference);
     else
-        id = calculate_common_intersection_optimized(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2, m_min_polygons_for_optimization, m_min_plane_edge_difference);
+        id = calculate_common_intersection_optimized(_polygon_holder_1, _polygon_holder_2, m_min_polygons_for_optimization, m_min_plane_edge_difference);
 
     float push_out_vector_length = LEti::Math::vector_length(id.push_out_vector);
 

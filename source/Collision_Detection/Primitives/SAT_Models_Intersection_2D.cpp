@@ -140,7 +140,7 @@ float SAT_Models_Intersection_2D::M_smallest_point_to_polygon_distance(const glm
 	return min_dist;
 }
 
-LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polygon_Holder_Base* _f_pols, unsigned int _f_count, const Polygon_Holder_Base* _s_pols, unsigned int _s_count) const
+LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const
 {
 	float min_dist = -1.0f;
 
@@ -154,17 +154,17 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 		return false;
 	};
 
-	for(unsigned int i=0; i<_f_count; ++i)
+    for(unsigned int i = 0; i < _polygon_holder_1->amount(); ++i)
 	{
-        const Polygon& cur_pol = *_f_pols->get_polygon(i);
+        const Polygon& cur_pol = *_polygon_holder_1->get_polygon(i);
 
-		for(unsigned int j=0; j<3; ++j)
+        for(unsigned int j = 0; j < 3; ++j)
 		{
 			const glm::vec3& cur_point = cur_pol[j];
 
-			for(unsigned int s_pol_i = 0; s_pol_i < _s_count; ++s_pol_i)
+            for(unsigned int s_pol_i = 0; s_pol_i < _polygon_holder_2->amount(); ++s_pol_i)
 			{
-                float min = M_smallest_point_to_polygon_distance(cur_point, *_s_pols->get_polygon(s_pol_i));
+                float min = M_smallest_point_to_polygon_distance(cur_point, *_polygon_holder_2->get_polygon(s_pol_i));
 
 				if(min < 0.0f)
 					continue;
@@ -185,17 +185,17 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 		}
 	}
 
-	for(unsigned int i=0; i<_s_count; ++i)
+    for(unsigned int i = 0; i < _polygon_holder_2->amount(); ++i)
 	{
-        const Polygon& cur_pol = *_s_pols->get_polygon(i);
+        const Polygon& cur_pol = *_polygon_holder_2->get_polygon(i);
 
-		for(unsigned int j=0; j<3; ++j)
+        for(unsigned int j = 0; j < 3; ++j)
 		{
 			const glm::vec3& cur_point = cur_pol[j];
 
-			for(unsigned int f_pol_i = 0; f_pol_i < _f_count; ++f_pol_i)
+            for(unsigned int f_pol_i = 0; f_pol_i < _polygon_holder_1->amount(); ++f_pol_i)
 			{
-                float min = M_smallest_point_to_polygon_distance(cur_point, *_f_pols->get_polygon(f_pol_i));
+                float min = M_smallest_point_to_polygon_distance(cur_point, *_polygon_holder_1->get_polygon(f_pol_i));
 
 				if(min < 0.0f)
 					continue;
@@ -221,18 +221,18 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 
 
 
-LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, unsigned int _polygons_amount_1, const Polygon_Holder_Base* _polygon_holder_2, unsigned int _polygons_amount_2) const
+LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const
 {
     unsigned int first_collided_polygon = 0xFFFFFFFF;
     unsigned int second_collided_polygon = 0xFFFFFFFF;
 
     glm::vec3 push_out_vector(0.0f, 0.0f, 0.0f);
 
-    for(unsigned int p_0 = 0; p_0 < _polygons_amount_1; ++p_0)
+    for(unsigned int p_0 = 0; p_0 < _polygon_holder_1->amount(); ++p_0)
 	{
         const Polygon& first_polygon = *_polygon_holder_1->get_polygon(p_0);
 
-        for(unsigned int p_1 = 0; p_1 < _polygons_amount_2; ++p_1)
+        for(unsigned int p_1 = 0; p_1 < _polygon_holder_2->amount(); ++p_1)
         {
             const Polygon& second_polygon = *_polygon_holder_2->get_polygon(p_1);
 
@@ -269,7 +269,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(c
 	LEti::Math::shrink_vector_to_1(result.normal);
     result.depth = depth;
 
-    LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _polygons_amount_1, _polygon_holder_2, _polygons_amount_2);
+    LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _polygon_holder_2);
 	if(points.size() == 0)
         return {};
 
