@@ -70,7 +70,7 @@ namespace LPhys
 
         inline bool value_is_between(float _value)
         {
-            constexpr float tolerance = 1e-6f;
+            constexpr float tolerance = 1e-9f;
             return _value > min - tolerance && _value < max - tolerance;
         }
     };
@@ -152,7 +152,7 @@ namespace LPhys
                 glm::vec3 s_edge = _second[s_i + 1] - _second[s_i];
 
                 glm::vec3 axis = LEti::Math::cross_product(f_edge, s_edge);
-                if(LEti::Math::vector_length_squared(axis) < 1e-6f)
+                if(LEti::Math::vector_length_squared(axis) < 1e-9f)
                     continue;
 
                 LEti::Math::shrink_vector_to_1(axis);
@@ -492,16 +492,14 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 
     float push_out_vector_length = LEti::Math::vector_length(id.push_out_vector);
 
-    if(id.intersections_amount == 0 || push_out_vector_length < 1e-7f)
+    if(id.intersections_amount == 0 || push_out_vector_length < 1e-9f)
         return {};
-
-    // LEti::Math::shrink_vector_to_1(id.push_out_vector);
 
     Intersection_Data result;
     result.type = Intersection_Data::Type::intersection;
     result.depth = push_out_vector_length;
-    if(result.depth < 1e-7f)
-        result.depth *= 1.1f;
+    // if(result.depth < 1e-7f)
+    //     result.depth *= 1.1f;
     result.normal = id.push_out_vector / push_out_vector_length;
     result.point = id.point / (float)id.intersections_amount;
 
