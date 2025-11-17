@@ -9,6 +9,7 @@ namespace LPhys
     {
         bool intersection = false;
         glm::vec3 point;
+        float direction_ratio = 0.0f;
 
         inline operator bool() const { return intersection; }
     };

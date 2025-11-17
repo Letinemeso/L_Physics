@@ -36,6 +36,7 @@ Polygon_VS_Ray_Intersection_Data LPhys::ray_intersects_polygon(const glm::vec3& 
         return result;
 
     result.intersection = true;
+    result.direction_ratio = t;
     result.point = _start + _direction * t;
     return result;
 }
@@ -73,6 +74,7 @@ Polygon_VS_Ray_Intersection_Data LPhys::segment_intersects_polygon(const glm::ve
         return result;
 
     result.intersection = true;
+    result.direction_ratio = t;
     result.point = _start + direction * t;
     return result;
 }
