@@ -10,11 +10,11 @@ namespace LPhys
     {
     private:
         unsigned int m_min_polygons_for_optimization = 8;   //  if polygons amount on any mesh exceeds this value, optimization algotythm is used (something with space partitioning)
-        float m_min_plane_edge_difference = 0.1f;           //  if edge contact has depth difference with plane contact less than this value, plane contact is prioritized
+        float m_plane_contact_priority_ratio = 3.0f;           //  if edge contact has depth difference with plane contact less than this value, plane contact is prioritized
 
     public:
         inline void set_min_polygons_for_optimization(unsigned int _value) { m_min_polygons_for_optimization = _value; }
-        inline void set_min_plane_edge_difference(float _value) { m_min_plane_edge_difference = _value; }
+        inline void set_plane_contact_priority_ratio(float _value) { m_plane_contact_priority_ratio = _value; }
 
     public:
         LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const override;

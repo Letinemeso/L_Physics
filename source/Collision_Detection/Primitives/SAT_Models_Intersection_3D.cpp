@@ -127,7 +127,7 @@ namespace LPhys
         return result;
     }
 
-    Polygons_Intersection_Data check_triangles_intersection(const Polygon& _first, const Polygon& _second, float _min_plane_edge_difference)
+    Polygons_Intersection_Data check_triangles_intersection(const Polygon& _first, const Polygon& _second, float _plane_contact_priority_ratio)
     {
         glm::vec3 first_normal = LEti::Math::cross_product(_first[2] - _first[1], _first[0] - _first[1]);
         glm::vec3 second_normal = LEti::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
@@ -204,16 +204,23 @@ namespace LPhys
 
         Polygons_Intersection_Data result;
 
-        if(plane_id.depth < edge_id.depth)
+        float edge_depth_multiplied = edge_id.depth * _plane_contact_priority_ratio;
+
+        // if(plane_id.depth < edge_id.depth)
+        //     result = plane_id;
+        // else
+        // {
+        //     float plane_edge_depth_difference = plane_id.depth - edge_id.depth;
+        //     if(plane_edge_depth_difference < _plane_contact_priority_ratio)
+        //         result = plane_id;
+        //     else
+        //         result = edge_id;
+        // }
+
+        if(plane_id.depth < edge_depth_multiplied)
             result = plane_id;
         else
-        {
-            float plane_edge_depth_difference = plane_id.depth - edge_id.depth;
-            if(plane_edge_depth_difference < _min_plane_edge_difference)
-                result = plane_id;
-            else
-                result = edge_id;
-        }
+            result = edge_id;
 
         Polygons_Intersection_Data id = calculate_intersection_point(_first, _second);
         if(!id.intersection)
@@ -257,7 +264,7 @@ namespace LPhys
 
     Common_Intersection_Data calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1,
                                                            const Polygon_Holder_Base* _polygon_holder_2,
-                                                           float _min_plane_edge_difference)
+                                                           float _plane_contact_priority_ratio)
     {
         Common_Intersection_Data result;
 
@@ -268,7 +275,7 @@ namespace LPhys
                 const Polygon& polygon_1 = *_polygon_holder_1->get_polygon(i_1);
                 const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
 
-                Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2, _min_plane_edge_difference);
+                Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2, _plane_contact_priority_ratio);
 
                 if(!id.intersection)
                     continue;
@@ -289,7 +296,7 @@ namespace LPhys
     Common_Intersection_Data calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1,
                                                                      const Polygon_Holder_Base* _polygon_holder_2,
                                                                      float _min_polygons_for_optimization,
-                                                                     float _min_plane_edge_difference)
+                                                                     float _plane_contact_priority_ratio)
     {
         Common_Intersection_Data result;
 
@@ -299,7 +306,7 @@ namespace LPhys
         {
             const Polygons_Pair& pair = possible_colliding_polygons[i];
 
-            Polygons_Intersection_Data id = check_triangles_intersection(*pair.first, *pair.second, _min_plane_edge_difference);
+            Polygons_Intersection_Data id = check_triangles_intersection(*pair.first, *pair.second, _plane_contact_priority_ratio);
 
             if(!id.intersection)
                 continue;
@@ -324,9 +331,9 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 {
     Common_Intersection_Data id;
     if(_polygon_holder_1->amount() < m_min_polygons_for_optimization && _polygon_holder_2->amount() < m_min_polygons_for_optimization)
-        id = calculate_common_intersection(_polygon_holder_1, _polygon_holder_2, m_min_plane_edge_difference);
+        id = calculate_common_intersection(_polygon_holder_1, _polygon_holder_2, m_plane_contact_priority_ratio);
     else
-        id = calculate_common_intersection_optimized(_polygon_holder_1, _polygon_holder_2, m_min_polygons_for_optimization, m_min_plane_edge_difference);
+        id = calculate_common_intersection_optimized(_polygon_holder_1, _polygon_holder_2, m_min_polygons_for_optimization, m_plane_contact_priority_ratio);
 
     float push_out_vector_length = LEti::Math::vector_length(id.push_out_vector);
 
