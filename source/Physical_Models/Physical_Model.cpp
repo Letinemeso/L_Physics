@@ -146,10 +146,13 @@ const Polygon_Holder_Base* Physical_Model::get_polygons() const
 Physical_Model_Imprint::Physical_Model_Imprint(const Physical_Model* _parent)
 {
     m_parent = _parent;
+
     m_polygons_holder = m_parent->get_polygons()->create_copy();
-    m_polygons_holder->allocate(m_polygons_count);
-    for(unsigned int i=0; i<m_polygons_count; ++i)
+    unsigned int polygons_count = m_parent->get_polygons()->amount();
+    m_polygons_holder->allocate(polygons_count);
+    for(unsigned int i = 0; i < polygons_count; ++i)
         m_polygons_holder->get_polygon(i)->setup(*m_parent->get_polygons()->get_polygon(i));
+
     m_border = m_parent->border();
 }
 
@@ -158,8 +161,6 @@ Physical_Model_Imprint::Physical_Model_Imprint(Physical_Model_Imprint&& _other)
 {
     m_polygons_holder = _other.m_polygons_holder;
     _other.m_polygons_holder = nullptr;
-    m_polygons_count = _other.m_polygons_count;
-    _other.m_polygons_count = 0;
     m_parent = _other.m_parent;
     _other.m_parent = nullptr;
     m_border = _other.m_border;
@@ -168,11 +169,13 @@ Physical_Model_Imprint::Physical_Model_Imprint(Physical_Model_Imprint&& _other)
 Physical_Model_Imprint::Physical_Model_Imprint(const Physical_Model_Imprint& _other)
 {
     m_parent = _other.m_parent;
-    m_polygons_count = _other.m_polygons_count;
+
     m_polygons_holder = _other.m_polygons_holder->create_copy();
-    m_polygons_holder->allocate(m_polygons_count);
-    for(unsigned int i=0; i<m_polygons_count; ++i)
-        m_polygons_holder->get_polygon(i)->setup(*_other.m_polygons_holder->get_polygon(i));
+    unsigned int polygons_count = m_parent->get_polygons()->amount();
+    m_polygons_holder->allocate(polygons_count);
+    for(unsigned int i = 0; i < polygons_count; ++i)
+        m_polygons_holder->get_polygon(i)->setup(*m_parent->get_polygons()->get_polygon(i));
+
     m_border = _other.m_border;
 }
 
@@ -189,7 +192,7 @@ void Physical_Model_Imprint::M_update_border()
 
     m_border.reset();
 
-    for(unsigned int i=0; i<m_polygons_count; ++i)
+    for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
     {
         const Polygon& polygon = *m_polygons_holder->get_polygon(i);
 
@@ -213,7 +216,7 @@ void Physical_Model_Imprint::update_with_single_matrix(const glm::mat4x4& _matri
 {
     L_ASSERT(m_polygons_holder);
 
-    for(unsigned int i=0; i<m_polygons_count; ++i)
+    for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
         m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
     M_update_border();
 }
@@ -222,7 +225,7 @@ void Physical_Model_Imprint::update_to_current_model_state()
 {
     L_ASSERT(m_polygons_holder);
 
-    for(unsigned int i=0; i<m_polygons_count; ++i)
+    for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
     {
         Polygon& polygon = *m_polygons_holder->get_polygon(i);
         const Polygon& parent_polygon = *m_parent->get_polygons()->get_polygon(i);
@@ -236,13 +239,6 @@ void Physical_Model_Imprint::update_to_current_model_state()
 const Physical_Model* Physical_Model_Imprint::get_parent() const
 {
     return m_parent;
-}
-
-const Polygon* Physical_Model_Imprint::get_polygon(unsigned int _index) const
-{
-    L_ASSERT(m_polygons_holder && _index < m_polygons_count);
-
-    return m_polygons_holder->get_polygon(_index);
 }
 
 const Polygon_Holder_Base* Physical_Model_Imprint::get_polygons() const

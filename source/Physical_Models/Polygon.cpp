@@ -76,7 +76,6 @@ void Polygon::update_points_with_single_matrix(const glm::mat4x4 &_matrix)
 
 const glm::vec3& Polygon::operator[](unsigned int _index) const
 {
-//	L_ASSERT(!(_index > 2));
     switch(_index)
     {
     case 0 : return m_actual_A;
@@ -88,7 +87,6 @@ const glm::vec3& Polygon::operator[](unsigned int _index) const
 
 glm::vec3& Polygon::operator[](unsigned int _index)
 {
-//	L_ASSERT(!(_index > 2));
     switch(_index)
     {
     case 0 : return m_actual_A;
@@ -113,4 +111,12 @@ const glm::vec3& Polygon::center() const
 const glm::vec3& Polygon::center_raw() const
 {
     return m_center_raw;
+}
+
+glm::vec3 Polygon::calculate_normal(bool _normalize) const
+{
+    glm::vec3 result = LEti::Math::cross_product(m_actual_C - m_actual_B, m_actual_A - m_actual_B);
+    if(_normalize)
+        LEti::Math::shrink_vector_to_1(result);
+    return result;
 }

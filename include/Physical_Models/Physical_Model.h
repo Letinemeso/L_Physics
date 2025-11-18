@@ -110,7 +110,6 @@ namespace LPhys
 
     private:
         Polygon_Holder_Base* m_polygons_holder = nullptr;
-        unsigned int m_polygons_count = 0;
         Border m_border;
 
     public:
@@ -128,7 +127,6 @@ namespace LPhys
         void update_to_current_model_state();
 
         const Physical_Model* get_parent() const;
-        const Polygon* get_polygon(unsigned int _index) const;
         const Polygon_Holder_Base* get_polygons() const;
         const Border& border() const;
 
