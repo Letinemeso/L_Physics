@@ -228,6 +228,9 @@ void Physical_Model_Imprint::update(const glm::mat4x4 &_translation, const glm::
     glm::mat4x4 result_matrix = _translation * _rotation * _scale;
 
     update_with_single_matrix(result_matrix);
+
+    if(m_parent->caching_polygons_borders())
+        m_polygons_borders_cache = m_parent->polygons_borders();
 }
 
 void Physical_Model_Imprint::update_with_single_matrix(const glm::mat4x4& _matrix)
@@ -237,6 +240,9 @@ void Physical_Model_Imprint::update_with_single_matrix(const glm::mat4x4& _matri
     for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
         m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
     M_update_border();
+
+    if(m_parent->caching_polygons_borders())
+        m_polygons_borders_cache = m_parent->polygons_borders();
 }
 
 void Physical_Model_Imprint::update_to_current_model_state()
@@ -251,20 +257,7 @@ void Physical_Model_Imprint::update_to_current_model_state()
         polygon.setup(parent_polygon);
     }
     m_border = m_parent->border();
-}
 
-
-const Physical_Model* Physical_Model_Imprint::get_parent() const
-{
-    return m_parent;
-}
-
-const Polygon_Holder_Base* Physical_Model_Imprint::get_polygons() const
-{
-    return m_polygons_holder;
-}
-
-const Border& Physical_Model_Imprint::border() const
-{
-    return m_border;
+    if(m_parent->caching_polygons_borders())
+        m_polygons_borders_cache = m_parent->polygons_borders();
 }

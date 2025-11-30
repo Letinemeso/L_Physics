@@ -121,6 +121,7 @@ namespace LPhys
     private:
         Polygon_Holder_Base* m_polygons_holder = nullptr;
         Border m_border;
+        LDS::Vector<Border> m_polygons_borders_cache;
 
     public:
         Physical_Model_Imprint(const Physical_Model* _parent);
@@ -136,9 +137,10 @@ namespace LPhys
         void update_with_single_matrix(const glm::mat4x4& _matrix);
         void update_to_current_model_state();
 
-        const Physical_Model* get_parent() const;
-        const Polygon_Holder_Base* get_polygons() const;
-        const Border& border() const;
+        inline const Physical_Model* get_parent() const { return m_parent; }
+        inline const Polygon_Holder_Base* get_polygons() const { return m_polygons_holder; }
+        inline const Border& border() const { return m_border; }
+        inline const LDS::Vector<Border>& polygons_borders() const { return m_polygons_borders_cache; }
 
     };
 }

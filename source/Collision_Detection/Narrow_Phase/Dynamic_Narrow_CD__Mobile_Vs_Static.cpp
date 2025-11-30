@@ -141,21 +141,21 @@ Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_get_precise_time_ratio_
     Intersection_Data id;
 
     Physical_Model_Imprint first_impr = *_mobile.get_physical_model_prev_state();
-    Physical_Model_Imprint second_impr = *_static.get_physical_model_prev_state();
+    const Physical_Model& static_pm = *_static.get_physical_model();
 
     float curr_time_point = _min_ratio;
     while(curr_time_point <= _max_ratio)
     {
         LEti::Transformation_Data first_transform = LEti::Transformation_Data::get_transformation_data_for_ratio(*_mobile.transformation_data_prev_state(), *_mobile.transformation_data(), curr_time_point);
-        LEti::Transformation_Data second_transform = LEti::Transformation_Data::get_transformation_data_for_ratio(*_static.transformation_data_prev_state(), *_static.transformation_data(), curr_time_point);
 
         first_impr.update_with_single_matrix(first_transform.matrix());
-        second_impr.update_with_single_matrix(second_transform.matrix());
 
         id = m_intersection_detector->collision__model_vs_model(first_impr.get_polygons(),
                                                                 first_impr.border(),
-                                                                second_impr.get_polygons(),
-                                                                second_impr.border());
+                                                                first_impr.polygons_borders(),
+                                                                static_pm.get_polygons(),
+                                                                static_pm.border(),
+                                                                static_pm.polygons_borders());
         if(id)
             break;
 
@@ -165,8 +165,10 @@ Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_get_precise_time_ratio_
     if(!id && LEti::Math::floats_are_equal(_max_ratio, 1.0f))
         id = m_intersection_detector->collision__model_vs_model(_mobile.get_physical_model()->get_polygons(),
                                                                 _mobile.get_physical_model()->border(),
+                                                                _mobile.get_physical_model()->polygons_borders(),
                                                                 _static.get_physical_model()->get_polygons(),
-                                                                _static.get_physical_model()->border());
+                                                                _static.get_physical_model()->border(),
+                                                                _static.get_physical_model()->polygons_borders());
 
     if(id)
     {
@@ -190,8 +192,10 @@ Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::objects_collide(const Phy
     {
         Intersection_Data result = m_intersection_detector->collision__model_vs_model(_mobile.get_physical_model()->get_polygons(),
                                                                                       _mobile.get_physical_model()->border(),
+                                                                                      _mobile.get_physical_model()->polygons_borders(),
                                                                                       _static.get_physical_model()->get_polygons(),
-                                                                                      _static.get_physical_model()->border());
+                                                                                      _static.get_physical_model()->border(),
+                                                                                      _static.get_physical_model()->polygons_borders());
 
         if(!result)
             return Intersection_Data();

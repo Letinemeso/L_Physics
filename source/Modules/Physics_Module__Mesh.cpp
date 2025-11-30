@@ -170,4 +170,6 @@ BUILDER_STUB_INITIALIZATION_FUNC(Physics_Module_Stub__Mesh)
 
     if(on_collision_func)
         product->set_on_collision_function(on_collision_func);
+
+    product->set_cache_polygons_borders(cache_polygons_borders);
 }

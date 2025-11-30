@@ -102,7 +102,12 @@ Intersection_Data Dynamic_Narrow_CD::M_get_precise_time_ratio_of_collision(const
         first_impr.update_with_single_matrix(first_transform.matrix());
         second_impr.update_with_single_matrix(second_transform.matrix());
 
-        id = m_intersection_detector->collision__model_vs_model(first_impr.get_polygons(), first_impr.border(), second_impr.get_polygons(), second_impr.border());
+        id = m_intersection_detector->collision__model_vs_model(first_impr.get_polygons(),
+                                                                first_impr.border(),
+                                                                first_impr.polygons_borders(),
+                                                                second_impr.get_polygons(),
+                                                                second_impr.border(),
+                                                                second_impr.polygons_borders());
         if(id)
             break;
 
@@ -110,7 +115,12 @@ Intersection_Data Dynamic_Narrow_CD::M_get_precise_time_ratio_of_collision(const
     }
 
     if(!id && LEti::Math::floats_are_equal(_max_ratio, 1.0f))
-        id = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(), _first.get_physical_model()->border(), _second.get_physical_model()->get_polygons(), _second.get_physical_model()->border());
+        id = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(),
+                                                                _first.get_physical_model()->border(),
+                                                                _first.get_physical_model()->polygons_borders(),
+                                                                _second.get_physical_model()->get_polygons(),
+                                                                _second.get_physical_model()->border(),
+                                                                _second.get_physical_model()->polygons_borders());
 
     if(id)
     {
@@ -134,8 +144,10 @@ Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module__Mesh&
     {
         Intersection_Data result = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(),
                                                                                       _first.get_physical_model()->border(),
+                                                                                      _first.get_physical_model()->polygons_borders(),
                                                                                       _second.get_physical_model()->get_polygons(),
-                                                                                      _second.get_physical_model()->border());
+                                                                                      _second.get_physical_model()->border(),
+                                                                                      _second.get_physical_model()->polygons_borders());
 
         if(!result)
             return Intersection_Data();

@@ -295,8 +295,10 @@ namespace LPhys
 
     Common_Intersection_Data calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1,
                                                                      const Border& _border_1,
+                                                                     const LDS::Vector<Border>& _polygons_borders_cache_1,
                                                                      const Polygon_Holder_Base* _polygon_holder_2,
                                                                      const Border& _border_2,
+                                                                     const LDS::Vector<Border>& _polygons_borders_cache_2,
                                                                      float _min_polygons_for_optimization,
                                                                      float _plane_contact_priority_ratio)
     {
@@ -304,7 +306,7 @@ namespace LPhys
 
         Border exclusion_border = _border_1 && _border_2;
 
-        Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, {}, *_polygon_holder_2, {}, 3, exclusion_border);
+        Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, _polygons_borders_cache_1, *_polygon_holder_2, _polygons_borders_cache_2, 3, exclusion_border);
 
         for(unsigned int i = 0; i < possible_colliding_polygons.size(); ++i)
         {
@@ -333,14 +335,16 @@ namespace LPhys
 
 LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1,
                                                                                const Border& _border_1,
+                                                                               const LDS::Vector<Border>& _polygons_borders_cache_1,
                                                                                const Polygon_Holder_Base* _polygon_holder_2,
-                                                                               const Border& _border_2) const
+                                                                               const Border& _border_2,
+                                                                               const LDS::Vector<Border>& _polygons_borders_cache_2) const
 {
     Common_Intersection_Data id;
     if(_polygon_holder_1->amount() < m_min_polygons_for_optimization && _polygon_holder_2->amount() < m_min_polygons_for_optimization)
         id = calculate_common_intersection(_polygon_holder_1, _polygon_holder_2, m_plane_contact_priority_ratio);
     else
-        id = calculate_common_intersection_optimized(_polygon_holder_1, _border_1, _polygon_holder_2, _border_2, m_min_polygons_for_optimization, m_plane_contact_priority_ratio);
+        id = calculate_common_intersection_optimized(_polygon_holder_1, _border_1, _polygons_borders_cache_1, _polygon_holder_2, _border_2, _polygons_borders_cache_2, m_min_polygons_for_optimization, m_plane_contact_priority_ratio);
 
     float push_out_vector_length = LEti::Math::vector_length(id.push_out_vector);
 
