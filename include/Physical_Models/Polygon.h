@@ -2,6 +2,8 @@
 
 #include <Math_Stuff.h>
 
+#include <Physical_Models/Border.h>
+
 namespace LPhys
 {
 
@@ -35,6 +37,7 @@ namespace LPhys
         const glm::vec3& center() const;
         const glm::vec3& center_raw() const;
         glm::vec3 calculate_normal(bool _normalize = false) const;
+        Border construct_border() const;
 
     };
 

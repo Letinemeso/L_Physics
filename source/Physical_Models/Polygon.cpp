@@ -120,3 +120,12 @@ glm::vec3 Polygon::calculate_normal(bool _normalize) const
         LEti::Math::shrink_vector_to_1(result);
     return result;
 }
+
+Border Polygon::construct_border() const
+{
+    Border result;
+    result.consider_point(m_actual_A);
+    result.consider_point(m_actual_B);
+    result.consider_point(m_actual_C);
+    return result;
+}

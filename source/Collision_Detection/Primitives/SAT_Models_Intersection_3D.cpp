@@ -300,7 +300,17 @@ namespace LPhys
     {
         Common_Intersection_Data result;
 
-        Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, *_polygon_holder_2, 3);
+        Border border_1;
+        Border border_2;
+
+        for(unsigned int i = 0; i < _polygon_holder_1->amount(); ++i)
+            border_1.expand_with(_polygon_holder_1->get_polygon(i)->construct_border());
+        for(unsigned int i = 0; i < _polygon_holder_2->amount(); ++i)
+            border_2.expand_with(_polygon_holder_2->get_polygon(i)->construct_border());
+
+        Border exclusion_border = border_1 && border_2;
+
+        Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, *_polygon_holder_2, 3, exclusion_border);
 
         for(unsigned int i = 0; i < possible_colliding_polygons.size(); ++i)
         {
