@@ -47,11 +47,22 @@ void Physics_Module__Mesh::setup_base_data(const float* _raw_coords, unsigned in
     m_physical_model = M_create_physical_model();
 
     m_physical_model->setup(_raw_coords, _raw_coords_count, _collision_permissions);
+    m_physical_model->set_cache_polygons_borders(m_cache_polygons_borders);
 
     if(transformation_data())
         m_physical_model->update(transformation_data()->matrix());
 
     m_physical_model_prev_state = m_physical_model->create_imprint();
+}
+
+void Physics_Module__Mesh::set_cache_polygons_borders(bool _value)
+{
+    m_cache_polygons_borders = _value;
+
+    if(!m_physical_model)
+        return;
+
+    m_physical_model->set_cache_polygons_borders(_value);
 }
 
 

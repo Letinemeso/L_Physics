@@ -28,6 +28,23 @@ void Physical_Model::M_update_border()
     }
 }
 
+void Physical_Model::M_update_polygons_borders_if_enabled()
+{
+    if(!m_cache_polygons_borders)
+        return;
+
+    unsigned int polygons_amount = m_polygons_holder->amount();
+
+    if(polygons_amount == 0)
+        return;
+
+    if(m_polygons_borders_cache.size() != polygons_amount)
+        m_polygons_borders_cache.resize_and_fill(polygons_amount, {});
+
+    for(unsigned int i = 0; i < polygons_amount; ++i)
+        m_polygons_borders_cache[i] = m_polygons_holder->get_polygon(i)->construct_border();
+}
+
 glm::vec3 Physical_Model::M_calculate_center_of_mass() const
 {
     glm::vec3 result(0.0f, 0.0f, 0.0f);
@@ -51,6 +68,16 @@ Physical_Model::Physical_Model(const Physical_Model& _other)
     setup(_other.m_raw_coords, _other.m_raw_coords_count, _other.m_collision_permissions);
     copy_real_coordinates(_other);
 }
+
+
+Physical_Model::~Physical_Model()
+{
+    delete[] m_raw_coords;
+    delete[] m_collision_permissions;
+    delete m_polygons_holder;
+}
+
+
 
 void Physical_Model::setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
 {
@@ -97,13 +124,6 @@ void Physical_Model::move_raw(const glm::vec3 &_stride)
         m_polygons_holder->get_polygon(i)->calculate_center();
 }
 
-Physical_Model::~Physical_Model()
-{
-    delete[] m_raw_coords;
-    delete[] m_collision_permissions;
-    delete m_polygons_holder;
-}
-
 
 void Physical_Model::update(const glm::mat4x4& _matrix)
 {
@@ -114,17 +134,22 @@ void Physical_Model::update(const glm::mat4x4& _matrix)
 
     M_update_border();
     m_center_of_mass = M_calculate_center_of_mass();
+
+    M_update_polygons_borders_if_enabled();
 }
 
 void Physical_Model::copy_real_coordinates(const Physical_Model &_other)
 {
-    for (unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
+    for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
     {
         for(unsigned int points_i = 0; points_i < 3; ++points_i)
             m_polygons_holder->get_polygon(i)[points_i] = _other.m_polygons_holder->get_polygon(i)[points_i];
     }
     m_border = _other.m_border;
+
+    M_update_polygons_borders_if_enabled();
 }
+
 
 
 Physical_Model_Imprint* Physical_Model::create_imprint() const
@@ -134,14 +159,7 @@ Physical_Model_Imprint* Physical_Model::create_imprint() const
 
 
 
-const Polygon_Holder_Base* Physical_Model::get_polygons() const
-{
-    return m_polygons_holder;
-}
 
-
-
-//  Physical_Model_Imprint
 
 Physical_Model_Imprint::Physical_Model_Imprint(const Physical_Model* _parent)
 {

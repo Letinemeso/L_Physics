@@ -221,7 +221,7 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 
 
 
-LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Polygon_Holder_Base* _polygon_holder_2) const
+LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Border& _border_1, const Polygon_Holder_Base* _polygon_holder_2, const Border& _border_2) const
 {
     unsigned int first_collided_polygon = 0xFFFFFFFF;
     unsigned int second_collided_polygon = 0xFFFFFFFF;

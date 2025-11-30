@@ -102,7 +102,7 @@ Intersection_Data Dynamic_Narrow_CD::M_get_precise_time_ratio_of_collision(const
         first_impr.update_with_single_matrix(first_transform.matrix());
         second_impr.update_with_single_matrix(second_transform.matrix());
 
-        id = m_intersection_detector->collision__model_vs_model(first_impr.get_polygons(), second_impr.get_polygons());
+        id = m_intersection_detector->collision__model_vs_model(first_impr.get_polygons(), first_impr.border(), second_impr.get_polygons(), second_impr.border());
         if(id)
             break;
 
@@ -110,7 +110,7 @@ Intersection_Data Dynamic_Narrow_CD::M_get_precise_time_ratio_of_collision(const
     }
 
     if(!id && LEti::Math::floats_are_equal(_max_ratio, 1.0f))
-        id = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(), _second.get_physical_model()->get_polygons());
+        id = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(), _first.get_physical_model()->border(), _second.get_physical_model()->get_polygons(), _second.get_physical_model()->border());
 
     if(id)
     {
@@ -132,7 +132,10 @@ Intersection_Data Dynamic_Narrow_CD::objects_collide(const Physics_Module__Mesh&
 {
     if(m_precision < 2)
     {
-        Intersection_Data result = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(), _second.get_physical_model()->get_polygons());
+        Intersection_Data result = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(),
+                                                                                      _first.get_physical_model()->border(),
+                                                                                      _second.get_physical_model()->get_polygons(),
+                                                                                      _second.get_physical_model()->border());
 
         if(!result)
             return Intersection_Data();

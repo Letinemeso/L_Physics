@@ -1,10 +1,10 @@
 #pragma once
 
-#include "vec3.hpp"
-#include "mat4x4.hpp"
+#include <vec3.hpp>
+#include <mat4x4.hpp>
 
-#include "L_Debug/L_Debug.h"
-#include "Data_Structures/List.h"
+#include <L_Debug/L_Debug.h>
+#include <Data_Structures/Vector.h>
 
 #include <Math_Stuff.h>
 
@@ -65,17 +65,21 @@ namespace LPhys
 
         Polygon_Holder_Base* m_polygons_holder = nullptr;
 
+        bool m_cache_polygons_borders = false;
+
     private:
         glm::vec3 m_center_of_mass{0.0f, 0.0f, 0.0f};
 
-	private:
+    private:
         Border m_border;
+        LDS::Vector<Border> m_polygons_borders_cache;
 
     private:
         virtual Polygon_Holder_Base* M_create_polygons_holder() const;
 
 	private:
         void M_update_border();
+        void M_update_polygons_borders_if_enabled();
         virtual glm::vec3 M_calculate_center_of_mass() const;
 
 	public:
@@ -86,20 +90,26 @@ namespace LPhys
 	public:
         Physical_Model();
         Physical_Model(const Physical_Model& _other);
-		void setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
-		void move_raw(const glm::vec3& _stride);
 
         virtual ~Physical_Model();
+
+    public:
+        inline void set_cache_polygons_borders(bool _value) { m_cache_polygons_borders = _value; }
+
+    public:
+		void setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
+        void move_raw(const glm::vec3& _stride);
 
         virtual void update(const glm::mat4x4& _matrix);
         void copy_real_coordinates(const Physical_Model& _other);
 
-        Physical_Model_Imprint* create_imprint() const;
-
     public:
-        const Polygon_Holder_Base* get_polygons() const;
-
+        inline const Polygon_Holder_Base* get_polygons() const { return m_polygons_holder; }
         inline const glm::vec3& center_of_mass() const { return m_center_of_mass; }
+        inline bool caching_polygons_borders() const {  return m_cache_polygons_borders; }
+        inline const LDS::Vector<Border>& polygons_borders() const { return m_polygons_borders_cache; }
+
+        Physical_Model_Imprint* create_imprint() const;
 
 	};
 

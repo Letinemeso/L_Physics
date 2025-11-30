@@ -18,6 +18,9 @@ namespace LPhys
     public:
         INIT_VARIABLE(LPhys::Physics_Module__Mesh, LPhys::Physics_Module);
 
+    private:
+        bool m_cache_polygons_borders = false;
+
     protected:
         Border m_border;
 
@@ -38,6 +41,7 @@ namespace LPhys
 
     public:
         void setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
+        void set_cache_polygons_borders(bool _value);
 
         void move_raw(const glm::vec3 &_stride);
 
@@ -70,6 +74,7 @@ namespace LPhys
         INIT_FIELDS
         ADD_FIELD(LDS::Vector<float>, coords)
         ADD_FIELD(LDS::Vector<bool>, collision_permissions)
+        ADD_FIELD(bool, cache_polygons_borders)
         FIELDS_END
 
         INIT_CHILDS
@@ -79,6 +84,8 @@ namespace LPhys
     public:
         LDS::Vector<float> coords;
         LDS::Vector<bool> collision_permissions;
+
+        bool cache_polygons_borders = false;
 
     public:
         LEti::Data_Provider* data_provider = nullptr;
