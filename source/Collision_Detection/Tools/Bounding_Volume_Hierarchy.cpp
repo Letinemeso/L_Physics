@@ -309,7 +309,7 @@ Possible_Colliding_Polygons LPhys::find_possible_colliding_polygons(const Polygo
     unsigned int exclusions_size = calculate_exclusions_amount(total_polygon_amount);
     LDS::Vector<bool> exclusions(exclusions_size, false);
 
-    Possible_Colliding_Polygons result( (polygons_1.size() > polygons_2.size() ? polygons_1.size() : polygons_2.size()) / 2 );
+    Possible_Colliding_Polygons result( (polygons_1.size() > polygons_2.size() ? polygons_1.size() : polygons_2.size()) );
 
     find_possible_colliding_polygons_in_area(result, exclusions, polygons_1, polygons_2, common_area, total_polygon_amount, _min_polygons_in_area, 0);
 
