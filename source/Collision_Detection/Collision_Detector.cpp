@@ -43,6 +43,12 @@ void Collision_Detector::register_module(Physics_Module *_module)
     m_registred_modules.push_back(_module);
 }
 
+void Collision_Detector::register_modules(const Registred_Modules_List& _modules)
+{
+    for(Registred_Modules_List::Const_Iterator it = _modules.begin(); !it.end_reached(); ++it)
+        m_registred_modules.push_back(*it);
+}
+
 void Collision_Detector::unregister_module(Physics_Module *_module)
 {
     Registred_Modules_List::Iterator it = m_registred_modules.begin();

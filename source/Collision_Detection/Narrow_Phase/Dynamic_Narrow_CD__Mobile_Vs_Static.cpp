@@ -259,16 +259,19 @@ void Dynamic_Narrow_CD__Mobile_Vs_Static::update(const Broad_Phase_Interface::Co
         {
             Intersection_Data id;
 
-            if(second->is_static())
-                id = objects_collide(*first, *second);
-            else
-                id = objects_collide(*second, *first);
+            Physics_Module__Mesh* dynamic_module = first;
+            Physics_Module__Mesh* static_module = second;
+
+            if(dynamic_module->is_static())
+                std::swap(dynamic_module, static_module);
+
+            id = objects_collide(*dynamic_module, *static_module);
 
             if(!id)
                 return;
 
-            id.first = first;
-            id.second = second;
+            id.first = dynamic_module;
+            id.second = static_module;
 
             m_save_intersection_mutex.lock();
             m_collisions.push_back(id);

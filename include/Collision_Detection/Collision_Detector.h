@@ -35,6 +35,7 @@ namespace LPhys
 
 	public:
         void register_module(Physics_Module* _module);
+        void register_modules(const Registred_Modules_List& _modules);
         void unregister_module(Physics_Module* _module);
         void unregister_all_modules();
 
