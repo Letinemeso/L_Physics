@@ -36,7 +36,7 @@ Intersection_Data Narrow_Phase__Model_Vs_Ray::M_check_model_vs_ray_intersection(
         result.second = _modules.ray;
         result.first_collided_polygon_index = i;
 
-        result.type = Intersection_Data::Type::intersection;
+        result.intersection = true;
     }
 
     return result;

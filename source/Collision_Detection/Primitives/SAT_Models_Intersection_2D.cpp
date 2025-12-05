@@ -268,7 +268,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(c
     if(depth > 0.00001f)
         push_out_vector /= depth;
 
-    LPhys::Intersection_Data result(LPhys::Intersection_Data::Type::intersection);
+    LPhys::Intersection_Data result(true);
 
     result.normal = -push_out_vector;
 	LEti::Math::shrink_vector_to_1(result.normal);

@@ -32,7 +32,7 @@ Intersection_Data Narrow_Phase__Model_Vs_Point::M_check_model_vs_point_intersect
         result.second = _modules.point;
         result.first_collided_polygon_index = i;
 
-        result.type = Intersection_Data::Type::intersection;
+        result.intersection = true;
     }
 
     return result;

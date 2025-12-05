@@ -12,15 +12,7 @@ namespace LPhys
     struct Intersection_Data
     {
     public:
-        enum class Type
-        {
-            none = 0,
-            intersection,
-            same_line
-        };
-
-    public:
-        Type type = Type::none;
+        bool intersection = false;
         glm::vec3 point{0.0f, 0.0f, 0.0f};
         glm::vec3 normal{0.0f, 0.0f, 0.0f};
         float depth = 0.0f;
@@ -33,14 +25,14 @@ namespace LPhys
 
     public:
         Intersection_Data();
-        Intersection_Data(Type _type);
-        Intersection_Data(Type _type, const glm::vec3& _point);
+        Intersection_Data(bool _intersection);
+        Intersection_Data(bool _intersection, const glm::vec3& _point);
         Intersection_Data(const Intersection_Data& _other);
         Intersection_Data(Intersection_Data&& _other);
         void operator=(const Intersection_Data& _other);
 
     public:
-        inline operator bool() { return type != Type::none; }
+        inline operator bool() { return intersection; }
     };
 
 }
