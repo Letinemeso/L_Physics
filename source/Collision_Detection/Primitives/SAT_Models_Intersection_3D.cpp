@@ -206,17 +206,6 @@ namespace LPhys
 
         float edge_depth_multiplied = edge_id.depth * _plane_contact_priority_ratio;
 
-        // if(plane_id.depth < edge_id.depth)
-        //     result = plane_id;
-        // else
-        // {
-        //     float plane_edge_depth_difference = plane_id.depth - edge_id.depth;
-        //     if(plane_edge_depth_difference < _plane_contact_priority_ratio)
-        //         result = plane_id;
-        //     else
-        //         result = edge_id;
-        // }
-
         if(plane_id.depth < edge_depth_multiplied)
             result = plane_id;
         else
@@ -229,20 +218,9 @@ namespace LPhys
         result.point = id.point;
         result.intersection = true;
 
-        return result;
-    }
+        if(LEti::Math::dot_product(result.normal, first_normal) < 0.0f)
+            result.normal *= -1.0f;
 
-
-    glm::vec3 combine_push_out_vectors(const glm::vec3& _first, const glm::vec3& _second)
-    {
-        glm::vec3 result;
-        for(unsigned int i = 0; i < 3; ++i)
-        {
-            if(fabsf(_first[i]) > fabsf(_second[i]))
-                result[i] = _first[i];
-            else
-                result[i] = _second[i];
-        }
         return result;
     }
 
@@ -251,14 +229,8 @@ namespace LPhys
     {
         glm::vec3 point = { 0.0f, 0.0f, 0.0f };
         glm::vec3 push_out_vector = { 0.0f, 0.0f, 0.0f };
+        float total_depth = 0.0f;
         unsigned int intersections_amount = 0;
-
-        void operator+=(const Common_Intersection_Data& _other)
-        {
-            point += _other.point;
-            push_out_vector = combine_push_out_vectors(push_out_vector, _other.push_out_vector);
-            intersections_amount += _other.intersections_amount;
-        }
     };
 
 
@@ -286,7 +258,8 @@ namespace LPhys
 
                 glm::vec3 push_out_vector = -id.normal * id.depth;
 
-                result.push_out_vector = combine_push_out_vectors(result.push_out_vector, push_out_vector);
+                result.push_out_vector += push_out_vector;
+                result.total_depth += id.depth;
             }
         }
 
@@ -323,7 +296,8 @@ namespace LPhys
 
             glm::vec3 push_out_vector = -id.normal * id.depth;
 
-            result.push_out_vector = combine_push_out_vectors(result.push_out_vector, push_out_vector);
+            result.push_out_vector += push_out_vector;
+            result.total_depth += id.depth;
         }
 
         return result;
@@ -353,7 +327,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 
     Intersection_Data result;
     result.intersection = true;
-    result.depth = push_out_vector_length;
+    result.depth = id.total_depth / (float)id.intersections_amount;
     result.normal = id.push_out_vector / push_out_vector_length;
     result.point = id.point / (float)id.intersections_amount;
 

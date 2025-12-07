@@ -146,6 +146,37 @@ Dynamic_Narrow_CD__Mobile_Vs_Static::Ratio_Pair Dynamic_Narrow_CD__Mobile_Vs_Sta
     return result;
 }
 
+
+
+Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_mix_intersection_data(const LDS::Vector<Intersection_Data>& _ids) const
+{
+    if(_ids.size() == 0)
+        return {};
+
+    Intersection_Data result = _ids[0];
+
+    glm::vec3 result_push_out_vec = _ids[0].normal * _ids[0].depth;
+    for(unsigned int id_i = 1; id_i < _ids.size(); ++id_i)
+    {
+        const Intersection_Data& id = _ids[id_i];
+
+        glm::vec3 push_out_vec = id.normal * id.depth;
+
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            if(fabsf(push_out_vec[i]) > fabsf(result_push_out_vec[i]))
+                result_push_out_vec[i] = push_out_vec[i];
+        }
+    }
+
+    result.depth = LEti::Math::vector_length(result_push_out_vec);
+    if(result.depth > 0.0f)
+        result_push_out_vec /= result.depth;
+    result.normal = result_push_out_vec;
+
+    return result;
+}
+
 Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_get_precise_time_ratio_of_collision(const Physics_Module__Mesh& _mobile, const Physics_Module__Mesh& _static, float _min_ratio, float _max_ratio) const
 {
     L_ASSERT(!(_min_ratio < 0.0f || _max_ratio < 0.0f || _min_ratio > 1.0f || _max_ratio > 1.0f));
@@ -153,7 +184,7 @@ Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_get_precise_time_ratio_
     float diff = _max_ratio - _min_ratio;
     float step_diff = diff / (float)m_interpolation_precision;
 
-    Intersection_Data id;
+    LDS::Vector<Intersection_Data> ids(m_interpolation_precision);
 
     Physical_Model_Imprint first_impr = *_mobile.get_physical_model_prev_state();
     const Physical_Model& static_pm = *_static.get_physical_model();
@@ -165,17 +196,19 @@ Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_get_precise_time_ratio_
 
         first_impr.update_with_single_matrix(first_transform.matrix());
 
-        id = m_intersection_detector->collision__model_vs_model(first_impr.get_polygons(),
+        Intersection_Data id = m_intersection_detector->collision__model_vs_model(first_impr.get_polygons(),
                                                                 first_impr.border(),
                                                                 first_impr.polygons_borders(),
                                                                 static_pm.get_polygons(),
                                                                 static_pm.border(),
                                                                 static_pm.polygons_borders());
         if(id)
-            break;
+            ids.push(id);
 
         curr_time_point += step_diff;
     }
+
+    Intersection_Data id = M_mix_intersection_data(ids);
 
     if(!id && LEti::Math::floats_are_equal(_max_ratio, 1.0f))
         id = m_intersection_detector->collision__model_vs_model(_mobile.get_physical_model()->get_polygons(),
