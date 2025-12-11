@@ -81,7 +81,7 @@ void Collision_Detector::update()
 
     const Broad_Phase_Interface::Colliding_Pair_List& possible_collisions = m_broad_phase->possible_collisions();
 
-    m_narrow_phase->update(m_broad_phase->possible_collisions());
+    m_narrow_phase->update(possible_collisions);
 }
 
 void Collision_Detector::update_with_external_models(const Registred_Modules_List& _external_models)

@@ -43,6 +43,12 @@ void Border::M_update_validness()
 
 Border& Border::consider_point(const glm::vec3 &_point)
 {
+    L_DEBUG_FUNC_NOARG([&]()
+    {
+        for(unsigned int i = 0; i < 3; ++i)
+            L_ASSERT(!std::isnan(_point[i]));
+    });
+
     if(!m_valid)
     {
         m_offset = _point;

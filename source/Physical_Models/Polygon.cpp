@@ -71,6 +71,17 @@ void Polygon::update_points_with_single_matrix(const glm::mat4x4 &_matrix)
     m_actual_B = _matrix * glm::vec4(m_raw_coords[3], m_raw_coords[4], m_raw_coords[5], 1.0f);
     m_actual_C = _matrix * glm::vec4(m_raw_coords[6], m_raw_coords[7], m_raw_coords[8], 1.0f);
     m_center = _matrix * glm::vec4(m_center_raw, 1.0f);
+
+    L_DEBUG_FUNC_NOARG([&]()
+    {
+        for(unsigned int i = 0; i < 3; ++i)
+        {
+            L_ASSERT(!std::isnan(m_actual_A[i]));
+            L_ASSERT(!std::isnan(m_actual_B[i]));
+            L_ASSERT(!std::isnan(m_actual_C[i]));
+        }
+    });
+
 }
 
 
