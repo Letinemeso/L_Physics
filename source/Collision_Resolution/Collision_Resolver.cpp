@@ -17,6 +17,8 @@ Collision_Resolver::~Collision_Resolver()
 
 void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt) const
 {
+    L_ASSERT(m_resolution);
+
     if(m_resolution->resolve(_id, _dt))
     {
         _id.first->on_collision(_id.second);
