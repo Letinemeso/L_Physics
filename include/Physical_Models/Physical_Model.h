@@ -68,9 +68,6 @@ namespace LPhys
         bool m_cache_polygons_borders = false;
 
     private:
-        glm::vec3 m_center_of_mass{0.0f, 0.0f, 0.0f};
-
-    private:
         Border m_border;
         LDS::Vector<Border> m_polygons_borders_cache;
 
@@ -80,7 +77,6 @@ namespace LPhys
 	private:
         void M_update_border();
         void M_update_polygons_borders_if_enabled();
-        virtual glm::vec3 M_calculate_center_of_mass() const;
 
 	public:
         inline const Border& border() const { return m_border; }
@@ -105,7 +101,6 @@ namespace LPhys
 
     public:
         inline const Polygon_Holder_Base* get_polygons() const { return m_polygons_holder; }
-        inline const glm::vec3& center_of_mass() const { return m_center_of_mass; }
         inline bool caching_polygons_borders() const {  return m_cache_polygons_borders; }
         inline const LDS::Vector<Border>& polygons_borders() const { return m_polygons_borders_cache; }
 

@@ -45,17 +45,6 @@ void Physical_Model::M_update_polygons_borders_if_enabled()
         m_polygons_borders_cache[i] = m_polygons_holder->get_polygon(i)->construct_border();
 }
 
-glm::vec3 Physical_Model::M_calculate_center_of_mass() const
-{
-    glm::vec3 result(0.0f, 0.0f, 0.0f);
-
-    for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
-        result += m_polygons_holder->get_polygon(i)->center();
-    result /= (float)m_polygons_holder->amount();
-
-    return result;
-}
-
 
 
 Physical_Model::Physical_Model()
@@ -133,7 +122,6 @@ void Physical_Model::update(const glm::mat4x4& _matrix)
         m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
 
     M_update_border();
-    m_center_of_mass = M_calculate_center_of_mass();
 
     M_update_polygons_borders_if_enabled();
 }
