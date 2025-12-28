@@ -22,9 +22,8 @@ namespace LPhys
         bool m_can_collide = true;
         bool m_is_static = false;
 
-    private:
+    protected:
         using Transformations_List = LDS::List<LEti::Transformation_Data>;
-
         Transformations_List m_transformations_after_collisions;
 
     private:

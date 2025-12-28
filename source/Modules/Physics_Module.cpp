@@ -25,7 +25,6 @@ void Physics_Module::apply_data_after_collisions()
     if(m_transformations_after_collisions.size() == 0)
         return;
 
-    glm::vec3 modified_position(0.0f, 0.0f, 0.0f);
     glm::vec3 average_rotation(0.0f, 0.0f, 0.0f);
     glm::vec3 average_scale(0.0f, 0.0f, 0.0f);
 
