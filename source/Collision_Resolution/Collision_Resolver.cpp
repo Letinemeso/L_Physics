@@ -10,19 +10,35 @@ Collision_Resolver::Collision_Resolver()
 
 Collision_Resolver::~Collision_Resolver()
 {
-    delete m_resolution;
+    clear_resolutions();
+}
+
+
+
+void Collision_Resolver::clear_resolutions()
+{
+    for(unsigned int i = 0; i < m_resolutions.size(); ++i)
+        delete m_resolutions[i];
+    m_resolutions.mark_empty();
 }
 
 
 
 void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt) const
 {
-    L_ASSERT(m_resolution);
+    L_ASSERT(m_resolutions.size() > 0);
 
-    if(m_resolution->resolve(_id, _dt))
+    for(unsigned int i = 0; i < m_resolutions.size(); ++i)
     {
+        Collision_Resolution_Interface* resolution = m_resolutions[i];
+
+        if(!resolution->resolve(_id, _dt))
+            continue;
+
         _id.first->on_collision(_id.second);
         _id.second->on_collision(_id.first);
+
+        break;
     }
 }
 
