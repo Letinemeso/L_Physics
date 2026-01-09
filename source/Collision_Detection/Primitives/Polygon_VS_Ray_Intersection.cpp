@@ -12,8 +12,8 @@ Polygon_VS_Ray_Intersection_Data LPhys::ray_intersects_polygon(const glm::vec3& 
     glm::vec3 edge1 = _polygon[1] - _polygon[0];
     glm::vec3 edge2 = _polygon[2] - _polygon[0];
 
-    glm::vec3 pvec = LEti::Math::cross_product(_direction, edge2);
-    float det = LEti::Math::dot_product(edge1, pvec);
+    glm::vec3 pvec = LST::Math::cross_product(_direction, edge2);
+    float det = LST::Math::dot_product(edge1, pvec);
 
     if (det < _tolerance && det > -_tolerance)
         return result;
@@ -21,12 +21,12 @@ Polygon_VS_Ray_Intersection_Data LPhys::ray_intersects_polygon(const glm::vec3& 
     float inv_det = 1.0f / det;
 
     glm::vec3 tvec = _start - _polygon[0];
-    float u = LEti::Math::dot_product(tvec, pvec) * inv_det;
+    float u = LST::Math::dot_product(tvec, pvec) * inv_det;
     if (u < 0.0f || u > 1.0f)
         return result;
 
-    glm::vec3 qvec = LEti::Math::cross_product(tvec, edge1);
-    float v = LEti::Math::dot_product(_direction, qvec) * inv_det;
+    glm::vec3 qvec = LST::Math::cross_product(tvec, edge1);
+    float v = LST::Math::dot_product(_direction, qvec) * inv_det;
     if (v < 0.0f || u + v > 1.0f)
         return result;
 
@@ -50,8 +50,8 @@ Polygon_VS_Ray_Intersection_Data LPhys::segment_intersects_polygon(const glm::ve
 
     glm::vec3 direction = _end - _start;
 
-    glm::vec3 pvec = LEti::Math::cross_product(direction, edge2);
-    float det = LEti::Math::dot_product(edge1, pvec);
+    glm::vec3 pvec = LST::Math::cross_product(direction, edge2);
+    float det = LST::Math::dot_product(edge1, pvec);
 
     if (det < _tolerance && det > -_tolerance)
         return result;
@@ -59,12 +59,12 @@ Polygon_VS_Ray_Intersection_Data LPhys::segment_intersects_polygon(const glm::ve
     float inv_det = 1.0f / det;
 
     glm::vec3 tvec = _start - _polygon[0];
-    float u = LEti::Math::dot_product(tvec, pvec) * inv_det;
+    float u = LST::Math::dot_product(tvec, pvec) * inv_det;
     if (u < 0.0f || u > 1.0f)
         return result;
 
-    glm::vec3 qvec = LEti::Math::cross_product(tvec, edge1);
-    float v = LEti::Math::dot_product(direction, qvec) * inv_det;
+    glm::vec3 qvec = LST::Math::cross_product(tvec, edge1);
+    float v = LST::Math::dot_product(direction, qvec) * inv_det;
     if (v < 0.0f || u + v > 1.0f)
         return result;
 

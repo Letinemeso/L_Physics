@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Math_Stuff.h>
+#include <Stuff/Math_Stuff.h>
 
 
 namespace LPhys

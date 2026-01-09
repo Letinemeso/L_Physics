@@ -72,9 +72,9 @@ Dynamic_Narrow_CD::Ratio_Pair Dynamic_Narrow_CD::M_find_possible_collision_timef
         float stride_of_min = (relative_border_1.offset()[i]) - (relative_border_1_prev.offset()[i]);
         float stride_of_max = (relative_border_1.offset()[i] + relative_border_1.size()[i]) - (relative_border_1_prev.offset()[i] + relative_border_1_prev.size()[i]);
 
-        if(!LEti::Math::floats_are_equal(stride_of_max, 0.0f))
+        if(!LST::Math::floats_are_equal(stride_of_max, 0.0f))
             result.consider_value(( border_2.offset()[i] - (relative_border_1.offset()[i] + relative_border_1.size()[i]) ) / stride_of_max);
-        if(!LEti::Math::floats_are_equal(stride_of_min, 0.0f))
+        if(!LST::Math::floats_are_equal(stride_of_min, 0.0f))
             result.consider_value(( (border_2.offset()[i] + border_2.size()[i]) - relative_border_1_prev.offset()[i] ) / stride_of_min);
     }
 
@@ -114,7 +114,7 @@ Intersection_Data Dynamic_Narrow_CD::M_get_precise_time_ratio_of_collision(const
         curr_time_point += step_diff;
     }
 
-    if(!id && LEti::Math::floats_are_equal(_max_ratio, 1.0f))
+    if(!id && LST::Math::floats_are_equal(_max_ratio, 1.0f))
         id = m_intersection_detector->collision__model_vs_model(_first.get_physical_model()->get_polygons(),
                                                                 _first.get_physical_model()->border(),
                                                                 _first.get_physical_model()->polygons_borders(),

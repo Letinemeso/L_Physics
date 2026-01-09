@@ -6,7 +6,7 @@
 #include <L_Debug/L_Debug.h>
 #include <Data_Structures/Vector.h>
 
-#include <Math_Stuff.h>
+#include <Stuff/Math_Stuff.h>
 
 #include <Physical_Models/Border.h>
 #include <Physical_Models/Polygon.h>

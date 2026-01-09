@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Math_Stuff.h>
+#include <Stuff/Math_Stuff.h>
 
 #include <Physical_Models/Polygon.h>
 #include <Physical_Models/Border.h>

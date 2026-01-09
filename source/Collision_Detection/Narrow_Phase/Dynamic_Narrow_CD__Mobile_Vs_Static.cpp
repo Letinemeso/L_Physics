@@ -90,7 +90,7 @@ Dynamic_Narrow_CD__Mobile_Vs_Static::Ratio_Pair Dynamic_Narrow_CD__Mobile_Vs_Sta
     {
         const Polygon& polygon = *_polygons[i];
 
-        if(LEti::Math::dot_product(_segment.direction(), polygon.calculate_normal()) > 0.0f)
+        if(LST::Math::dot_product(_segment.direction(), polygon.calculate_normal()) > 0.0f)
             continue;
 
         Polygon_VS_Ray_Intersection_Data id = segment_intersects_polygon(_segment.start, _segment.end, polygon);
@@ -169,7 +169,7 @@ Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_mix_intersection_data(c
         }
     }
 
-    result.depth = LEti::Math::vector_length(result_push_out_vec);
+    result.depth = LST::Math::vector_length(result_push_out_vec);
     if(result.depth > 0.0f)
         result_push_out_vec /= result.depth;
     result.normal = result_push_out_vec;
@@ -210,7 +210,7 @@ Intersection_Data Dynamic_Narrow_CD__Mobile_Vs_Static::M_get_precise_time_ratio_
 
     Intersection_Data id = M_mix_intersection_data(ids);
 
-    if(!id && LEti::Math::floats_are_equal(_max_ratio, 1.0f))
+    if(!id && LST::Math::floats_are_equal(_max_ratio, 1.0f))
         id = m_intersection_detector->collision__model_vs_model(_mobile.get_physical_model()->get_polygons(),
                                                                 _mobile.get_physical_model()->border(),
                                                                 _mobile.get_physical_model()->polygons_borders(),

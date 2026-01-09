@@ -174,9 +174,9 @@ bool Border::operator==(const Border &_other) const
 {
     for(unsigned int i=0; i<3; ++i)
     {
-        if(!LEti::Math::floats_are_equal(m_offset[i], _other.m_offset[i]))
+        if(!LST::Math::floats_are_equal(m_offset[i], _other.m_offset[i]))
             return false;
-        if(!LEti::Math::floats_are_equal(m_size[i], _other.m_size[i]))
+        if(!LST::Math::floats_are_equal(m_size[i], _other.m_size[i]))
             return false;
     }
     return true;

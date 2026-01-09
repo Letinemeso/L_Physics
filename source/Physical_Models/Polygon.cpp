@@ -126,9 +126,9 @@ const glm::vec3& Polygon::center_raw() const
 
 glm::vec3 Polygon::calculate_normal(bool _normalize) const
 {
-    glm::vec3 result = LEti::Math::cross_product(m_actual_C - m_actual_B, m_actual_A - m_actual_B);
+    glm::vec3 result = LST::Math::cross_product(m_actual_C - m_actual_B, m_actual_A - m_actual_B);
     if(_normalize)
-        LEti::Math::shrink_vector_to_1(result);
+        LST::Math::shrink_vector_to_1(result);
     return result;
 }
 

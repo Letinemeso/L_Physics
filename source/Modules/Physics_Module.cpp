@@ -44,7 +44,7 @@ void Physics_Module::apply_data_after_collisions()
             largest_movement_vec[i] = movement_vec[i];
         }
 
-        average_rotation += LEti::Math::calculate_angles(transformation.rotation());
+        average_rotation += LST::Math::calculate_angles(transformation.rotation());
         average_scale += transformation.scale();
     }
 

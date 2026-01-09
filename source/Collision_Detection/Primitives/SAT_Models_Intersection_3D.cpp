@@ -90,12 +90,12 @@ namespace LPhys
 
         for(unsigned int i = 0; i < 3; ++i)
         {
-            float projection = LEti::Math::dot_product(_first[i], _axis);
+            float projection = LST::Math::dot_product(_first[i], _axis);
             first_pair.add_value(projection);
         }
         for(unsigned int i = 0; i < 3; ++i)
         {
-            float projection = LEti::Math::dot_product(_second[i], _axis);
+            float projection = LST::Math::dot_product(_second[i], _axis);
             second_pair.add_value(projection);
         }
 
@@ -129,12 +129,12 @@ namespace LPhys
 
     Polygons_Intersection_Data check_triangles_intersection(const Polygon& _first, const Polygon& _second, float _plane_contact_priority_ratio)
     {
-        glm::vec3 first_normal = LEti::Math::cross_product(_first[2] - _first[1], _first[0] - _first[1]);
-        glm::vec3 second_normal = LEti::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
-        LEti::Math::shrink_vector_to_1(first_normal);
-        LEti::Math::shrink_vector_to_1(second_normal);
+        glm::vec3 first_normal = LST::Math::cross_product(_first[2] - _first[1], _first[0] - _first[1]);
+        glm::vec3 second_normal = LST::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
+        LST::Math::shrink_vector_to_1(first_normal);
+        LST::Math::shrink_vector_to_1(second_normal);
 
-        float normals_dot = LEti::Math::dot_product(first_normal, second_normal);
+        float normals_dot = LST::Math::dot_product(first_normal, second_normal);
         if(normals_dot > 0.0f)
             return {};
 
@@ -152,11 +152,11 @@ namespace LPhys
             {
                 glm::vec3 s_edge = _second[s_i + 1] - _second[s_i];
 
-                glm::vec3 axis = LEti::Math::cross_product(f_edge, s_edge);
-                if(LEti::Math::vector_length_squared(axis) < 1e-9f)
+                glm::vec3 axis = LST::Math::cross_product(f_edge, s_edge);
+                if(LST::Math::vector_length_squared(axis) < 1e-9f)
                     continue;
 
-                LEti::Math::shrink_vector_to_1(axis);
+                LST::Math::shrink_vector_to_1(axis);
                 edge_axes[edge_axes_amount] = axis;
                 ++edge_axes_amount;
             }
@@ -218,7 +218,7 @@ namespace LPhys
         result.point = id.point;
         result.intersection = true;
 
-        if(LEti::Math::dot_product(result.normal, first_normal) < 0.0f)
+        if(LST::Math::dot_product(result.normal, first_normal) < 0.0f)
             result.normal *= -1.0f;
 
         return result;
@@ -320,7 +320,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
     else
         id = calculate_common_intersection_optimized(_polygon_holder_1, _border_1, _polygons_borders_cache_1, _polygon_holder_2, _border_2, _polygons_borders_cache_2, m_min_polygons_for_optimization, m_plane_contact_priority_ratio);
 
-    float push_out_vector_length = LEti::Math::vector_length(id.push_out_vector);
+    float push_out_vector_length = LST::Math::vector_length(id.push_out_vector);
 
     if(id.intersections_amount == 0 || push_out_vector_length < 1e-9f)
         return {};

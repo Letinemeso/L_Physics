@@ -25,7 +25,7 @@ bool Collision_Resolution__Physics_Module__Mesh::M_resolve_dynamic_vs_dynamic(co
     {
         glm::vec3 stride_vec = pm1->transformation_data()->position() - pm1->transformation_data_prev_state()->position();
         stride_vec *= time_after_intersection_ratio;
-        glm::vec3 stride_on_normal_projection = LEti::Math::dot_product(stride_vec, _id.normal) * _id.normal;
+        glm::vec3 stride_on_normal_projection = LST::Math::dot_product(stride_vec, _id.normal) * _id.normal;
         stride_vec -= stride_on_normal_projection;
 
         transformation_data_after_collision_1.move(stride_vec);
@@ -33,7 +33,7 @@ bool Collision_Resolution__Physics_Module__Mesh::M_resolve_dynamic_vs_dynamic(co
     {
         glm::vec3 stride_vec = pm2->transformation_data()->position() - pm2->transformation_data_prev_state()->position();
         stride_vec *= time_after_intersection_ratio;
-        glm::vec3 stride_on_normal_projection = LEti::Math::dot_product(stride_vec, -_id.normal) * -_id.normal;
+        glm::vec3 stride_on_normal_projection = LST::Math::dot_product(stride_vec, -_id.normal) * -_id.normal;
         stride_vec -= stride_on_normal_projection;
 
         transformation_data_after_collision_2.move(stride_vec);
@@ -74,7 +74,7 @@ bool Collision_Resolution__Physics_Module__Mesh::M_resolve_dynamic_vs_static(con
 
     glm::vec3 stride_vec = pm1->transformation_data()->position() - pm1->transformation_data_prev_state()->position();
     stride_vec *= time_after_intersection_ratio;
-    glm::vec3 stride_on_normal_projection = LEti::Math::dot_product(stride_vec, normal) * normal;
+    glm::vec3 stride_on_normal_projection = LST::Math::dot_product(stride_vec, normal) * normal;
     stride_vec -= stride_on_normal_projection;
 
     transformation_data_after_collision_1.move(stride_vec);

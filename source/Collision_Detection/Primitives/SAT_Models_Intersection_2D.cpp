@@ -15,12 +15,12 @@ SAT_Models_Intersection_2D::MinMax_Pair SAT_Models_Intersection_2D::M_get_minmax
 {
     MinMax_Pair result;
 
-    result.min = LEti::Math::dot_product(_pol[0], _axis);      //  point to axis projection
+    result.min = LST::Math::dot_product(_pol[0], _axis);      //  point to axis projection
     result.max = result.min;
 
 	for(unsigned int i=1; i<3; ++i)
 	{
-        float proj = LEti::Math::dot_product(_pol[i], _axis);
+        float proj = LST::Math::dot_product(_pol[i], _axis);
         if(proj < result.min)
             result.min = proj;
         if(proj > result.max)
@@ -35,10 +35,10 @@ float SAT_Models_Intersection_2D::M_point_to_segment_distance(const glm::vec3& _
     glm::vec3 segment_direction_vec = _seg_end - _seg_start;
     glm::vec3 point_to_start_vec = _point - _seg_start;
 
-    glm::vec3 cross = LEti::Math::cross_product(point_to_start_vec, segment_direction_vec);
+    glm::vec3 cross = LST::Math::cross_product(point_to_start_vec, segment_direction_vec);
 
-    float cross_length = LEti::Math::vector_length(cross);
-    float segment_length = LEti::Math::vector_length(segment_direction_vec);
+    float cross_length = LST::Math::vector_length(cross);
+    float segment_length = LST::Math::vector_length(segment_direction_vec);
 
     float distance = cross_length / segment_length;
 
@@ -57,7 +57,7 @@ SAT_Models_Intersection_2D::Intersection_Data SAT_Models_Intersection_2D::M_poly
 
 		glm::vec3 axis = _first[i + 1] - _first[i];
         axis.z = 0.0f;  //  this should fix float calculation inaccuracy for 2D objects
-        LEti::Math::shrink_vector_to_1(axis);
+        LST::Math::shrink_vector_to_1(axis);
         M_rotate_2D_vector_perpendicular(axis);
 
         MinMax_Pair f = M_get_minmax_projections(axis, _first);
@@ -87,7 +87,7 @@ SAT_Models_Intersection_2D::Intersection_Data SAT_Models_Intersection_2D::M_poly
 
         glm::vec3 axis = _second[i + 1] - _second[i];
         axis.z = 0.0f;  //  this should fix float calculation inaccuracy for 2D objects
-        LEti::Math::shrink_vector_to_1(axis);
+        LST::Math::shrink_vector_to_1(axis);
         M_rotate_2D_vector_perpendicular(axis);
 
         MinMax_Pair f = M_get_minmax_projections(axis, _second);
@@ -112,7 +112,7 @@ SAT_Models_Intersection_2D::Intersection_Data SAT_Models_Intersection_2D::M_poly
 
 	glm::vec3 direction = _second.center() - _first.center();
 
-	if (LEti::Math::dot_product(direction, result.min_dist_axis) < 0.0f)
+	if (LST::Math::dot_product(direction, result.min_dist_axis) < 0.0f)
 		result.min_dist_axis = -result.min_dist_axis;
 
 	return result;
@@ -149,7 +149,7 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 	auto point_already_counted = [&](const glm::vec3& _point)->bool
 	{
 		for(LDS::List<glm::vec3>::Iterator it = result.begin(); !it.end_reached(); ++it)
-            if(LEti::Math::vecs_are_equal(*it, _point))
+            if(LST::Math::vecs_are_equal(*it, _point))
 				return true;
 		return false;
 	};
@@ -175,7 +175,7 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 					min_dist = min;
 					result.push_back(cur_point);
 				}
-                else if(LEti::Math::floats_are_equal(min_dist, min))
+                else if(LST::Math::floats_are_equal(min_dist, min))
 				{
 					if(point_already_counted(cur_point))
 						continue;
@@ -206,7 +206,7 @@ LDS::List<glm::vec3> SAT_Models_Intersection_2D::M_points_of_contact(const Polyg
 					min_dist = min;
 					result.push_back(cur_point);
 				}
-                else if(LEti::Math::floats_are_equal(min_dist, min))
+                else if(LST::Math::floats_are_equal(min_dist, min))
 				{
 					if(point_already_counted(cur_point))
 						continue;
@@ -247,7 +247,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(c
 				continue;
 
             glm::vec3 local_push_out_vector = id.min_dist_axis;
-            LEti::Math::extend_vector_to_length(local_push_out_vector, id.min_dist);
+            LST::Math::extend_vector_to_length(local_push_out_vector, id.min_dist);
 
             for(unsigned int i = 0; i < 3; ++i)
             {
@@ -264,14 +264,14 @@ LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(c
     if(first_collided_polygon == 0xFFFFFFFF)
         return {};
 
-    float depth = LEti::Math::vector_length(push_out_vector);
+    float depth = LST::Math::vector_length(push_out_vector);
     if(depth > 0.00001f)
         push_out_vector /= depth;
 
     LPhys::Intersection_Data result(true);
 
     result.normal = -push_out_vector;
-	LEti::Math::shrink_vector_to_1(result.normal);
+	LST::Math::shrink_vector_to_1(result.normal);
     result.depth = depth;
 
     LDS::List<glm::vec3> points = M_points_of_contact(_polygon_holder_1, _polygon_holder_2);

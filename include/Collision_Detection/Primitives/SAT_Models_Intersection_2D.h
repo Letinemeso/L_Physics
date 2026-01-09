@@ -4,7 +4,7 @@
 
 #include <Data_Structures/List.h>
 
-#include <Math_Stuff.h>
+#include <Stuff/Math_Stuff.h>
 
 #include <Collision_Detection/Primitives/Primitives_Intersection_Detector.h>
 

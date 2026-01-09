@@ -47,12 +47,12 @@ bool Line::M_matches_with(const Line& _with) const
     glm::vec3 this_direction = m_direction;
     glm::vec3 others_direction = _with.m_direction;
 
-    LEti::Math::shrink_vector_to_1(this_direction);
-    LEti::Math::shrink_vector_to_1(others_direction);
+    LST::Math::shrink_vector_to_1(this_direction);
+    LST::Math::shrink_vector_to_1(others_direction);
 
     for(unsigned int i=0; i<3; ++i)
     {
-        if(!LEti::Math::floats_are_equal(fabs(this_direction[i]), fabs(others_direction[i])))
+        if(!LST::Math::floats_are_equal(fabs(this_direction[i]), fabs(others_direction[i])))
             return false;
     }
 
@@ -70,14 +70,14 @@ bool Line::contains_point(const glm::vec3& _point, float _tolerance) const
     {
         if(!can_be_solved_by_component(i))
         {
-            if(!LEti::Math::floats_are_equal(m_initial_offset[i], _point[i], _tolerance))
+            if(!LST::Math::floats_are_equal(m_initial_offset[i], _point[i], _tolerance))
                 return false;
             continue;
         }
 
         float multiplier = M_calculate_multiplier_by_component((Components)i, _point[i]);
 
-        if(found_multiplier && !LEti::Math::floats_are_equal(common_multiplier, multiplier, _tolerance))
+        if(found_multiplier && !LST::Math::floats_are_equal(common_multiplier, multiplier, _tolerance))
             return false;
 
         found_multiplier = true;
@@ -91,7 +91,7 @@ bool Line::can_be_solved_by_component(Components _component) const
 {
     L_ASSERT(_component < Components::amount);
 
-    return !LEti::Math::floats_are_equal(m_direction[_component], 0.0f, 0.000000001f);
+    return !LST::Math::floats_are_equal(m_direction[_component], 0.0f, 0.000000001f);
 }
 
 glm::vec3 Line::solve_by_component(Components _component, float _value) const
@@ -165,11 +165,11 @@ Lines_Intersection_Data Line::calculate_intersection_with(const Line& _with, flo
         comp_mult -= _with.m_direction[i];
         comp_offs = _with.m_initial_offset[i] - comp_offs;
 
-        if(!LEti::Math::floats_are_equal(comp_mult, 0.0f))
+        if(!LST::Math::floats_are_equal(comp_mult, 0.0f))
             break;
     }
 
-    if(LEti::Math::floats_are_equal(comp_mult, 0.0f, 0.0000001f))
+    if(LST::Math::floats_are_equal(comp_mult, 0.0f, 0.0000001f))
     {
         if(M_matches_with(_with))
             return { Lines_Intersection_Data::Same_Line, m_initial_offset };
