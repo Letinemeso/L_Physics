@@ -57,7 +57,7 @@ Border& Border::consider_point(const glm::vec3 &_point)
         return *this;
     }
 
-    for(unsigned int i=0; i<3; ++i)
+    for(unsigned int i = 0; i < 3; ++i)
     {
         if(_point[i] < m_offset[i])
         {
@@ -69,8 +69,6 @@ Border& Border::consider_point(const glm::vec3 &_point)
             m_size[i] = _point[i] - m_offset[i];
         }
     }
-
-    M_update_validness();
 
     return *this;
 }
