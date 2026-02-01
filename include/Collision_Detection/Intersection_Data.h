@@ -2,12 +2,12 @@
 
 #include <vec3.hpp>
 
-#include <Modules/Physics_Module.h>
-
 namespace LPhys
 {
 
     class Polygon;
+    class Physics_Module;
+
 
     struct Intersection_Data
     {

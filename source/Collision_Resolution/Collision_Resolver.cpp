@@ -1,5 +1,7 @@
 #include <Collision_Resolution/Collision_Resolver.h>
 
+#include <Modules/Physics_Module.h>
+
 using namespace LPhys;
 
 
@@ -35,8 +37,8 @@ void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt)
         if(!resolution->resolve(_id, _dt))
             continue;
 
-        _id.first->on_collision(_id.second);
-        _id.second->on_collision(_id.first);
+        _id.first->on_collision(_id.second, _id);
+        _id.second->on_collision(_id.first, _id);
 
         break;
     }

@@ -2,6 +2,7 @@
 
 #include <L_Debug/L_Debug.h>
 #include <Data_Structures/Vector.h>
+#include <Data_Structures/List.h>
 
 #include <Collision_Detection/Intersection_Data.h>
 #include <Collision_Resolution/Collision_Resolution_Interface.h>

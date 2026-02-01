@@ -5,6 +5,7 @@
 #include <Module.h>
 
 #include <Physical_Models/Border.h>
+#include <Collision_Detection/Intersection_Data.h>
 
 
 namespace LPhys
@@ -16,7 +17,7 @@ namespace LPhys
         INIT_VARIABLE(LPhys::Physics_Module, LEti::Module);
 
     public:
-        using On_Collision_Function = LST::Function<void(const Physics_Module*)>;
+        using On_Collision_Function = LST::Function<void(const Physics_Module*, const Intersection_Data&)>;
 
     private:
         bool m_can_collide = true;
@@ -43,7 +44,7 @@ namespace LPhys
         inline bool is_static() const { return m_is_static; }
 
     public:
-        inline void on_collision(const Physics_Module* _with) const { if(m_on_collision_func) m_on_collision_func(_with); }
+        inline void on_collision(const Physics_Module* _with, const Intersection_Data& _id) const { if(m_on_collision_func) m_on_collision_func(_with, _id); }
 
     public:
         virtual void expand_border(Border& _border) const;
