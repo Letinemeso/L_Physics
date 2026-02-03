@@ -131,12 +131,13 @@ namespace LPhys
     {
         glm::vec3 first_normal = LST::Math::cross_product(_first[2] - _first[1], _first[0] - _first[1]);
         glm::vec3 second_normal = LST::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
-        LST::Math::shrink_vector_to_1(first_normal);
-        LST::Math::shrink_vector_to_1(second_normal);
 
         float normals_dot = LST::Math::dot_product(first_normal, second_normal);
         if(normals_dot > 0.0f)
             return {};
+
+        LST::Math::shrink_vector_to_1(first_normal);
+        LST::Math::shrink_vector_to_1(second_normal);
 
         unsigned int plane_axes_amount = 2;
         glm::vec3 plane_axes[2];
@@ -235,17 +236,37 @@ namespace LPhys
 
 
     Common_Intersection_Data calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1,
+                                                           const LDS::Vector<Border>& _polygons_borders_cache_1,
                                                            const Polygon_Holder_Base* _polygon_holder_2,
+                                                           const LDS::Vector<Border>& _polygons_borders_cache_2,
                                                            float _plane_contact_priority_ratio)
     {
         Common_Intersection_Data result;
 
+        Border border_cache_1;      //  crutch so lambda later can return reference instead of new object
+        Border border_cache_2;
+
+        auto get_or_calculate_polygon_border = [](const LDS::Vector<Border>& _polygons_borders_cache, const Polygon& _polygon, unsigned int _polygon_index, Border& _cache)->const Border&
+        {
+            if(_polygons_borders_cache.size() > 0)
+                return _polygons_borders_cache[_polygon_index];
+
+            _cache = _polygon.construct_border();
+            return _cache;
+        };
+
         for(unsigned int i_1 = 0; i_1 < _polygon_holder_1->amount(); ++i_1)
         {
+            const Polygon& polygon_1 = *_polygon_holder_1->get_polygon(i_1);
+            const Border& border_1 = get_or_calculate_polygon_border(_polygons_borders_cache_1, polygon_1, i_1, border_cache_1);
+
             for(unsigned int i_2 = 0; i_2 < _polygon_holder_2->amount(); ++i_2)
             {
-                const Polygon& polygon_1 = *_polygon_holder_1->get_polygon(i_1);
                 const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
+                const Border& border_2 = get_or_calculate_polygon_border(_polygons_borders_cache_2, polygon_2, i_2, border_cache_2);
+
+                if(!border_1.intersects_with(border_2))
+                    continue;
 
                 Polygons_Intersection_Data id = check_triangles_intersection(polygon_1, polygon_2, _plane_contact_priority_ratio);
 
@@ -316,7 +337,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
 {
     Common_Intersection_Data id;
     if(_polygon_holder_1->amount() < m_min_polygons_for_optimization && _polygon_holder_2->amount() < m_min_polygons_for_optimization)
-        id = calculate_common_intersection(_polygon_holder_1, _polygon_holder_2, m_plane_contact_priority_ratio);
+        id = calculate_common_intersection(_polygon_holder_1, _polygons_borders_cache_1, _polygon_holder_2, _polygons_borders_cache_2, m_plane_contact_priority_ratio);
     else
         id = calculate_common_intersection_optimized(_polygon_holder_1, _border_1, _polygons_borders_cache_1, _polygon_holder_2, _border_2, _polygons_borders_cache_2, m_min_polygons_for_optimization, m_plane_contact_priority_ratio);
 
