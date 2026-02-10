@@ -14,6 +14,7 @@ Border::Border(const Border& _other)
 {
     m_offset = _other.m_offset;
     m_size = _other.m_size;
+    m_size_halved = _other.m_size_halved;
     m_valid = _other.m_valid;
 }
 
@@ -21,6 +22,7 @@ void Border::operator=(const Border& _other)
 {
     m_offset = _other.m_offset;
     m_size = _other.m_size;
+    m_size_halved = _other.m_size_halved;
     m_valid = _other.m_valid;
 }
 
@@ -52,7 +54,7 @@ Border& Border::consider_point(const glm::vec3 &_point)
     if(!m_valid)
     {
         m_offset = _point;
-        m_size = {0.0f, 0.0f, 0.0f};
+        set_size({0.0f, 0.0f, 0.0f});
         m_valid = true;
         return *this;
     }
@@ -70,6 +72,8 @@ Border& Border::consider_point(const glm::vec3 &_point)
         }
     }
 
+    m_size_halved = m_size * 0.5f;
+
     return *this;
 }
 
@@ -82,6 +86,7 @@ Border& Border::expand_with(const Border& _other)
     {
         m_offset = _other.m_offset;
         m_size = _other.m_size;
+        m_size_halved = _other.m_size_halved;
         M_update_validness();
         return *this;
     }
@@ -99,11 +104,11 @@ Border& Border::expand_with(const Border& _other)
 
 bool Border::point_is_inside(const glm::vec3& _point) const
 {
-    for(unsigned int i=0; i<3; ++i)
+    for(unsigned int i = 0; i < 3; ++i)
     {
-        if(_point[i] < m_offset[i] - 0.0001f)
-            return false;
-        if(_point[i] > m_offset[i] + m_size[i] + 0.0001f)
+        float distance = fabsf( (m_offset[i] + m_size_halved[i]) - _point[i] );
+
+        if(distance > m_size_halved[i])
             return false;
     }
 
@@ -115,14 +120,15 @@ bool Border::intersects_with(const Border& _other) const
     if(!m_valid || !_other.m_valid)
         return false;
 
-    for(unsigned int i=0; i<3; ++i)
+    for(unsigned int i = 0; i < 3; ++i)
     {
-        float check_offset = m_offset[i] > _other.m_offset[i] ? m_offset[i] : _other.m_offset[i];
-        float this_opposite = m_offset[i] + m_size[i];
-        float other_opposite = _other.m_offset[i] + _other.m_size[i];
-        float check_size = (this_opposite < other_opposite ? this_opposite : other_opposite) - check_offset;
+        float size_halved = m_size_halved[i];
+        float other_size_halved = _other.m_size_halved[i];
 
-        if(check_size < 0.0f)
+        float distance = fabsf( (m_offset[i] + size_halved) - (_other.m_offset[i] + other_size_halved) );
+        float acceptable_distance = size_halved + other_size_halved;
+
+        if(distance > acceptable_distance)
             return false;
     }
 
@@ -138,7 +144,7 @@ Border Border::operator&&(const Border &_other) const
 
     Border result;
 
-    for(unsigned int i=0; i<3; ++i)
+    for(unsigned int i = 0; i < 3; ++i)
     {
         result.m_offset[i] = m_offset[i] > _other.m_offset[i] ? m_offset[i] : _other.m_offset[i];
         float this_opposite = m_offset[i] + m_size[i];
@@ -148,6 +154,8 @@ Border Border::operator&&(const Border &_other) const
         if(result.m_size[i] < 0.0f)
             return {};
     }
+
+    result.m_size_halved = result.m_size * 0.5f;
 
     result.m_valid = true;
     return result;

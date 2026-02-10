@@ -49,20 +49,22 @@ Border Binary_Space_Partitioner::M_calculate_rb(const Temp_Objects_Container& _o
     return result;
 }
 
-Binary_Space_Partitioner::Temp_Objects_Container Binary_Space_Partitioner::M_get_objects_inside_area(const Border& _rb, const Temp_Objects_Container& _objects_maybe_inside)
+Binary_Space_Partitioner::Indices_Stack::Scope Binary_Space_Partitioner::M_add_objects_inside_to_stack(const Border& _rb, const Indices_Stack::Scope& _objects_maybe_inside)
 {
-    Temp_Objects_Container result(_objects_maybe_inside.size());
+    m_indices_stack.remember_size();
 
-    for(unsigned int i=0; i<_objects_maybe_inside.size(); ++i)
+    for(unsigned int i = 0; i < _objects_maybe_inside.size(); ++i)
     {
-        if(!_objects_maybe_inside[i].module->can_collide() && !m_ignore_modules_collision_restriction)
+        const Module_ID_Wrapper& module_wrapper = m_registred_objects[_objects_maybe_inside[i]];
+
+        if(!module_wrapper.module->can_collide() && !m_ignore_modules_collision_restriction)
             continue;
 
-        if(_objects_maybe_inside[i].module->intersects_with_border(_rb))
-            result.push(_objects_maybe_inside[i]);
+        if(module_wrapper.module->intersects_with_border(_rb))
+            m_indices_stack.push(_objects_maybe_inside[i]);
     }
 
-    return result;
+    return m_indices_stack.scope();
 }
 
 glm::vec3 Binary_Space_Partitioner::M_calculate_border_modifier(const Border& _rb) const
@@ -87,21 +89,21 @@ glm::vec3 Binary_Space_Partitioner::M_calculate_border_modifier(const Border& _r
     return modifier;
 }
 
-bool Binary_Space_Partitioner::M_object_lists_same(const Temp_Objects_Container& _first, const Temp_Objects_Container& _second) const
+bool Binary_Space_Partitioner::M_object_lists_same(const Indices_Stack::Scope& _first, const Indices_Stack::Scope& _second) const
 {
     if(_first.size() != _second.size())
         return false;
 
-    for(unsigned int i=0; i<_first.size(); ++i)
+    for(unsigned int i = 0; i < _first.size(); ++i)
     {
-        if(_first[i].id != _second[i].id)
+        if(_first[i] != _second[i])
             return false;
     }
 
     return true;
 }
 
-void Binary_Space_Partitioner::M_save_possible_collisions(const Temp_Objects_Container& _objects_inside)
+void Binary_Space_Partitioner::M_save_possible_collisions(const Indices_Stack::Scope& _objects_inside)
 {
     if(_objects_inside.size() < 2)
         return;
@@ -110,12 +112,12 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Temp_Objects_Con
 
     for(unsigned int i_1 = 0; i_1 < _objects_inside.size(); ++i_1)
     {
-        const Module_ID_Wrapper& first_wrapper = _objects_inside[i_1];
+        const Module_ID_Wrapper& first_wrapper = m_registred_objects[_objects_inside[i_1]];
         cp.first = first_wrapper.module;
 
         for(unsigned int i_2 = i_1 + 1; i_2 < _objects_inside.size(); ++i_2)
         {
-            const Module_ID_Wrapper& second_wrapper = _objects_inside[i_2];
+            const Module_ID_Wrapper& second_wrapper = m_registred_objects[_objects_inside[i_2]];
             cp.second = second_wrapper.module;
 
             if(M_already_checked(first_wrapper.id, second_wrapper.id))
@@ -134,9 +136,9 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Temp_Objects_Con
     }
 }
 
-void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& _rb, const Temp_Objects_Container& _objects_inside, unsigned int _same_objects_repetition)
+void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& _rb, const Indices_Stack::Scope& _objects_inside, unsigned int _recursion_level, unsigned int _same_objects_repetition)
 {
-    if( (_same_objects_repetition == m_precision) || (_objects_inside.size() <= 2) )
+    if( (_recursion_level > m_max_recursion_level) || (_same_objects_repetition == m_precision) || (_objects_inside.size() <= 2) )
         return M_save_possible_collisions(_objects_inside);
 
     Border rb_1 = _rb;
@@ -148,22 +150,22 @@ void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& 
     rb_2.modify_size(-modifier);
     rb_2.modify_offset(modifier);
 
-    Temp_Objects_Container objects_inside_1 = M_get_objects_inside_area(rb_1, _objects_inside);
-    Temp_Objects_Container objects_inside_2 = M_get_objects_inside_area(rb_2, _objects_inside);
+    auto calculate_repetitions_counter = [this](const Indices_Stack::Scope& _old_objects, const Indices_Stack::Scope& _new_objects, unsigned int _current_counter)->unsigned int
+    {
+        if(M_object_lists_same(_old_objects, _new_objects))
+            return _current_counter + 1;
+        return 0;
+    };
 
-    if(!M_object_lists_same(objects_inside_1, objects_inside_2))
-    {
-        M_find_possible_collisions_in_area( rb_1, objects_inside_1, _same_objects_repetition + 1 );
-        M_find_possible_collisions_in_area( rb_2, objects_inside_2, _same_objects_repetition + 1 );
-    }
-    else if(M_object_lists_same(_objects_inside, objects_inside_1))
-    {
-        M_find_possible_collisions_in_area( rb_1, objects_inside_1, _same_objects_repetition + 1 );
-    }
-    else
-    {
-        M_find_possible_collisions_in_area( rb_1, objects_inside_1, 0 );
-    }
+    Indices_Stack::Scope objects_inside_1 = M_add_objects_inside_to_stack(rb_1, _objects_inside);
+    unsigned int repetitions_counter_1 = calculate_repetitions_counter(_objects_inside, objects_inside_1, _same_objects_repetition);
+    M_find_possible_collisions_in_area( rb_1, objects_inside_1, _recursion_level + 1, repetitions_counter_1 );
+    m_indices_stack.clear_scope(objects_inside_1);
+
+    Indices_Stack::Scope objects_inside_2 = M_add_objects_inside_to_stack(rb_2, _objects_inside);
+    unsigned int repetitions_counter_2 = calculate_repetitions_counter(_objects_inside, objects_inside_2, _same_objects_repetition);
+    M_find_possible_collisions_in_area( rb_2, objects_inside_2, _recursion_level + 1, repetitions_counter_2 );
+    m_indices_stack.clear_scope(objects_inside_2);
 }
 
 
@@ -189,9 +191,16 @@ void Binary_Space_Partitioner::process()
     m_exclusions_size = M_calculate_exclusions_amount(m_registred_objects.size());
     m_exclusions = new bool[m_exclusions_size]{false};
 
+    m_indices_stack.remember_size();
+    for(unsigned int i = 0; i < m_registred_objects.size(); ++i)
+        m_indices_stack.push(i);
+
     Border initial_border = M_calculate_rb(m_registred_objects);
-    Temp_Objects_Container objects_in_initial_border = M_get_objects_inside_area(initial_border, m_registred_objects);
-    M_find_possible_collisions_in_area(initial_border, objects_in_initial_border, 0);
+    Indices_Stack::Scope objects_in_initial_border = m_indices_stack.scope();
+
+    M_find_possible_collisions_in_area(initial_border, objects_in_initial_border, 0, 0);
+
+    m_indices_stack.clear_scope(objects_in_initial_border);
 
     delete[] m_exclusions;
 }

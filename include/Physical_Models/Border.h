@@ -10,7 +10,8 @@ namespace LPhys
     {
     private:
         glm::vec3 m_offset;
-        glm::vec3 m_size{-1.0f, -1.0f, -1.0f};
+        glm::vec3 m_size = {-1.0f, -1.0f, -1.0f};
+        glm::vec3 m_size_halved = {-1.0f, -1.0f, -1.0f};
         bool m_valid = false;
 
     public:
@@ -18,17 +19,18 @@ namespace LPhys
         Border(const Border& _other);
         void operator=(const Border& _other);
 
-        inline void reset() { m_size = {-1.0f, -1.0f, -1.0f}; m_valid = false; }
+        inline void reset() { m_size = {-1.0f, -1.0f, -1.0f}; m_size_halved = {-1.0f, -1.0f, -1.0f}; m_valid = false; }
 
         inline void set_offset(const glm::vec3& _offset) { m_offset = _offset; }
-        inline void set_size(const glm::vec3& _size) { m_size = _size; M_update_validness(); }
+        inline void set_size(const glm::vec3& _size) { m_size = _size; m_size_halved = _size * 0.5f; M_update_validness(); }
 
         inline void modify_offset(const glm::vec3& _by) { m_offset += _by; }
-        inline void modify_size(const glm::vec3& _by) { m_size += _by; }
+        inline void modify_size(const glm::vec3& _by) { set_size(m_size + _by); }
 
     public:
         inline const glm::vec3& offset() const { return m_offset; }
         inline const glm::vec3& size() const { return m_size; }
+        inline const glm::vec3& size_halved() const { return m_size_halved; }
         inline bool valid() const { return m_valid; }
 
         inline float left() const { return m_offset.x; }
