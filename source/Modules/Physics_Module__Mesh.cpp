@@ -81,7 +81,11 @@ void Physics_Module__Mesh::update_prev_state()
 
     L_ASSERT(m_physical_model && m_physical_model_prev_state);
 
-	m_physical_model_prev_state->update_to_current_model_state();
+    if(m_should_update_prev_state)
+    {
+        m_physical_model_prev_state->update_to_current_model_state();
+        m_should_update_prev_state = false;
+    }
 }
 
 void Physics_Module__Mesh::update(float /*_dt*/)
@@ -92,7 +96,10 @@ void Physics_Module__Mesh::update(float /*_dt*/)
     L_ASSERT(m_physical_model && m_physical_model_prev_state && transformation_data());
 
     if(transformation_data()->modified())
+    {
         m_physical_model->update(transformation_data()->matrix());
+        m_should_update_prev_state = true;
+    }
 
     m_border = get_physical_model_prev_state()->border() || get_physical_model()->border();
 }

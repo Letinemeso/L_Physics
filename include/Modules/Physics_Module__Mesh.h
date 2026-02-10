@@ -28,6 +28,8 @@ namespace LPhys
         Physical_Model* m_physical_model = nullptr;
         Physical_Model_Imprint* m_physical_model_prev_state = nullptr;
 
+        bool m_should_update_prev_state = false;
+
 	public:
         Physics_Module__Mesh();
         ~Physics_Module__Mesh();
