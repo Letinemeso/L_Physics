@@ -20,3 +20,5 @@ target_include_directories(L_Physics PUBLIC
                             "${PROJECT_SOURCE_DIR}/../LEti_Engine/include"
 )
 
+
+add_subdirectory(tests)
