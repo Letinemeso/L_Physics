@@ -38,7 +38,7 @@ void Physics_Module::apply_data_after_collisions()
 
         for(unsigned int i = 0; i < 3; ++i)
         {
-            if(fabs(largest_movement_vec[i]) >= fabs(movement_vec[i]))
+            if(fabsf(largest_movement_vec[i]) >= fabsf(movement_vec[i]))
                 continue;
 
             largest_movement_vec[i] = movement_vec[i];
