@@ -8,7 +8,7 @@
 #include <Collision_Detection/Primitives/SAT_Models_Intersection_3D.h>
 #include <Collision_Resolution/Collision_Resolution__Physics_Module__Mesh.h>
 
-INIT_TEST(Simple_Collision_Test)
+INIT_TEST(Simple_Collision_Test_3D)
 {
     glm::vec3 point_0 = {1, 0, 0};
     glm::vec3 point_1 = {0, 0, 1};
@@ -59,9 +59,12 @@ INIT_TEST(Simple_Collision_Test)
                                                                                                pm_1->get_polygons(), pm_1->border(), pm_1->polygons_borders());
 
     EXPECT_EQUAL(intersection_data.intersection, true);
+
+    delete object_0;
+    delete object_1;
 }
 
-INIT_TEST(Collision_Movement_Test)
+INIT_TEST(Collision_Movement_Test_3D)
 {
     glm::vec3 point_0 = {1, 0, 0};
     glm::vec3 point_1 = {0, 0, 1};
@@ -136,9 +139,12 @@ INIT_TEST(Collision_Movement_Test)
     intersection_data = dynamic_cd.objects_collide(*pm_0, *pm_1);
 
     EXPECT_EQUAL(intersection_data.intersection, false);
+
+    delete object_0;
+    delete object_1;
 }
 
-INIT_TEST(Collision_Extream_Movement_Test)
+INIT_TEST(Collision_Extream_Movement_Test_3D)
 {
     glm::vec3 point_0 = {1, 0, 0};
     glm::vec3 point_1 = {0, 0, 1};
@@ -213,9 +219,12 @@ INIT_TEST(Collision_Extream_Movement_Test)
     intersection_data = dynamic_cd.objects_collide(*pm_0, *pm_1);
 
     EXPECT_EQUAL(intersection_data.intersection, false);
+
+    delete object_0;
+    delete object_1;
 }
 
-INIT_TEST(Collision_Movement_Dynamic_Vs_Static_Test)
+INIT_TEST(Collision_Movement_Dynamic_Vs_Static_Test_3D)
 {
     glm::vec3 point_0 = {1, 0, 0};
     glm::vec3 point_1 = {0, 0, 1};
@@ -291,9 +300,12 @@ INIT_TEST(Collision_Movement_Dynamic_Vs_Static_Test)
     intersection_data = dynamic_cd.objects_collide(*pm_0, *pm_1);
 
     EXPECT_EQUAL(intersection_data.intersection, false);
+
+    delete object_0;
+    delete object_1;
 }
 
-INIT_TEST(Collision_Extream_Movement_Dynamic_Vs_Static_Test)
+INIT_TEST(Collision_Extream_Movement_Dynamic_Vs_Static_Test_3D)
 {
     glm::vec3 point_0 = {1, 0, 0};
     glm::vec3 point_1 = {0, 0, 1};
@@ -369,4 +381,7 @@ INIT_TEST(Collision_Extream_Movement_Dynamic_Vs_Static_Test)
     intersection_data = dynamic_cd.objects_collide(*pm_0, *pm_1);
 
     EXPECT_EQUAL(intersection_data.intersection, false);
+
+    delete object_0;
+    delete object_1;
 }
