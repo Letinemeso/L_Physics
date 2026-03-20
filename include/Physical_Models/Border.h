@@ -9,7 +9,7 @@ namespace LPhys
     class Border
     {
     private:
-        glm::vec3 m_offset;
+        glm::vec3 m_offset = {0.0f, 0.0f, 0.0f};
         glm::vec3 m_size = {-1.0f, -1.0f, -1.0f};
         glm::vec3 m_size_halved = {-1.0f, -1.0f, -1.0f};
         bool m_valid = false;
