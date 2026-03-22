@@ -268,8 +268,9 @@ LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(c
     if(depth > 0.00001f)
         push_out_vector /= depth;
 
-    LPhys::Intersection_Data result(true);
+    LPhys::Intersection_Data result;
 
+    result.intersection = true;
     result.normal = -push_out_vector;
 	LST::Math::shrink_vector_to_1(result.normal);
     result.depth = depth;
@@ -278,10 +279,12 @@ LPhys::Intersection_Data SAT_Models_Intersection_2D::collision__model_vs_model(c
 	if(points.size() == 0)
         return {};
 
+    glm::vec3 average_point = {0.0f, 0.0f, 0.0f};
 	for(LDS::List<glm::vec3>::Iterator it = points.begin(); !it.end_reached(); ++it)
-		result.point += *it;
+        average_point += *it;
+    average_point /= (float)points.size();
 
-	result.point /= (float)points.size();
+    result.points.push(average_point);
 
     result.first_collided_polygon_index = first_collided_polygon;
     result.second_collided_polygon_index = second_collided_polygon;

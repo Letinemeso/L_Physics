@@ -27,7 +27,7 @@ Intersection_Data Narrow_Phase__Model_Vs_Point::M_check_model_vs_point_intersect
         if(!point_is_inside_polygon(_modules.point->point(), *polygons->get_polygon(i)))
             continue;
 
-        result.point = _modules.point->point();
+        result.points.push(_modules.point->point());
         result.first = _modules.model;
         result.second = _modules.point;
         result.first_collided_polygon_index = i;

@@ -350,7 +350,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
     result.intersection = true;
     result.depth = id.total_depth / (float)id.intersections_amount;
     result.normal = id.push_out_vector / push_out_vector_length;
-    result.point = id.point / (float)id.intersections_amount;
+    result.points.push(id.point / (float)id.intersections_amount);
 
     return result;
 }
