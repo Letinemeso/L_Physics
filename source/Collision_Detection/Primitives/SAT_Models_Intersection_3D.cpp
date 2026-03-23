@@ -228,7 +228,7 @@ namespace LPhys
 
     struct Common_Intersection_Data
     {
-        glm::vec3 point = { 0.0f, 0.0f, 0.0f };
+        LDS::Vector<glm::vec3> points = {100};
         glm::vec3 push_out_vector = { 0.0f, 0.0f, 0.0f };
         float total_depth = 0.0f;
         unsigned int intersections_amount = 0;
@@ -275,7 +275,7 @@ namespace LPhys
 
                 ++result.intersections_amount;
 
-                result.point += id.point;
+                result.points.push(id.point);
 
                 glm::vec3 push_out_vector = -id.normal * id.depth;
 
@@ -313,13 +313,109 @@ namespace LPhys
 
             ++result.intersections_amount;
 
-            result.point += id.point;
+            result.points.push(id.point);
 
             glm::vec3 push_out_vector = -id.normal * id.depth;
 
             result.push_out_vector += push_out_vector;
             result.total_depth += id.depth;
         }
+
+        return result;
+    }
+
+
+    struct Basis
+    {
+        glm::vec3 axis_0, axis_1;
+
+        Basis(const glm::vec3& _normal)
+        {
+            if (fabsf(_normal.x) > fabsf(_normal.z))
+                axis_0 = glm::vec3(-_normal.y, _normal.x, 0.0f);
+            else
+                axis_0 = glm::vec3(0.0f, -_normal.z, _normal.y);
+
+            axis_1 = glm::cross(_normal, axis_0);
+
+            LST::Math::shrink_vector_to_1(axis_0);
+            LST::Math::shrink_vector_to_1(axis_1);
+        }
+    };
+
+    LDS::Vector<glm::vec3> find_extreme_contacts(const LDS::Vector<glm::vec3>& _contact_points, const glm::vec3& _normal)
+    {
+        glm::vec3 center = {0.0f, 0.0f, 0.0f};
+        for(unsigned int i = 0; i < _contact_points.size(); ++i)
+            center += _contact_points[i];
+        center /= (float)_contact_points.size();
+
+        float extreme_0_min = std::numeric_limits<float>::max();
+        float extreme_0_max = std::numeric_limits<float>::lowest();
+        float extreme_1_min = std::numeric_limits<float>::max();
+        float extreme_1_max = std::numeric_limits<float>::lowest();
+        unsigned int extreme_0_min_index = LST::Math::Max_Unsigned_Int;
+        unsigned int extreme_0_max_index = LST::Math::Max_Unsigned_Int;
+        unsigned int extreme_1_min_index = LST::Math::Max_Unsigned_Int;
+        unsigned int extreme_1_max_index = LST::Math::Max_Unsigned_Int;
+
+        Basis basis(_normal);
+
+        for(unsigned int i = 0; i < _contact_points.size(); ++i)
+        {
+            glm::vec3 point_w_offset = _contact_points[i] - center;
+
+            float projection_0 = LST::Math::dot_product(point_w_offset, basis.axis_0);
+            float projection_1 = LST::Math::dot_product(point_w_offset, basis.axis_1);
+
+            if(projection_0 < extreme_0_min)
+            {
+                extreme_0_min = projection_0;
+                extreme_0_min_index = i;
+            }
+            if(projection_0 > extreme_0_max)
+            {
+                extreme_0_max = projection_0;
+                extreme_0_max_index = i;
+            }
+
+            if(projection_1 < extreme_1_min)
+            {
+                extreme_1_min = projection_1;
+                extreme_1_min_index = i;
+            }
+            if(projection_1 > extreme_1_max)
+            {
+                extreme_1_max = projection_1;
+                extreme_1_max_index = i;
+            }
+        }
+
+        LDS::Vector<unsigned int> repeat_check(4);
+        LDS::Vector<glm::vec3> result(4);
+
+        repeat_check.push(extreme_0_min_index);
+        result.push( _contact_points[extreme_0_min_index] );
+
+        if(!repeat_check.contains(extreme_0_max_index))
+        {
+            repeat_check.push(extreme_0_max_index);
+            result.push( _contact_points[extreme_0_max_index] );
+        }
+
+        if(!repeat_check.contains(extreme_1_min_index))
+        {
+            repeat_check.push(extreme_1_min_index);
+            result.push( _contact_points[extreme_1_min_index] );
+        }
+
+        if(!repeat_check.contains(extreme_1_max_index))
+        {
+            repeat_check.push(extreme_1_max_index);
+            result.push( _contact_points[extreme_1_max_index] );
+        }
+
+        L_ASSERT(!repeat_check.contains(LST::Math::Max_Unsigned_Int));
 
         return result;
     }
@@ -350,7 +446,7 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
     result.intersection = true;
     result.depth = id.total_depth / (float)id.intersections_amount;
     result.normal = id.push_out_vector / push_out_vector_length;
-    result.points.push(id.point / (float)id.intersections_amount);
+    result.points = find_extreme_contacts(id.points, result.normal);
 
     return result;
 }
