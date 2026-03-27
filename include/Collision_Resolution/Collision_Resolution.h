@@ -6,11 +6,11 @@
 namespace LPhys
 {
 
-    class Collision_Resolution_Interface
+    class Collision_Resolution
     {
     public:
-        Collision_Resolution_Interface() { }
-        virtual ~Collision_Resolution_Interface() { }
+        Collision_Resolution() { }
+        virtual ~Collision_Resolution() { }
 
     public:
         virtual bool resolve(const Intersection_Data& _id, float _dt) = 0;

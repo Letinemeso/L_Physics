@@ -5,7 +5,7 @@
 #include <Data_Structures/List.h>
 
 #include <Collision_Detection/Intersection_Data.h>
-#include <Collision_Resolution/Collision_Resolution_Interface.h>
+#include <Collision_Resolution/Collision_Resolution.h>
 
 
 namespace LPhys
@@ -14,7 +14,7 @@ namespace LPhys
     class Collision_Resolver
     {
     private:
-        using Collision_Resolutions = LDS::Vector<Collision_Resolution_Interface*>;
+        using Collision_Resolutions = LDS::Vector<Collision_Resolution*>;
 
     private:
         Collision_Resolutions m_resolutions;
@@ -28,7 +28,7 @@ namespace LPhys
         Collision_Resolver(Collision_Resolver&& _other) = delete;
 
     public:
-        inline void add_resolution(Collision_Resolution_Interface* _ptr) { m_resolutions.push(_ptr); }
+        inline void add_resolution(Collision_Resolution* _ptr) { m_resolutions.push(_ptr); }
 
         void clear_resolutions();
 

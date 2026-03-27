@@ -32,7 +32,7 @@ void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt)
 
     for(unsigned int i = 0; i < m_resolutions.size(); ++i)
     {
-        Collision_Resolution_Interface* resolution = m_resolutions[i];
+        Collision_Resolution* resolution = m_resolutions[i];
 
         if(!resolution->resolve(_id, _dt))
             continue;

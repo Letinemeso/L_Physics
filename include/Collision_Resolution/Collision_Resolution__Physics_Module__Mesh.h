@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Collision_Resolution/Collision_Resolution_Interface.h>
+#include <Collision_Resolution/Collision_Resolution.h>
 
 
 namespace LPhys
 {
 
-    class Collision_Resolution__Physics_Module__Mesh : public Collision_Resolution_Interface
+    class Collision_Resolution__Physics_Module__Mesh : public Collision_Resolution
     {
     private:
         bool M_resolve_dynamic_vs_dynamic(const Intersection_Data &_id, float _dt);
