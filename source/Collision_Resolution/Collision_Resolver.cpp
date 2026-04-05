@@ -46,6 +46,9 @@ void Collision_Resolver::resolve_single(const Intersection_Data &_id, float _dt)
 
 void Collision_Resolver::resolve_all(const LDS::List<Intersection_Data>& _ids, float _dt) const
 {
+    for(unsigned int i = 0; i < m_resolutions.size(); ++i)
+        m_resolutions[i]->on_before_pass();
+
     for(LDS::List<Intersection_Data>::Const_Iterator it = _ids.begin(); !it.end_reached(); ++it)
         resolve_single(*it, _dt);
 
