@@ -64,7 +64,8 @@ bool Collision_Resolution__Physics_Module__Mesh::M_resolve_dynamic_vs_static(con
         normal *= -1.0f;
     }
 
-    LEti::Transformation_Data transformation_data_after_collision_1 = LEti::Transformation_Data::get_transformation_data_for_ratio(*pm1->transformation_data_prev_state(), *pm1->transformation_data(), _id.time_of_intersection_ratio);
+    LEti::Transformation_Data transformation_data_after_collision_1 = *pm1->transformation_data();
+    transformation_data_after_collision_1.set_position( LEti::Transformation_Data::get_position_for_ratio(*pm1->transformation_data_prev_state(), *pm1->transformation_data(), _id.time_of_intersection_ratio) );
 
     glm::vec3 separation_vec = normal * _id.depth * 1.01f;
 
