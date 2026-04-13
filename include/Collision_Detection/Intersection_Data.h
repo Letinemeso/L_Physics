@@ -14,6 +14,7 @@ namespace LPhys
     public:
         bool intersection = false;
         LDS::Vector<glm::vec3> points;
+        LDS::Vector<float> depths_per_point;
         glm::vec3 normal{0.0f, 0.0f, 0.0f};
         float depth = 0.0f;
         Physics_Module* first = nullptr;

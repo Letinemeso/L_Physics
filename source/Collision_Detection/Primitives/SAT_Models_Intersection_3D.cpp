@@ -226,14 +226,9 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
             if(!id.intersection)
                 continue;
 
-            ++result.intersections_amount;
-
             result.points.push(id.point);
-
-            glm::vec3 push_out_vector = -id.normal * id.depth;
-
-            result.push_out_vector += push_out_vector;
-            result.total_depth += id.depth;
+            result.normals.push(id.normal);
+            result.depths.push(id.depth);
         }
     }
 
@@ -260,26 +255,38 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
         if(!id.intersection)
             continue;
 
-        ++result.intersections_amount;
-
         result.points.push(id.point);
-
-        glm::vec3 push_out_vector = -id.normal * id.depth;
-
-        result.push_out_vector += push_out_vector;
-        result.total_depth += id.depth;
+        result.normals.push(id.normal);
+        result.depths.push(id.depth);
     }
 
     return result;
 }
 
 
-LDS::Vector<glm::vec3> SAT_Models_Intersection_3D::M_find_extreme_contacts(const LDS::Vector<glm::vec3>& _contact_points, const glm::vec3& _normal) const
+void SAT_Models_Intersection_3D::M_calculate_combined_normal_and_depth(Intersection_Data& _result_id, const Common_Intersection_Data& _cid) const
+{
+    _result_id.normal = {0.0f, 0.0f, 0.0f};
+    _result_id.depth = 0.0f;
+
+    for(unsigned int i = 0; i < _cid.normals.size(); ++i)
+    {
+        glm::vec3 push_out_vector = -_cid.normals[i] * _cid.depths[i];
+
+        _result_id.normal += push_out_vector;
+        _result_id.depth += _cid.depths[i];
+    }
+
+    LST::Math::shrink_vector_to_1(_result_id.normal);
+    _result_id.depth /= (float)_cid.depths.size();
+}
+
+LDS::Array<unsigned int, 4> SAT_Models_Intersection_3D::M_find_extreme_contacts_ids(const Common_Intersection_Data& _cid, const glm::vec3& _normal) const
 {
     glm::vec3 center = {0.0f, 0.0f, 0.0f};
-    for(unsigned int i = 0; i < _contact_points.size(); ++i)
-        center += _contact_points[i];
-    center /= (float)_contact_points.size();
+    for(unsigned int i = 0; i < _cid.points.size(); ++i)
+        center += _cid.points[i];
+    center /= (float)_cid.points.size();
 
     float extreme_0_min = std::numeric_limits<float>::max();
     float extreme_0_max = std::numeric_limits<float>::lowest();
@@ -292,9 +299,9 @@ LDS::Vector<glm::vec3> SAT_Models_Intersection_3D::M_find_extreme_contacts(const
 
     Basis basis(_normal);
 
-    for(unsigned int i = 0; i < _contact_points.size(); ++i)
+    for(unsigned int i = 0; i < _cid.points.size(); ++i)
     {
-        glm::vec3 point_w_offset = _contact_points[i] - center;
+        glm::vec3 point_w_offset = _cid.points[i] - center;
 
         float projection_0 = LST::Math::dot_product(point_w_offset, basis.axis_0);
         float projection_1 = LST::Math::dot_product(point_w_offset, basis.axis_1);
@@ -322,33 +329,41 @@ LDS::Vector<glm::vec3> SAT_Models_Intersection_3D::M_find_extreme_contacts(const
         }
     }
 
-    LDS::Vector<unsigned int> repeat_check(4);
-    LDS::Vector<glm::vec3> result(4);
+    LDS::Array<unsigned int, 4> result;
 
-    repeat_check.push(extreme_0_min_index);
-    result.push( _contact_points[extreme_0_min_index] );
+    result.push(extreme_0_min_index);
 
-    if(!repeat_check.contains(extreme_0_max_index))
-    {
-        repeat_check.push(extreme_0_max_index);
-        result.push( _contact_points[extreme_0_max_index] );
-    }
+    if(!result.contains(extreme_0_max_index))
+        result.push(extreme_0_max_index);
 
-    if(!repeat_check.contains(extreme_1_min_index))
-    {
-        repeat_check.push(extreme_1_min_index);
-        result.push( _contact_points[extreme_1_min_index] );
-    }
+    if(!result.contains(extreme_1_min_index))
+        result.push(extreme_1_min_index);
 
-    if(!repeat_check.contains(extreme_1_max_index))
-    {
-        repeat_check.push(extreme_1_max_index);
-        result.push( _contact_points[extreme_1_max_index] );
-    }
+    if(!result.contains(extreme_1_max_index))
+        result.push(extreme_1_max_index);
 
-    L_ASSERT(!repeat_check.contains(LST::Math::Max_Unsigned_Int));
+    L_ASSERT(!result.contains(LST::Math::Max_Unsigned_Int));
 
     return result;
+}
+
+void SAT_Models_Intersection_3D::M_find_extreme_contacts(Intersection_Data& _result_id, const Common_Intersection_Data& _cid, const glm::vec3& _normal) const
+{
+    LDS::Array<unsigned int, 4> extreme_indices = M_find_extreme_contacts_ids(_cid, _normal);
+
+    for(unsigned int i = 0; i < extreme_indices.size(); ++i)
+    {
+        unsigned int index = extreme_indices[i];
+
+        _result_id.points.push( _cid.points[index] );
+
+        glm::vec3 push_out_vec = -_cid.normals[index] * _cid.depths[index];
+        float point_depth = LST::Math::dot_product(push_out_vec, _normal);
+        if(point_depth < 0.0f)
+            point_depth = 0.0f;
+
+        _result_id.depths_per_point.push(point_depth);
+    }
 }
 
 
@@ -366,16 +381,20 @@ LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(c
     else
         id = M_calculate_common_intersection_optimized(_polygon_holder_1, _border_1, _polygons_borders_cache_1, _polygon_holder_2, _border_2, _polygons_borders_cache_2);
 
-    float push_out_vector_length = LST::Math::vector_length(id.push_out_vector);
+    L_ASSERT(id.points.size() == id.normals.size());
+    L_ASSERT(id.points.size() == id.depths.size());
 
-    if(id.intersections_amount == 0 || push_out_vector_length < 1e-9f)
+    if(id.points.size() == 0)
         return {};
 
     Intersection_Data result;
+    M_calculate_combined_normal_and_depth(result, id);
+
+    if(result.depth < LST::Math::Float_Precision_Tolerance_Very_Risky)
+        return {};
+
     result.intersection = true;
-    result.depth = id.total_depth / (float)id.intersections_amount;
-    result.normal = id.push_out_vector / push_out_vector_length;
-    result.points = M_find_extreme_contacts(id.points, result.normal);
+    M_find_extreme_contacts(result, id, result.normal);
 
     return result;
 }

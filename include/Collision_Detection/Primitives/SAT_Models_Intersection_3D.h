@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Data_Structures/Array.h>
+
 #include <Collision_Detection/Primitives/Primitives_Intersection_Detector.h>
 
 
@@ -55,9 +57,8 @@ namespace LPhys
         struct Common_Intersection_Data
         {
             LDS::Vector<glm::vec3> points = {100};
-            glm::vec3 push_out_vector = { 0.0f, 0.0f, 0.0f };
-            float total_depth = 0.0f;
-            unsigned int intersections_amount = 0;
+            LDS::Vector<glm::vec3> normals = {100};
+            LDS::Vector<float> depths = {100};
         };
 
         struct Basis
@@ -91,7 +92,10 @@ namespace LPhys
                                                                            const Polygon_Holder_Base* _polygon_holder_2, const Border& _border_2,
                                                                            const LDS::Vector<Border>& _polygons_borders_cache_2) const;
 
-        LDS::Vector<glm::vec3> M_find_extreme_contacts(const LDS::Vector<glm::vec3>& _contact_points, const glm::vec3& _normal) const;
+        void M_calculate_combined_normal_and_depth(Intersection_Data& _result_id, const Common_Intersection_Data& _cid) const;
+
+        LDS::Array<unsigned int, 4> M_find_extreme_contacts_ids(const Common_Intersection_Data& _cid, const glm::vec3& _normal) const;
+        void M_find_extreme_contacts(Intersection_Data& _result_id, const Common_Intersection_Data& _cid, const glm::vec3& _normal) const;
 
     public:
         LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Border& _border_1,

@@ -20,21 +20,23 @@ bool Physics_Module::intersects_with_border(const Border& _border) const
 
 
 
-void Physics_Module::apply_data_after_collisions()
+LEti::Transformation_Data Physics_Module::calculate_transformation_data_after_collision() const
 {
+    LEti::Transformation_Data result = *transformation_data();
+
     if(m_transformations_after_collisions.size() == 0)
-        return;
+        return result;
 
     glm::vec3 average_rotation(0.0f, 0.0f, 0.0f);
     glm::vec3 average_scale(0.0f, 0.0f, 0.0f);
 
     glm::vec3 largest_movement_vec(0.0f, 0.0f, 0.0f);
 
-    for(Transformations_List::Iterator it = m_transformations_after_collisions.begin(); !it.end_reached(); ++it)
+    for(Transformations_List::Const_Iterator it = m_transformations_after_collisions.begin(); !it.end_reached(); ++it)
     {
         const LEti::Transformation_Data& transformation = *it;
 
-        glm::vec3 movement_vec = transformation.position() - transformation_data()->position();
+        glm::vec3 movement_vec = transformation.position() - result.position();
 
         for(unsigned int i = 0; i < 3; ++i)
         {
@@ -53,9 +55,16 @@ void Physics_Module::apply_data_after_collisions()
     average_rotation *= multiplier;
     average_scale *= multiplier;
 
-    transformation_data()->move(largest_movement_vec);
-    transformation_data()->set_rotation(average_rotation);
-    transformation_data()->set_scale(average_scale);
+    result.move(largest_movement_vec);
+    result.set_rotation(average_rotation);
+    result.set_scale(average_scale);
+
+    return result;
+}
+
+void Physics_Module::apply_data_after_collisions()
+{
+    *transformation_data() = calculate_transformation_data_after_collision();
 
     m_transformations_after_collisions.clear();
 

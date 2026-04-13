@@ -52,6 +52,7 @@ namespace LPhys
         virtual bool intersects_with_border(const Border& _border) const;
 
     public:
+        LEti::Transformation_Data calculate_transformation_data_after_collision() const;
         virtual void apply_data_after_collisions();
 
     };
