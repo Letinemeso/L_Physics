@@ -152,7 +152,7 @@ const LDS::Vector<float>& Physics_Module_Stub__Mesh::M_select_data() const
     if(!data_provider)
         return coords;
 
-    return data_provider->get_data();
+    return data_provider->get_data( future_parent );
 }
 
 
