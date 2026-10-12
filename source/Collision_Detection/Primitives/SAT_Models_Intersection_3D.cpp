@@ -5,7 +5,6 @@
 #include <Data_Structures/Vector.h>
 
 #include <Collision_Detection/Primitives/Polygon_VS_Ray_Intersection.h>
-#include <Collision_Detection/Tools/Bounding_Volume_Hierarchy.h>
 
 using namespace LPhys;
 
@@ -189,7 +188,18 @@ SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3
 }
 
 
-SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1,
+LDS::Vector<LST::Border> SAT_Models_Intersection_3D::M_construct_polygon_borders(const Polygon_Holder_Base* _polygon_holder) const
+{
+    LDS::Vector<LST::Border> result(_polygon_holder->amount());
+
+    for(unsigned int i = 0; i < _polygon_holder->amount(); ++i)
+        result.push( _polygon_holder->get_polygon(i)->construct_border() );
+
+    return result;
+}
+
+
+SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection_simple(const Polygon_Holder_Base* _polygon_holder_1,
                                                        const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
                                                        const Polygon_Holder_Base* _polygon_holder_2,
                                                        const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const
@@ -235,22 +245,40 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
     return result;
 }
 
-SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
-                                                                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
-                                                                                                                           const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
-                                                                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const
+SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection_bvh(const Polygon_Holder_Base* _polygon_holder_0, const LST::Border& _border_0,
+                                                                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_0,
+                                                                                                                           const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
+                                                                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_1) const
 {
     Common_Intersection_Data result;
 
-    LST::Border exclusion_border = _border_1 && _border_2;
+    LST::BVH::Context bvh_context;
 
-    Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, _polygons_borders_cache_1, *_polygon_holder_2, _polygons_borders_cache_2, 3, exclusion_border);
+    bvh_context.registered_borders.add(_polygons_borders_cache_0);
+    bvh_context.registered_borders.add(_polygons_borders_cache_1);
 
-    for(unsigned int i = 0; i < possible_colliding_polygons.size(); ++i)
+    LST::Border common_border = _border_0 && _border_1;
+
+    LST::BVH::ID_Pairs_Vec pairs = m_bvh.process(bvh_context, common_border);
+    const LST::BVH::Registered_Borders& registered_borders = bvh_context.registered_borders;
+
+    for(unsigned int i = 0; i < pairs.size(); ++i)
     {
-        const Polygons_Pair& pair = possible_colliding_polygons[i];
+        const LST::BVH::ID_Pair& pair = pairs[i];
 
-        Polygons_Intersection_Data id = M_check_triangles_intersection(*pair.first, *pair.second);
+        LST::BVH::Registered_Borders::Border_Location location_0 = registered_borders.calculate_border_location(pair.id_0);
+        LST::BVH::Registered_Borders::Border_Location location_1 = registered_borders.calculate_border_location(pair.id_1);
+
+        unsigned int p_0_index = location_0.index;
+        unsigned int p_1_index = location_1.index;
+
+        if(location_0.group > location_1.group)
+            std::swap(p_0_index, p_1_index);
+
+        const Polygon& p_0 = *_polygon_holder_0->get_polygon(p_0_index);
+        const Polygon& p_1 = *_polygon_holder_1->get_polygon(p_1_index);
+
+        Polygons_Intersection_Data id = M_check_triangles_intersection(p_0, p_1);
 
         if(!id.intersection)
             continue;
@@ -260,7 +288,30 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
         result.depths.push(id.depth);
     }
 
+    // m_bvh.reset_registered_borders();
+
     return result;
+}
+
+SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
+                                                                                                                 const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                                                                                 const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
+                                                                                                                 const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const
+{
+    if(_polygon_holder_1->amount() < m_min_polygons_for_optimization && _polygon_holder_2->amount() < m_min_polygons_for_optimization)
+    {
+        return M_calculate_common_intersection_simple(_polygon_holder_1,
+                                                      _polygons_borders_cache_1,
+                                                      _polygon_holder_2,
+                                                      _polygons_borders_cache_2);
+    }
+    else
+    {
+        return M_calculate_common_intersection_bvh(_polygon_holder_1, _border_1,
+                                                   _polygons_borders_cache_1,
+                                                   _polygon_holder_2, _border_2,
+                                                   _polygons_borders_cache_2);
+    }
 }
 
 
@@ -368,18 +419,17 @@ void SAT_Models_Intersection_3D::M_find_extreme_contacts(Intersection_Data& _res
 
 
 
-LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1,
+LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_0,
+                                                                               const LST::Border& _border_0,
+                                                                               const LDS::Vector<LST::Border>& _polygons_borders_cache_0,
+                                                                               const Polygon_Holder_Base* _polygon_holder_1,
                                                                                const LST::Border& _border_1,
-                                                                               const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
-                                                                               const Polygon_Holder_Base* _polygon_holder_2,
-                                                                               const LST::Border& _border_2,
-                                                                               const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const
+                                                                               const LDS::Vector<LST::Border>& _polygons_borders_cache_1) const
 {
-    Common_Intersection_Data id;
-    if(_polygon_holder_1->amount() < m_min_polygons_for_optimization && _polygon_holder_2->amount() < m_min_polygons_for_optimization)
-        id = M_calculate_common_intersection(_polygon_holder_1, _polygons_borders_cache_1, _polygon_holder_2, _polygons_borders_cache_2);
-    else
-        id = M_calculate_common_intersection_optimized(_polygon_holder_1, _border_1, _polygons_borders_cache_1, _polygon_holder_2, _border_2, _polygons_borders_cache_2);
+    Common_Intersection_Data id = M_calculate_common_intersection(_polygon_holder_0, _border_0,
+                                                                  _polygons_borders_cache_0.size() ? _polygons_borders_cache_0 : M_construct_polygon_borders(_polygon_holder_0),
+                                                                  _polygon_holder_1, _border_1,
+                                                                  _polygons_borders_cache_1.size() ? _polygons_borders_cache_1 : M_construct_polygon_borders(_polygon_holder_1));
 
     L_ASSERT(id.points.size() == id.normals.size());
     L_ASSERT(id.points.size() == id.depths.size());

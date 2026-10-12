@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Data_Structures/Array.h>
+#include <Stuff/Bounding_Volume_Hierarchy.h>
 
 #include <Collision_Detection/Primitives/Primitives_Intersection_Detector.h>
 
@@ -10,6 +11,9 @@ namespace LPhys
 
     class SAT_Models_Intersection_3D : public Primitives_Intersection_Detector
     {
+    private:
+        LST::Bounding_Volume_Hierarchy m_bvh;
+
     private:
         unsigned int m_min_polygons_for_optimization = 8;   //  if polygons amount on any mesh exceeds this value, optimization algotythm is used (something with space partitioning)
         float m_plane_contact_priority_ratio = 3.0f;           //  if edge contact has depth difference with plane contact less than this value, plane contact is prioritized
@@ -85,12 +89,18 @@ namespace LPhys
         Axis_Intersection M_check_intersection_on_axis(const glm::vec3& _axis, const Polygon& _first, const Polygon& _second) const;
         Polygons_Intersection_Data M_check_triangles_intersection(const Polygon& _first, const Polygon& _second) const;
 
-        Common_Intersection_Data M_calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1, const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
-                                                                 const Polygon_Holder_Base* _polygon_holder_2, const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const;
-        Common_Intersection_Data M_calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
-                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
-                                                                           const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
-                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const;
+        LDS::Vector<LST::Border> M_construct_polygon_borders(const Polygon_Holder_Base* _polygon_holder) const;
+
+        Common_Intersection_Data M_calculate_common_intersection_simple(const Polygon_Holder_Base* _polygon_holder_1, const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                                        const Polygon_Holder_Base* _polygon_holder_2, const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const;
+        Common_Intersection_Data M_calculate_common_intersection_bvh(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
+                                                                     const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                                     const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
+                                                                     const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const;
+        Common_Intersection_Data M_calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
+                                                                 const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                                 const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
+                                                                 const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const;
 
         void M_calculate_combined_normal_and_depth(Intersection_Data& _result_id, const Common_Intersection_Data& _cid) const;
 

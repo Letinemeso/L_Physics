@@ -1,6 +1,5 @@
 #include <Collision_Detection/Narrow_Phase/Dynamic_Narrow_CD__Mobile_Vs_Static.h>
 
-#include <Collision_Detection/Tools/Bounding_Volume_Hierarchy.h>
 #include <Collision_Detection/Primitives/Polygon_VS_Ray_Intersection.h>
 
 using namespace LPhys;
