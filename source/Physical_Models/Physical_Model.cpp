@@ -18,7 +18,7 @@ void Physical_Model::M_update_border(const glm::mat4x4& _matrix)
     m_border.update(_matrix);
 }
 
-void Physical_Model::M_update_polygons_borders_if_enabled()
+void Physical_Model::M_update_polygons_borders_if_enabled()     //  TODO: repace reconstruction of borders with update
 {
     if(!m_cache_polygons_borders)
         return;
