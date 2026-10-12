@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Data_Structures/List.h>
+#include <Data_Structures/List.h>       //  TODO: replace with vector
+#include <Stuff/Border.h>
 
 #include <Module.h>
 
-#include <Physical_Models/Border.h>
 #include <Collision_Detection/Intersection_Data.h>
 
 
@@ -47,9 +47,9 @@ namespace LPhys
         inline void on_collision(const Physics_Module* _with, const Intersection_Data& _id) const { if(m_on_collision_func) m_on_collision_func(_with, _id); }
 
     public:
-        virtual void expand_border(Border& _border) const;
+        virtual void expand_border(LST::Border& _border) const;
         virtual bool may_intersect_with_other(const Physics_Module& _other) const;
-        virtual bool intersects_with_border(const Border& _border) const;
+        virtual bool intersects_with_border(const LST::Border& _border) const;
 
     public:
         LEti::Transformation_Data calculate_transformation_data_after_collision() const;

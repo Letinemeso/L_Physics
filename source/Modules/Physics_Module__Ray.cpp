@@ -5,9 +5,14 @@
 using namespace LPhys;
 
 
-void Physics_Module__Ray::expand_border(Border& _border) const
+void Physics_Module__Ray::expand_border(LST::Border& _border) const
 {
-    _border.consider_point(m_current_start);
+    LST::Border_Construction_Helper helper;
+    helper.consider_point(_border.calculate_offset());
+    helper.consider_point(_border.calculate_limit());
+    helper.consider_point(m_current_start);
+
+    _border.init(helper);
 }
 
 bool Physics_Module__Ray::may_intersect_with_other(const Physics_Module& _other) const
@@ -15,16 +20,19 @@ bool Physics_Module__Ray::may_intersect_with_other(const Physics_Module& _other)
     return true;
 }
 
-bool Physics_Module__Ray::intersects_with_border(const Border& _border) const
+bool Physics_Module__Ray::intersects_with_border(const LST::Border& _border) const
 {
-    float tmin = (m_current_direction.x != 0) ? (_border.offset().x - m_current_start.x) / m_current_direction.x : -std::numeric_limits<float>::infinity();
-    float tmax = (m_current_direction.x != 0) ? ((_border.offset().x + _border.size().x) - m_current_start.x) / m_current_direction.x : std::numeric_limits<float>::infinity();
+    glm::vec3 border_offset = _border.calculate_offset();
+    glm::vec3 border_limit = _border.calculate_limit();
+
+    float tmin = (m_current_direction.x != 0) ? (border_offset.x - m_current_start.x) / m_current_direction.x : -std::numeric_limits<float>::infinity();
+    float tmax = (m_current_direction.x != 0) ? ((border_limit.x) - m_current_start.x) / m_current_direction.x : std::numeric_limits<float>::infinity();
 
     if (tmin > tmax)
         std::swap(tmin, tmax);
 
-    float tymin = (m_current_direction.y != 0) ? (_border.offset().y - m_current_start.y) / m_current_direction.y : -std::numeric_limits<float>::infinity();
-    float tymax = (m_current_direction.y != 0) ? ((_border.offset().y + _border.size().y) - m_current_start.y) / m_current_direction.y : std::numeric_limits<float>::infinity();
+    float tymin = (m_current_direction.y != 0) ? (border_offset.y - m_current_start.y) / m_current_direction.y : -std::numeric_limits<float>::infinity();
+    float tymax = (m_current_direction.y != 0) ? ((border_limit.y) - m_current_start.y) / m_current_direction.y : std::numeric_limits<float>::infinity();
 
     if (tymin > tymax) std::swap(tymin, tymax);
 
@@ -34,8 +42,8 @@ bool Physics_Module__Ray::intersects_with_border(const Border& _border) const
     tmin = std::max(tmin, tymin);
     tmax = std::min(tmax, tymax);
 
-    float tzmin = (m_current_direction.z != 0) ? (_border.offset().z - m_current_start.z) / m_current_direction.z : -std::numeric_limits<float>::infinity();
-    float tzmax = (m_current_direction.z != 0) ? ((_border.offset().z + _border.size().z) - m_current_start.z) / m_current_direction.z : std::numeric_limits<float>::infinity();
+    float tzmin = (m_current_direction.z != 0) ? (border_offset.z - m_current_start.z) / m_current_direction.z : -std::numeric_limits<float>::infinity();
+    float tzmax = (m_current_direction.z != 0) ? ((border_limit.z) - m_current_start.z) / m_current_direction.z : std::numeric_limits<float>::infinity();
 
     if (tzmin > tzmax)
         std::swap(tzmin, tzmax);

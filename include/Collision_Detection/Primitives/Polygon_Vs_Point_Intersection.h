@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Stuff/Math_Stuff.h>
-
 #include <Physical_Models/Polygon.h>
-#include <Physical_Models/Border.h>
 #include <Collision_Detection/Primitives/Segments_Intersection.h>
 
 

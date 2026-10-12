@@ -28,9 +28,9 @@ namespace LPhys
         inline const glm::vec3& current_direction() const { return m_current_direction; }
 
     public:
-        void expand_border(Border& _border) const override;
+        void expand_border(LST::Border& _border) const override;
         bool may_intersect_with_other(const Physics_Module& _other) const override;
-        bool intersects_with_border(const Border& _border) const override;
+        bool intersects_with_border(const LST::Border& _border) const override;
 
     public:
         void update(float _dt) override;

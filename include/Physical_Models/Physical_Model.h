@@ -5,10 +5,10 @@
 
 #include <L_Debug/L_Debug.h>
 #include <Data_Structures/Vector.h>
+#include <Stuff/Border.h>
 
 #include <Stuff/Math_Stuff.h>
 
-#include <Physical_Models/Border.h>
 #include <Physical_Models/Polygon.h>
 
 
@@ -58,30 +58,28 @@ namespace LPhys
     class Physical_Model
     {
 	private:
-		float* m_raw_coords = nullptr;
-		unsigned int m_raw_coords_count = 0;
-
-		bool* m_collision_permissions = nullptr;
+        LDS::Vector<float> m_raw_coords;
+        LDS::Vector<bool> m_collision_permissions;
 
         Polygon_Holder_Base* m_polygons_holder = nullptr;
 
         bool m_cache_polygons_borders = false;
 
     private:
-        Border m_border;
-        LDS::Vector<Border> m_polygons_borders_cache;
+        LST::Border m_border;
+        LDS::Vector<LST::Border> m_polygons_borders_cache;
 
     private:
         virtual Polygon_Holder_Base* M_create_polygons_holder() const;
 
 	private:
-        void M_update_border();
+        void M_init_border();
+        void M_update_border(const glm::mat4x4& _matrix);
         void M_update_polygons_borders_if_enabled();
 
 	public:
-        inline const Border& border() const { return m_border; }
-        inline const float* raw_coords() const { return m_raw_coords; }
-        inline unsigned int raw_coords_count() const { return m_raw_coords_count; }
+        inline const LST::Border& border() const { return m_border; }
+        inline const LDS::Vector<float>& raw_coords() const { return m_raw_coords; }
 
 	public:
         Physical_Model();
@@ -93,8 +91,7 @@ namespace LPhys
         inline void set_cache_polygons_borders(bool _value) { m_cache_polygons_borders = _value; }
 
     public:
-		void setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
-        void move_raw(const glm::vec3& _stride);
+        void setup(const LDS::Vector<float>& _raw_coords, const LDS::Vector<bool>& _collision_permissions);
 
         virtual void update(const glm::mat4x4& _matrix);
         void copy_real_coordinates(const Physical_Model& _other);
@@ -102,7 +99,7 @@ namespace LPhys
     public:
         inline const Polygon_Holder_Base* get_polygons() const { return m_polygons_holder; }
         inline bool caching_polygons_borders() const {  return m_cache_polygons_borders; }
-        inline const LDS::Vector<Border>& polygons_borders() const { return m_polygons_borders_cache; }
+        inline const LDS::Vector<LST::Border>& polygons_borders() const { return m_polygons_borders_cache; }
 
         Physical_Model_Imprint* create_imprint() const;
 
@@ -115,8 +112,8 @@ namespace LPhys
 
     private:
         Polygon_Holder_Base* m_polygons_holder = nullptr;
-        Border m_border;
-        LDS::Vector<Border> m_polygons_borders_cache;
+        LST::Border m_border;
+        LDS::Vector<LST::Border> m_polygons_borders_cache;
 
     public:
         Physical_Model_Imprint(const Physical_Model* _parent);
@@ -125,7 +122,7 @@ namespace LPhys
         ~Physical_Model_Imprint();
 
     private:
-        void M_update_border();
+        void M_update_border(const glm::mat4x4& _matrix);
 
     public:
         void update(const glm::mat4x4& _translation, const glm::mat4x4& _rotation, const glm::mat4x4& _scale);
@@ -134,8 +131,8 @@ namespace LPhys
 
         inline const Physical_Model* get_parent() const { return m_parent; }
         inline const Polygon_Holder_Base* get_polygons() const { return m_polygons_holder; }
-        inline const Border& border() const { return m_border; }
-        inline const LDS::Vector<Border>& polygons_borders() const { return m_polygons_borders_cache; }
+        inline const LST::Border& border() const { return m_border; }
+        inline const LDS::Vector<LST::Border>& polygons_borders() const { return m_polygons_borders_cache; }
 
     };
 }

@@ -39,14 +39,14 @@ void Physics_Module__Mesh::M_on_parent_object_set()
 
 
 
-void Physics_Module__Mesh::setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
+void Physics_Module__Mesh::setup_base_data(const LDS::Vector<float>& _raw_coords, const LDS::Vector<bool>& _collision_permissions)
 {
     delete m_physical_model;
     delete m_physical_model_prev_state;
 
     m_physical_model = M_create_physical_model();
 
-    m_physical_model->setup(_raw_coords, _raw_coords_count, _collision_permissions);
+    m_physical_model->setup(_raw_coords, _collision_permissions);
     m_physical_model->set_cache_polygons_borders(m_cache_polygons_borders);
 
     if(transformation_data())
@@ -63,13 +63,6 @@ void Physics_Module__Mesh::set_cache_polygons_borders(bool _value)
         return;
 
     m_physical_model->set_cache_polygons_borders(_value);
-}
-
-
-void Physics_Module__Mesh::move_raw(const glm::vec3 &_stride)
-{
-    L_ASSERT(m_physical_model);
-    m_physical_model->move_raw(_stride);
 }
 
 
@@ -101,7 +94,7 @@ void Physics_Module__Mesh::update(float /*_dt*/)
         m_should_update_prev_state = true;
     }
 
-    m_border = get_physical_model_prev_state()->border() || get_physical_model()->border();
+    m_border = m_physical_model_prev_state->border() || m_physical_model->border();
 }
 
 void Physics_Module__Mesh::update_physical_model()
@@ -118,7 +111,7 @@ void Physics_Module__Mesh::update_physical_model()
 
 
 
-void Physics_Module__Mesh::expand_border(Border& _border) const
+void Physics_Module__Mesh::expand_border(LST::Border& _border) const
 {
     _border.expand_with(m_border);
 }
@@ -128,7 +121,7 @@ bool Physics_Module__Mesh::may_intersect_with_other(const Physics_Module& _other
     return _other.intersects_with_border(m_border);
 }
 
-bool Physics_Module__Mesh::intersects_with_border(const Border& _border) const
+bool Physics_Module__Mesh::intersects_with_border(const LST::Border& _border) const
 {
     return m_border.intersects_with(_border);
 }
@@ -167,13 +160,7 @@ BUILDER_STUB_INITIALIZATION_FUNC(Physics_Module_Stub__Mesh)
     const LDS::Vector<float>& data = M_select_data();
 
     if(data.size() > 0)
-    {
-        const bool* raw_collisions_permissions = nullptr;
-        if(collision_permissions.size() > 0)
-            raw_collisions_permissions = collision_permissions.raw_data();
-
-        product->setup_base_data(data.raw_data(), data.size(), raw_collisions_permissions);
-    }
+        product->setup_base_data(data, collision_permissions);
 
     if(on_collision_func)
         product->set_on_collision_function(on_collision_func);

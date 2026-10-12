@@ -85,12 +85,12 @@ namespace LPhys
         Axis_Intersection M_check_intersection_on_axis(const glm::vec3& _axis, const Polygon& _first, const Polygon& _second) const;
         Polygons_Intersection_Data M_check_triangles_intersection(const Polygon& _first, const Polygon& _second) const;
 
-        Common_Intersection_Data M_calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1, const LDS::Vector<Border>& _polygons_borders_cache_1,
-                                                                 const Polygon_Holder_Base* _polygon_holder_2, const LDS::Vector<Border>& _polygons_borders_cache_2) const;
-        Common_Intersection_Data M_calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, const Border& _border_1,
-                                                                           const LDS::Vector<Border>& _polygons_borders_cache_1,
-                                                                           const Polygon_Holder_Base* _polygon_holder_2, const Border& _border_2,
-                                                                           const LDS::Vector<Border>& _polygons_borders_cache_2) const;
+        Common_Intersection_Data M_calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1, const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                                 const Polygon_Holder_Base* _polygon_holder_2, const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const;
+        Common_Intersection_Data M_calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
+                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                                           const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
+                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const;
 
         void M_calculate_combined_normal_and_depth(Intersection_Data& _result_id, const Common_Intersection_Data& _cid) const;
 
@@ -98,10 +98,10 @@ namespace LPhys
         void M_find_extreme_contacts(Intersection_Data& _result_id, const Common_Intersection_Data& _cid, const glm::vec3& _normal) const;
 
     public:
-        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const Border& _border_1,
-                                                           const LDS::Vector<Border>& _polygons_borders_cache_1,
-                                                           const Polygon_Holder_Base* _polygon_holder_2, const Border& _border_2,
-                                                           const LDS::Vector<Border>& _polygons_borders_cache_2) const override;
+        LPhys::Intersection_Data collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
+                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                           const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
+                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const override;
 
     };
 

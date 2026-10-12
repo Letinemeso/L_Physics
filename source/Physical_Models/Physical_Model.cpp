@@ -13,19 +13,9 @@ Polygon_Holder_Base* Physical_Model::M_create_polygons_holder() const
 
 
 
-void Physical_Model::M_update_border()
+void Physical_Model::M_update_border(const glm::mat4x4& _matrix)
 {
-    L_ASSERT(m_polygons_holder);
-
-    m_border.reset();
-
-    for(unsigned int i=0; i<m_polygons_holder->amount(); ++i)
-    {
-        const Polygon& polygon = *m_polygons_holder->get_polygon(i);
-
-        for(unsigned int p=0; p<3; ++p)
-            m_border.consider_point(polygon[p]);
-    }
+    m_border.update(_matrix);
 }
 
 void Physical_Model::M_update_polygons_borders_if_enabled()
@@ -54,63 +44,36 @@ Physical_Model::Physical_Model()
 
 Physical_Model::Physical_Model(const Physical_Model& _other)
 {
-    setup(_other.m_raw_coords, _other.m_raw_coords_count, _other.m_collision_permissions);
+    setup(_other.m_raw_coords, _other.m_collision_permissions);
     copy_real_coordinates(_other);
 }
 
 
 Physical_Model::~Physical_Model()
 {
-    delete[] m_raw_coords;
-    delete[] m_collision_permissions;
     delete m_polygons_holder;
 }
 
 
 
-void Physical_Model::setup(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions)
+void Physical_Model::setup(const LDS::Vector<float>& _raw_coords, const LDS::Vector<bool>& _collision_permissions)
 {
-    delete[] m_raw_coords;
+    m_raw_coords = _raw_coords;
 
-    m_raw_coords_count = _raw_coords_count;
-    m_raw_coords = new float[m_raw_coords_count];
-    for (unsigned int i = 0; i < m_raw_coords_count; ++i)
-        m_raw_coords[i] = _raw_coords[i];
-
-    delete[] m_collision_permissions;
-
-    m_collision_permissions = new bool[m_raw_coords_count / 3];
-    if(_collision_permissions)
-    {
-        for(unsigned int i=0; i<m_raw_coords_count / 3; ++i)
-            m_collision_permissions[i] = _collision_permissions[i];
-    }
+    if(_collision_permissions.size() > 0)
+        m_collision_permissions = _collision_permissions;
     else
-    {
-        for(unsigned int i=0; i<m_raw_coords_count / 3; ++i)
-            m_collision_permissions[i] = true;
-    }
+        m_collision_permissions.resize_and_fill(m_raw_coords.size() / 3, true);
 
     delete m_polygons_holder;
-    m_polygons_holder = M_create_polygons_holder();
+    m_polygons_holder = M_create_polygons_holder();     //  TODO: fix a call to virtual method in the constructor. probably remove copy constructor
 
-    unsigned int polygons_count = m_raw_coords_count / 9;
+    unsigned int polygons_count = m_raw_coords.size() / 9;
     m_polygons_holder->allocate(polygons_count);
     for (unsigned int i = 0; i < polygons_count; ++i)
         m_polygons_holder->get_polygon(i)->setup(&m_raw_coords[i * 9], &m_collision_permissions[i * 3]);
-}
 
-void Physical_Model::move_raw(const glm::vec3 &_stride)
-{
-    for(unsigned int i=0; i<m_raw_coords_count; i += 3)
-    {
-        m_raw_coords[i] += _stride.x;
-        m_raw_coords[i + 1] += _stride.y;
-        m_raw_coords[i + 2] += _stride.z;
-    }
-
-    for(unsigned int i=0; i < m_polygons_holder->amount(); ++i)
-        m_polygons_holder->get_polygon(i)->calculate_center();
+    m_border.init(_raw_coords);
 }
 
 
@@ -121,7 +84,7 @@ void Physical_Model::update(const glm::mat4x4& _matrix)
     for (unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
         m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
 
-    M_update_border();
+    M_update_border(_matrix);
 
     M_update_polygons_borders_if_enabled();
 }
@@ -192,19 +155,9 @@ Physical_Model_Imprint::~Physical_Model_Imprint()
 
 
 
-void Physical_Model_Imprint::M_update_border()
+void Physical_Model_Imprint::M_update_border(const glm::mat4x4& _matrix)
 {
-    L_ASSERT(m_polygons_holder);
-
-    m_border.reset();
-
-    for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
-    {
-        const Polygon& polygon = *m_polygons_holder->get_polygon(i);
-
-        for(unsigned int p=0; p<3; ++p)
-            m_border.consider_point(polygon[p]);
-    }
+    m_border.update(_matrix);
 }
 
 
@@ -227,7 +180,7 @@ void Physical_Model_Imprint::update_with_single_matrix(const glm::mat4x4& _matri
 
     for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
         m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
-    M_update_border();
+    M_update_border(_matrix);
 
     if(m_parent->caching_polygons_borders())
         m_polygons_borders_cache = m_parent->polygons_borders();

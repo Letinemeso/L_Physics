@@ -22,7 +22,7 @@ namespace LPhys
         bool m_cache_polygons_borders = false;
 
     protected:
-        Border m_border;
+        LST::Border m_border;
 
     private:
         Physical_Model* m_physical_model = nullptr;
@@ -42,10 +42,8 @@ namespace LPhys
         void M_on_parent_object_set() override;
 
     public:
-        void setup_base_data(const float* _raw_coords, unsigned int _raw_coords_count, const bool* _collision_permissions);
+        void setup_base_data(const LDS::Vector<float>& _raw_coords, const LDS::Vector<bool>& _collision_permissions);
         void set_cache_polygons_borders(bool _value);
-
-        void move_raw(const glm::vec3 &_stride);
 
     public:
         void update_prev_state() override;
@@ -53,12 +51,12 @@ namespace LPhys
         void update_physical_model();
 
     public:
-        void expand_border(Border& _border) const override;
+        void expand_border(LST::Border& _border) const override;
         bool may_intersect_with_other(const Physics_Module& _other) const override;
-        bool intersects_with_border(const Border& _border) const override;
+        bool intersects_with_border(const LST::Border& _border) const override;
 
     public:
-        inline const Border& border() const { return m_border; }
+        inline const LST::Border& border() const { return m_border; }
         inline Physical_Model* get_physical_model() { return m_physical_model; }
         inline Physical_Model_Imprint* get_physical_model_prev_state() { return m_physical_model_prev_state; }
         inline const Physical_Model* get_physical_model() const { return m_physical_model; }

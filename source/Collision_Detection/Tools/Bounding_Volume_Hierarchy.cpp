@@ -14,35 +14,18 @@ namespace LPhys
 
     using Polygons_Vec = LDS::Vector<Polygon_Data>;
 
-    Border border_from_polygons_vec(const Polygons_Vec& _vec)
+    LST::Border border_from_polygons_vec(const Polygons_Vec& _vec)
     {
         if(_vec.size() == 0)
             return {};
 
-        glm::vec3 min = (*_vec[0].polygon)[0];
-        glm::vec3 max = min;
+        LST::Border result;
 
         for(unsigned int p = 0; p < _vec.size(); ++p)
         {
             const Polygon& polygon = *_vec[p].polygon;
-
-            for(unsigned int v = 0; v < 3; ++v)
-            {
-                const glm::vec3& vertex = polygon[v];
-
-                for(unsigned int i = 0; i < 3; ++i)
-                {
-                    if(min[i] > vertex[i])
-                        min[i] = vertex[i];
-                    if(max[i] < vertex[i])
-                        max[i] = vertex[i];
-                }
-            }
+            result.expand_with(polygon.construct_border());
         }
-
-        Border result;
-        result.set_offset(min);
-        result.set_size(max - min);
 
         return result;
     }
@@ -73,7 +56,7 @@ namespace LPhys
         Polygons_Vec polygons_2;
     };
 
-    Polygons_In_Area find_polygons_in_area(const Polygons_Vec& _p1, const Polygons_Vec& _p2, const Border& _border)
+    Polygons_In_Area find_polygons_in_area(const Polygons_Vec& _p1, const Polygons_Vec& _p2, const LST::Border& _border)
     {
         Polygons_In_Area result = { Polygons_Vec(_p1.size()), Polygons_Vec(_p2.size()) };
 
@@ -159,11 +142,45 @@ namespace LPhys
         }
     }
 
+    unsigned int find_largest_component(const LST::Border& _rb)
+    {
+        unsigned int result = 0;
+        float max = _rb.extents()[0];
+
+        for(unsigned int i = 1; i < 3; ++i)
+        {
+            if(_rb.extents()[i] <= max)
+                continue;
+
+            result = i;
+            max = _rb.extents()[i];
+        }
+
+        return result;
+    }
+
+    LST::Border split_border(const LST::Border& _border, unsigned int _component, bool _first_half)     //  TODO: somehow merge this logic with Binary_Space_Partitioner
+    {
+        float extent_halved = _border.extents()[_component] * 0.5f;
+
+        LST::Border result = _border;
+
+        glm::vec3 new_center = result.center();
+        glm::vec3 new_extents = result.extents();
+
+        new_center[_component] += (_first_half ? -extent_halved : extent_halved);
+        new_extents[_component] = extent_halved;
+
+        result.set_values(new_center, new_extents);
+
+        return result;
+    }
+
     void find_possible_colliding_polygons_in_area(Possible_Colliding_Polygons& _result,
                                                   Exclusions_Vec& _exclusions,
                                                   const Polygons_Vec& _p1,
                                                   const Polygons_Vec& _p2,
-                                                  const Border& _border,
+                                                  const LST::Border& _border,
                                                   unsigned int _total_polygons_amount,
                                                   unsigned int _min_polygons,
                                                   unsigned int _repeated_depth_limit)
@@ -177,33 +194,9 @@ namespace LPhys
         if(_p1.size() < _min_polygons && _p2.size() < _min_polygons)
             return append_polygons_pairs(_result, _exclusions, _total_polygons_amount, _p1, _p2);
 
-        Border b1 = _border;
-        Border b2 = _border;
-
-        if(_border.size().x > _border.size().y && _border.size().x > _border.size().z)
-        {
-            glm::vec3 diff = {_border.size().x * 0.5f, 0.0f, 0.0f};
-
-            b1.modify_size(-diff);
-            b2.modify_size(-diff);
-            b2.modify_offset(diff);
-        }
-        else if(_border.size().y > _border.size().z)
-        {
-            glm::vec3 diff = {0.0f, _border.size().y * 0.5f, 0.0f};
-
-            b1.modify_size(-diff);
-            b2.modify_size(-diff);
-            b2.modify_offset(diff);
-        }
-        else
-        {
-            glm::vec3 diff = {0.0f, 0.0f, _border.size().z * 0.5f};
-
-            b1.modify_size(-diff);
-            b2.modify_size(-diff);
-            b2.modify_offset(diff);
-        }
+        unsigned int max_component = find_largest_component(_border);
+        LST::Border b1 = split_border(_border, max_component, true);
+        LST::Border b2 = split_border(_border, max_component, false);
 
         Polygons_In_Area p1 = find_polygons_in_area(_p1, _p2, b1);
         Polygons_In_Area p2 = find_polygons_in_area(_p1, _p2, b2);
@@ -218,13 +211,13 @@ namespace LPhys
 
         if(same_polygons(p1.polygons_1, p2.polygons_1) && same_polygons(p1.polygons_2, p2.polygons_2))
         {
-            Border common_area = border_from_polygons_vec(p1.polygons_1) || border_from_polygons_vec(p1.polygons_2);
+            LST::Border common_area = border_from_polygons_vec(p1.polygons_1) || border_from_polygons_vec(p1.polygons_2);
             find_possible_colliding_polygons_in_area(_result, _exclusions, p1.polygons_1, p1.polygons_2, common_area, _total_polygons_amount, _min_polygons, counter_1);
             return;
         }
 
-        Border common_area_1 = border_from_polygons_vec(p1.polygons_1) || border_from_polygons_vec(p1.polygons_2);
-        Border common_area_2 = border_from_polygons_vec(p2.polygons_1) || border_from_polygons_vec(p2.polygons_2);
+        LST::Border common_area_1 = border_from_polygons_vec(p1.polygons_1) || border_from_polygons_vec(p1.polygons_2);
+        LST::Border common_area_2 = border_from_polygons_vec(p2.polygons_1) || border_from_polygons_vec(p2.polygons_2);
 
         find_possible_colliding_polygons_in_area(_result, _exclusions, p1.polygons_1, p1.polygons_2, common_area_1, _total_polygons_amount, _min_polygons, counter_1);
         find_possible_colliding_polygons_in_area(_result, _exclusions, p2.polygons_1, p2.polygons_2, common_area_2, _total_polygons_amount, _min_polygons, counter_2);
@@ -232,10 +225,10 @@ namespace LPhys
 
 
     void init_polygons_vec(Polygons_Vec& _vec,
-                                Border& _common_border,
+                                LST::Border& _common_border,
                                 const Polygon_Holder_Base& _polygons,
-                                const LDS::Vector<Border>& _borders_cache,
-                                const Border& _initial_area,
+                                const LDS::Vector<LST::Border>& _borders_cache,
+                                const LST::Border& _initial_area,
                                 unsigned int _id_offset)
     {
         if(_borders_cache.size() > 0)
@@ -245,7 +238,7 @@ namespace LPhys
             for(unsigned int p_i = 0; p_i < _polygons.amount(); ++p_i)
             {
                 const Polygon& polygon = *_polygons.get_polygon(p_i);
-                const Border& polygon_border = _borders_cache[p_i];
+                const LST::Border& polygon_border = _borders_cache[p_i];
 
                 if(!polygon_border.intersects_with(_initial_area))
                     continue;
@@ -259,7 +252,7 @@ namespace LPhys
             for(unsigned int p_i = 0; p_i < _polygons.amount(); ++p_i)
             {
                 const Polygon& polygon = *_polygons.get_polygon(p_i);
-                Border polygon_border = polygon.construct_border();
+                LST::Border polygon_border = polygon.construct_border();
 
                 if(!polygon_border.intersects_with(_initial_area))
                     continue;
@@ -280,23 +273,19 @@ Possible_Colliding_Polygons LPhys::find_possible_colliding_polygons(const Polygo
     Polygons_Vec polygons_1(_polygons_1.amount());
     Polygons_Vec polygons_2(_polygons_2.amount());
 
-    Border common_area;
+    LST::Border common_area;
 
     for(unsigned int p_i = 0; p_i < _polygons_1.amount(); ++p_i)
     {
         const Polygon& polygon = *_polygons_1.get_polygon(p_i);
         polygons_1.push({&polygon, p_i});
-
-        for(unsigned int i = 0; i < 3; ++i)
-            common_area.consider_point(polygon[i]);
+        common_area.expand_with(polygon.construct_border());
     }
     for(unsigned int p_i = 0; p_i < _polygons_2.amount(); ++p_i)
     {
         const Polygon& polygon = *_polygons_2.get_polygon(p_i);
         polygons_2.push({&polygon, p_i + _polygons_1.amount()});
-
-        for(unsigned int i = 0; i < 3; ++i)
-            common_area.consider_point(polygon[i]);
+        common_area.expand_with(polygon.construct_border());
     }
 
     unsigned int total_polygon_amount = polygons_1.size() + polygons_2.size();
@@ -311,11 +300,11 @@ Possible_Colliding_Polygons LPhys::find_possible_colliding_polygons(const Polygo
 }
 
 Possible_Colliding_Polygons LPhys::find_possible_colliding_polygons(const Polygon_Holder_Base& _polygons_1,
-                                                                    const LDS::Vector<Border>& _borders_cache_1,
+                                                                    const LDS::Vector<LST::Border>& _borders_cache_1,
                                                                     const Polygon_Holder_Base& _polygons_2,
-                                                                    const LDS::Vector<Border>& _borders_cache_2,
+                                                                    const LDS::Vector<LST::Border>& _borders_cache_2,
                                                                     unsigned int _min_polygons_in_area,
-                                                                    const Border& _initial_area)
+                                                                    const LST::Border& _initial_area)
 {
     if(!_initial_area.valid())
         return {};
@@ -323,7 +312,7 @@ Possible_Colliding_Polygons LPhys::find_possible_colliding_polygons(const Polygo
     Polygons_Vec polygons_1(_polygons_1.amount());
     Polygons_Vec polygons_2(_polygons_2.amount());
 
-    Border common_area;
+    LST::Border common_area;
 
     init_polygons_vec(polygons_1, common_area, _polygons_1, _borders_cache_1, _initial_area, 0);
     if(polygons_1.size() == 0)

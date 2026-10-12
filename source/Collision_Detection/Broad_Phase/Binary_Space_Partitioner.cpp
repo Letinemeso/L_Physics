@@ -36,9 +36,9 @@ void Binary_Space_Partitioner::M_mark_for_exclusion(unsigned int _first_index, u
 
 
 
-Border Binary_Space_Partitioner::M_calculate_rb(const Temp_Objects_Container& _objects_inside)
+LST::Border Binary_Space_Partitioner::M_calculate_rb(const Temp_Objects_Container& _objects_inside)
 {
-    Border result;
+    LST::Border result;
 
     for(unsigned int i=0; i<_objects_inside.size(); ++i)
     {
@@ -49,7 +49,7 @@ Border Binary_Space_Partitioner::M_calculate_rb(const Temp_Objects_Container& _o
     return result;
 }
 
-Binary_Space_Partitioner::Indices_Stack::Scope Binary_Space_Partitioner::M_add_objects_inside_to_stack(const Border& _rb, const Indices_Stack::Scope& _objects_maybe_inside)
+Binary_Space_Partitioner::Indices_Stack::Scope Binary_Space_Partitioner::M_add_objects_inside_to_stack(const LST::Border& _rb, const Indices_Stack::Scope& _objects_maybe_inside)
 {
     m_indices_stack.remember_size();
 
@@ -67,27 +67,40 @@ Binary_Space_Partitioner::Indices_Stack::Scope Binary_Space_Partitioner::M_add_o
     return m_indices_stack.scope();
 }
 
-glm::vec3 Binary_Space_Partitioner::M_calculate_border_modifier(const Border& _rb) const
+unsigned int Binary_Space_Partitioner::M_find_largest_component(const LST::Border& _rb) const
 {
-    glm::vec3 modifier = _rb.size() * 0.5f;
+    unsigned int result = 0;
+    float max = _rb.extents()[0];
 
-    if(modifier.x > modifier.y)                 //  that's some ugly shit, but doing cycles would be overkill
+    for(unsigned int i = 1; i < 3; ++i)
     {
-        if(modifier.x > modifier.z)
-            modifier = {modifier.x, 0.0f, 0.0f};
-        else
-            modifier = {0.0f, 0.0f, modifier.z};
-    }
-    else
-    {
-        if(modifier.y > modifier.z)
-            modifier = {0.0f, modifier.y, 0.0f};
-        else
-            modifier = {0.0f, 0.0f, modifier.z};
+        if(_rb.extents()[i] <= max)
+            continue;
+
+        result = i;
+        max = _rb.extents()[i];
     }
 
-    return modifier;
+    return result;
 }
+
+LST::Border Binary_Space_Partitioner::M_split_border(const LST::Border& _border, unsigned int _component, bool _first_half) const
+{
+    float extent_halved = _border.extents()[_component] * 0.5f;
+
+    LST::Border result = _border;
+
+    glm::vec3 new_center = result.center();
+    glm::vec3 new_extents = result.extents();
+
+    new_center[_component] += (_first_half ? -extent_halved : extent_halved);
+    new_extents[_component] = extent_halved;
+
+    result.set_values(new_center, new_extents);
+
+    return result;
+}
+
 
 bool Binary_Space_Partitioner::M_object_lists_same(const Indices_Stack::Scope& _first, const Indices_Stack::Scope& _second) const
 {
@@ -136,19 +149,14 @@ void Binary_Space_Partitioner::M_save_possible_collisions(const Indices_Stack::S
     }
 }
 
-void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const Border& _rb, const Indices_Stack::Scope& _objects_inside, unsigned int _recursion_level, unsigned int _same_objects_repetition)
+void Binary_Space_Partitioner::M_find_possible_collisions_in_area(const LST::Border& _rb, const Indices_Stack::Scope& _objects_inside, unsigned int _recursion_level, unsigned int _same_objects_repetition)
 {
     if( (_recursion_level > m_max_recursion_level) || (_same_objects_repetition == m_precision) || (_objects_inside.size() <= 2) )
         return M_save_possible_collisions(_objects_inside);
 
-    Border rb_1 = _rb;
-    Border rb_2 = _rb;
-
-    glm::vec3 modifier = M_calculate_border_modifier(_rb);
-
-    rb_1.modify_size(-modifier);
-    rb_2.modify_size(-modifier);
-    rb_2.modify_offset(modifier);
+    unsigned int max_component = M_find_largest_component(_rb);
+    LST::Border rb_1 = M_split_border(_rb, max_component, true);
+    LST::Border rb_2 = M_split_border(_rb, max_component, false);
 
     auto calculate_repetitions_counter = [this](const Indices_Stack::Scope& _old_objects, const Indices_Stack::Scope& _new_objects, unsigned int _current_counter)->unsigned int
     {
@@ -195,7 +203,7 @@ void Binary_Space_Partitioner::process()
     for(unsigned int i = 0; i < m_registred_objects.size(); ++i)
         m_indices_stack.push(i);
 
-    Border initial_border = M_calculate_rb(m_registred_objects);
+    LST::Border initial_border = M_calculate_rb(m_registred_objects);
     Indices_Stack::Scope objects_in_initial_border = m_indices_stack.scope();
 
     M_find_possible_collisions_in_area(initial_border, objects_in_initial_border, 0, 0);

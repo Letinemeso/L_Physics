@@ -65,7 +65,7 @@ void Polygon::update_points(const glm::mat4x4 &_translation, const glm::mat4x4 &
 
 void Polygon::update_points_with_single_matrix(const glm::mat4x4 &_matrix)
 {
-    L_ASSERT(!(!m_raw_coords));
+    L_ASSERT(!(!m_raw_coords));    //  TODO: replace with normal condition
 
     m_actual_A = _matrix * glm::vec4(m_raw_coords[0], m_raw_coords[1], m_raw_coords[2], 1.0f);
     m_actual_B = _matrix * glm::vec4(m_raw_coords[3], m_raw_coords[4], m_raw_coords[5], 1.0f);
@@ -132,11 +132,12 @@ glm::vec3 Polygon::calculate_normal(bool _normalize) const
     return result;
 }
 
-Border Polygon::construct_border() const
+LST::Border Polygon::construct_border() const
 {
-    Border result;
-    result.consider_point(m_actual_A);
-    result.consider_point(m_actual_B);
-    result.consider_point(m_actual_C);
-    return result;
+    LST::Border_Construction_Helper helper;
+    helper.consider_point(m_actual_A);
+    helper.consider_point(m_actual_B);
+    helper.consider_point(m_actual_C);
+
+    return LST::Border(helper);
 }

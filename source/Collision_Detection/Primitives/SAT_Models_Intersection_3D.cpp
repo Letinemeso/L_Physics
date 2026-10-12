@@ -190,16 +190,16 @@ SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3
 
 
 SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection(const Polygon_Holder_Base* _polygon_holder_1,
-                                                       const LDS::Vector<Border>& _polygons_borders_cache_1,
+                                                       const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
                                                        const Polygon_Holder_Base* _polygon_holder_2,
-                                                       const LDS::Vector<Border>& _polygons_borders_cache_2) const
+                                                       const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const
 {
     Common_Intersection_Data result;
 
-    Border border_cache_1;      //  crutch so lambda later can return reference instead of new object
-    Border border_cache_2;
+    LST::Border border_cache_1;      //  crutch so lambda later can return reference instead of new object
+    LST::Border border_cache_2;
 
-    auto get_or_calculate_polygon_border = [](const LDS::Vector<Border>& _polygons_borders_cache, const Polygon& _polygon, unsigned int _polygon_index, Border& _cache)->const Border&
+    auto get_or_calculate_polygon_border = [](const LDS::Vector<LST::Border>& _polygons_borders_cache, const Polygon& _polygon, unsigned int _polygon_index, LST::Border& _cache)->const LST::Border&
     {
         if(_polygons_borders_cache.size() > 0)
             return _polygons_borders_cache[_polygon_index];
@@ -211,12 +211,12 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
     for(unsigned int i_1 = 0; i_1 < _polygon_holder_1->amount(); ++i_1)
     {
         const Polygon& polygon_1 = *_polygon_holder_1->get_polygon(i_1);
-        const Border& border_1 = get_or_calculate_polygon_border(_polygons_borders_cache_1, polygon_1, i_1, border_cache_1);
+        const LST::Border& border_1 = get_or_calculate_polygon_border(_polygons_borders_cache_1, polygon_1, i_1, border_cache_1);
 
         for(unsigned int i_2 = 0; i_2 < _polygon_holder_2->amount(); ++i_2)
         {
             const Polygon& polygon_2 = *_polygon_holder_2->get_polygon(i_2);
-            const Border& border_2 = get_or_calculate_polygon_border(_polygons_borders_cache_2, polygon_2, i_2, border_cache_2);
+            const LST::Border& border_2 = get_or_calculate_polygon_border(_polygons_borders_cache_2, polygon_2, i_2, border_cache_2);
 
             if(!border_1.intersects_with(border_2))
                 continue;
@@ -235,14 +235,14 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
     return result;
 }
 
-SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, const Border& _border_1,
-                                                                                                                           const LDS::Vector<Border>& _polygons_borders_cache_1,
-                                                                                                                           const Polygon_Holder_Base* _polygon_holder_2, const Border& _border_2,
-                                                                                                                           const LDS::Vector<Border>& _polygons_borders_cache_2) const
+SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D::M_calculate_common_intersection_optimized(const Polygon_Holder_Base* _polygon_holder_1, const LST::Border& _border_1,
+                                                                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
+                                                                                                                           const Polygon_Holder_Base* _polygon_holder_2, const LST::Border& _border_2,
+                                                                                                                           const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const
 {
     Common_Intersection_Data result;
 
-    Border exclusion_border = _border_1 && _border_2;
+    LST::Border exclusion_border = _border_1 && _border_2;
 
     Possible_Colliding_Polygons possible_colliding_polygons = find_possible_colliding_polygons(*_polygon_holder_1, _polygons_borders_cache_1, *_polygon_holder_2, _polygons_borders_cache_2, 3, exclusion_border);
 
@@ -369,11 +369,11 @@ void SAT_Models_Intersection_3D::M_find_extreme_contacts(Intersection_Data& _res
 
 
 LPhys::Intersection_Data SAT_Models_Intersection_3D::collision__model_vs_model(const Polygon_Holder_Base* _polygon_holder_1,
-                                                                               const Border& _border_1,
-                                                                               const LDS::Vector<Border>& _polygons_borders_cache_1,
+                                                                               const LST::Border& _border_1,
+                                                                               const LDS::Vector<LST::Border>& _polygons_borders_cache_1,
                                                                                const Polygon_Holder_Base* _polygon_holder_2,
-                                                                               const Border& _border_2,
-                                                                               const LDS::Vector<Border>& _polygons_borders_cache_2) const
+                                                                               const LST::Border& _border_2,
+                                                                               const LDS::Vector<LST::Border>& _polygons_borders_cache_2) const
 {
     Common_Intersection_Data id;
     if(_polygon_holder_1->amount() < m_min_polygons_for_optimization && _polygon_holder_2->amount() < m_min_polygons_for_optimization)

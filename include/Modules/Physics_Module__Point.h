@@ -23,7 +23,7 @@ namespace LPhys
 
     public:
         bool may_intersect_with_other(const Physics_Module& _other) const override;
-        bool intersects_with_border(const Border& _border) const override;
+        bool intersects_with_border(const LST::Border& _border) const override;
 
     public:
         void update(float _dt) override;

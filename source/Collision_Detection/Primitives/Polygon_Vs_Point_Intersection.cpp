@@ -1,5 +1,8 @@
 #include <Collision_Detection/Primitives/Polygon_Vs_Point_Intersection.h>
 
+#include <Stuff/Math_Stuff.h>
+#include <Stuff/Border.h>
+
 using namespace LPhys;
 
 bool value_is_between(float _value, float _min, float _max)
@@ -17,7 +20,7 @@ bool value_is_between(float _value, float _min, float _max)
     return _value >= _min && _value <= _max;
 }
 
-bool check_with_index(const glm::vec3& _point, const Polygon& _polygon, unsigned int _index, const Border& _polygon_border, const Line* _polygon_lines, float _tolerance)
+bool check_with_index(const glm::vec3& _point, const Polygon& _polygon, unsigned int _index, const LST::Border& _polygon_border, const Line* _polygon_lines, float _tolerance)
 {
     Line vertex_to_opposite_side_line(_polygon[_index], _point);
 
@@ -38,19 +41,17 @@ bool check_with_index(const glm::vec3& _point, const Polygon& _polygon, unsigned
 
 bool LPhys::point_is_inside_polygon(const glm::vec3& _point, const Polygon& _polygon, float _tolerance)
 {
-    Border polygon_border;
-    for(unsigned int i=0; i<3; ++i)
-        polygon_border.consider_point(_polygon[i]);
+    LST::Border polygon_border = _polygon.construct_border();
 
     Line polygon_lines[3];
 
-    for(unsigned int i=0; i<3; ++i)
+    for(unsigned int i = 0; i < 3; ++i)
         polygon_lines[i].init(_polygon[i], _polygon[i + 1]);
 
     if(!polygon_border.point_is_inside(_point))
         return false;
 
-    for(unsigned int i=0; i<3; ++i)
+    for(unsigned int i = 0; i < 3; ++i)
     {
         if(!check_with_index(_point, _polygon, i, polygon_border, polygon_lines, _tolerance))
             return false;

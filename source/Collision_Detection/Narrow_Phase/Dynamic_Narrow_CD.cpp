@@ -62,20 +62,29 @@ Dynamic_Narrow_CD::Ratio_Pair Dynamic_Narrow_CD::M_find_possible_collision_timef
     Physical_Model_Imprint ppm2 = *_second.get_physical_model_prev_state();
     ppm2.update(fake_default_matrix, fake_default_matrix, LEti::Transformation_Data::get_scale_matrix_for_ratio(*_second.transformation_data_prev_state(), *_second.transformation_data(), 0.0f));
 
-    const Border& relative_border_1_prev = ppm1_relative_prev.border();
-    const Border& relative_border_1 = ppm1_relative.border();
+    const LST::Border& relative_border_1_prev = ppm1_relative_prev.border();
+    const LST::Border& relative_border_1 = ppm1_relative.border();
 
-    const Border& border_2 = ppm2.border();
+    const LST::Border& border_2 = ppm2.border();
 
-    for(unsigned int i=0; i<3; ++i)
+    glm::vec3 relative_border_offset = relative_border_1.calculate_offset();
+    glm::vec3 relative_border_limit = relative_border_1.calculate_limit();
+
+    glm::vec3 relative_border_prev_offset = relative_border_1_prev.calculate_offset();
+    glm::vec3 relative_border_prev_limit = relative_border_1_prev.calculate_limit();
+
+    glm::vec3 stride_of_min = relative_border_offset - relative_border_prev_offset;
+    glm::vec3 stride_of_max = relative_border_limit - relative_border_prev_limit;
+
+    glm::vec3 border_2_offset = border_2.calculate_offset();
+    glm::vec3 border_2_limit = border_2.calculate_limit();
+
+    for(unsigned int i = 0; i < 3; ++i)
     {
-        float stride_of_min = (relative_border_1.offset()[i]) - (relative_border_1_prev.offset()[i]);
-        float stride_of_max = (relative_border_1.offset()[i] + relative_border_1.size()[i]) - (relative_border_1_prev.offset()[i] + relative_border_1_prev.size()[i]);
-
-        if(!LST::Math::floats_are_equal(stride_of_max, 0.0f))
-            result.consider_value(( border_2.offset()[i] - (relative_border_1.offset()[i] + relative_border_1.size()[i]) ) / stride_of_max);
-        if(!LST::Math::floats_are_equal(stride_of_min, 0.0f))
-            result.consider_value(( (border_2.offset()[i] + border_2.size()[i]) - relative_border_1_prev.offset()[i] ) / stride_of_min);
+        if(!LST::Math::floats_are_equal(stride_of_max[i], 0.0f))
+            result.consider_value(( border_2_offset[i] - relative_border_limit[i] ) / stride_of_max[i]);
+        if(!LST::Math::floats_are_equal(stride_of_min[i], 0.0f))
+            result.consider_value(( border_2_limit[i] - relative_border_prev_offset[i] ) / stride_of_min[i]);
     }
 
     return result;

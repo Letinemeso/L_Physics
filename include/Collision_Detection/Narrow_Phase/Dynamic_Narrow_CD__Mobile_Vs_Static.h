@@ -67,7 +67,7 @@ namespace LPhys
             }
         };
 
-        LDS::Vector<const Polygon*> M_find_possibly_colliding_polygons(const Border& _border, const Physics_Module__Mesh& _static) const;
+        LDS::Vector<const Polygon*> M_find_possibly_colliding_polygons(const LST::Border& _border, const Physics_Module__Mesh& _static) const;
         void M_construct_polygon_segments(LDS::Vector<Segment>& _segments, const Polygon& _prev, const Polygon& _curr) const;
         Ratio_Pair M_find_possible_collision_timeframe_for_segment(const Segment& _segment, const LDS::Vector<const Polygon*>& _polygons) const;
         Ratio_Pair M_find_possible_collision_timeframe(const Physics_Module__Mesh& _mobile, const Physics_Module__Mesh& _static) const;

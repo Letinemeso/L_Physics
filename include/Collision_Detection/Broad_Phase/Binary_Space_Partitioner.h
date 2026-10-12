@@ -39,12 +39,14 @@ namespace LPhys
         bool M_already_checked(unsigned int _first_index, unsigned int _second_index) const;
         void M_mark_for_exclusion(unsigned int _first_index, unsigned int _second_index);
 
-        Border M_calculate_rb(const Temp_Objects_Container& _objects_inside);
-        Indices_Stack::Scope M_add_objects_inside_to_stack(const Border& _rb, const Indices_Stack::Scope& _objects_maybe_inside);
-        glm::vec3 M_calculate_border_modifier(const Border& _rb) const;
+        LST::Border M_calculate_rb(const Temp_Objects_Container& _objects_inside);
+        Indices_Stack::Scope M_add_objects_inside_to_stack(const LST::Border& _rb, const Indices_Stack::Scope& _objects_maybe_inside);
+        unsigned int M_find_largest_component(const LST::Border& _rb) const;
+        LST::Border M_split_border(const LST::Border& _border, unsigned int _component, bool _first_half) const;
+
         bool M_object_lists_same(const Indices_Stack::Scope& _first, const Indices_Stack::Scope& _second) const;
         void M_save_possible_collisions(const Indices_Stack::Scope& _objects_inside);
-        void M_find_possible_collisions_in_area(const Border& _rb, const Indices_Stack::Scope& _objects_inside, unsigned int _recursion_level, unsigned int _same_objects_repetition);
+        void M_find_possible_collisions_in_area(const LST::Border& _rb, const Indices_Stack::Scope& _objects_inside, unsigned int _recursion_level, unsigned int _same_objects_repetition);
 
     public:
         inline void set_precision(unsigned int _precision) { m_precision = _precision; }

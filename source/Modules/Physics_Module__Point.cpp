@@ -20,7 +20,7 @@ bool Physics_Module__Point::may_intersect_with_other(const Physics_Module& _othe
     return true;
 }
 
-bool Physics_Module__Point::intersects_with_border(const Border& _border) const
+bool Physics_Module__Point::intersects_with_border(const LST::Border& _border) const
 {
     return _border.point_is_inside(m_current_point);
 }

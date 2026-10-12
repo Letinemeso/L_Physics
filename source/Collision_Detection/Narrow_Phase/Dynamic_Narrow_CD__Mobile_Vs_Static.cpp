@@ -18,10 +18,10 @@ Dynamic_Narrow_CD__Mobile_Vs_Static::~Dynamic_Narrow_CD__Mobile_Vs_Static()
 
 
 
-LDS::Vector<const Polygon*> Dynamic_Narrow_CD__Mobile_Vs_Static::M_find_possibly_colliding_polygons(const Border& _border, const Physics_Module__Mesh& _static) const
+LDS::Vector<const Polygon*> Dynamic_Narrow_CD__Mobile_Vs_Static::M_find_possibly_colliding_polygons(const LST::Border& _border, const Physics_Module__Mesh& _static) const
 {
     const Polygon_Holder_Base& polygons = *_static.get_physical_model()->get_polygons();
-    const LDS::Vector<Border>& borders_cache = _static.get_physical_model()->polygons_borders();
+    const LDS::Vector<LST::Border>& borders_cache = _static.get_physical_model()->polygons_borders();
 
     LDS::Vector<const Polygon*> result(polygons.amount());
 
@@ -31,9 +31,7 @@ LDS::Vector<const Polygon*> Dynamic_Narrow_CD__Mobile_Vs_Static::M_find_possibly
         {
             const Polygon& polygon = *polygons.get_polygon(p_i);
 
-            Border polygon_border;
-            for(unsigned int i = 0; i < 3; ++i)
-                polygon_border.consider_point(polygon[i]);
+            LST::Border polygon_border = polygon.construct_border();
 
             if(_border.intersects_with(polygon_border))
                 result.push(&polygon);
@@ -44,7 +42,7 @@ LDS::Vector<const Polygon*> Dynamic_Narrow_CD__Mobile_Vs_Static::M_find_possibly
         for(unsigned int p_i = 0; p_i < polygons.amount(); ++p_i)
         {
             const Polygon& polygon = *polygons.get_polygon(p_i);
-            const Border& polygon_border = borders_cache[p_i];
+            const LST::Border& polygon_border = borders_cache[p_i];
 
             if(_border.intersects_with(polygon_border))
                 result.push(&polygon);
