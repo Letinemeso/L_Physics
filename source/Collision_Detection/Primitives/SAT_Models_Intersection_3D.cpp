@@ -260,23 +260,13 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
     LST::Border common_border = _border_0 && _border_1;
 
     LST::BVH::ID_Pairs_Vec pairs = m_bvh.process(bvh_context, common_border);
-    const LST::BVH::Registered_Borders& registered_borders = bvh_context.registered_borders;
 
     for(unsigned int i = 0; i < pairs.size(); ++i)
     {
         const LST::BVH::ID_Pair& pair = pairs[i];
 
-        LST::BVH::Registered_Borders::Border_Location location_0 = registered_borders.calculate_border_location(pair.id_0);
-        LST::BVH::Registered_Borders::Border_Location location_1 = registered_borders.calculate_border_location(pair.id_1);
-
-        unsigned int p_0_index = location_0.index;
-        unsigned int p_1_index = location_1.index;
-
-        if(location_0.group > location_1.group)
-            std::swap(p_0_index, p_1_index);
-
-        const Polygon& p_0 = *_polygon_holder_0->get_polygon(p_0_index);
-        const Polygon& p_1 = *_polygon_holder_1->get_polygon(p_1_index);
+        const Polygon& p_0 = *_polygon_holder_0->get_polygon(pair.id_0);
+        const Polygon& p_1 = *_polygon_holder_1->get_polygon(pair.id_1);
 
         Polygons_Intersection_Data id = M_check_triangles_intersection(p_0, p_1);
 
