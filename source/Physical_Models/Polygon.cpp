@@ -55,15 +55,7 @@ void Polygon::calculate_center()
     m_center_raw = sum / 3.0f;
 }
 
-void Polygon::update_points(const glm::mat4x4 &_translation, const glm::mat4x4 &_rotation, const glm::mat4x4 &_scale)
-{
-    L_ASSERT(!(!m_raw_coords));
-
-    glm::mat4x4 result_matrix = _translation * _rotation * _scale;
-    update_points_with_single_matrix(result_matrix);
-}
-
-void Polygon::update_points_with_single_matrix(const glm::mat4x4 &_matrix)
+void Polygon::update_points(const glm::mat4x4 &_matrix)
 {
     L_ASSERT(!(!m_raw_coords));    //  TODO: replace with normal condition
 

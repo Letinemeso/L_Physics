@@ -82,7 +82,7 @@ void Physical_Model::update(const glm::mat4x4& _matrix)
     L_ASSERT(m_polygons_holder);
 
     for (unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
-        m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
+        m_polygons_holder->get_polygon(i)->update_points(_matrix);
 
     M_update_border(_matrix);
 
@@ -179,7 +179,7 @@ void Physical_Model_Imprint::update_with_single_matrix(const glm::mat4x4& _matri
     L_ASSERT(m_polygons_holder);
 
     for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
-        m_polygons_holder->get_polygon(i)->update_points_with_single_matrix(_matrix);
+        m_polygons_holder->get_polygon(i)->update_points(_matrix);
     M_update_border(_matrix);
 
     if(m_parent->caching_polygons_borders())
