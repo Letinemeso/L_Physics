@@ -34,9 +34,9 @@ LEti::Transformation_Data Physics_Module::calculate_transformation_data_after_co
 
     glm::vec3 largest_movement_vec(0.0f, 0.0f, 0.0f);
 
-    for(Transformations_List::Const_Iterator it = m_transformations_after_collisions.begin(); !it.end_reached(); ++it)
+    for(unsigned int t_i = 0; t_i < m_transformations_after_collisions.size(); ++t_i)
     {
-        const LEti::Transformation_Data& transformation = *it;
+        const LEti::Transformation_Data& transformation = m_transformations_after_collisions[t_i];
 
         glm::vec3 movement_vec = transformation.position() - result.position();
 
@@ -68,7 +68,7 @@ void Physics_Module::apply_data_after_collisions()
 {
     *transformation_data() = calculate_transformation_data_after_collision();
 
-    m_transformations_after_collisions.clear();
+    m_transformations_after_collisions.mark_empty();
 
     update(0.0f);
 }

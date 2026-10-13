@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Data_Structures/List.h>       //  TODO: replace with vector
+#include <Data_Structures/Vector.h>
 #include <Stuff/Border.h>
 
 #include <Module.h>
@@ -24,8 +24,7 @@ namespace LPhys
         bool m_is_static = false;
 
     protected:
-        using Transformations_List = LDS::List<LEti::Transformation_Data>;
-        Transformations_List m_transformations_after_collisions;
+        LDS::Vector<LEti::Transformation_Data> m_transformations_after_collisions;
 
     private:
         On_Collision_Function m_on_collision_func;
@@ -37,7 +36,7 @@ namespace LPhys
         inline void set_on_collision_function(On_Collision_Function _func) { m_on_collision_func = _func; }
         inline void allow_collisions(bool _value) { m_can_collide = _value; M_can_collide_changed(); }
         inline void set_static(bool _value) { m_is_static = _value; }
-        inline void add_transformation_after_collision(const LEti::Transformation_Data& _data) { m_transformations_after_collisions.push_back(_data); }
+        inline void add_transformation_after_collision(const LEti::Transformation_Data& _data) { m_transformations_after_collisions.push(_data); }
 
     public:
         inline bool can_collide() const { return m_can_collide; }

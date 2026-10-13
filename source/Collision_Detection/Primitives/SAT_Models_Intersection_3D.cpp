@@ -278,8 +278,6 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
         result.depths.push(id.depth);
     }
 
-    // m_bvh.reset_registered_borders();
-
     return result;
 }
 
