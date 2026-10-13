@@ -65,7 +65,7 @@ void Physical_Model::setup(const LDS::Vector<float>& _raw_coords, const LDS::Vec
         m_collision_permissions.resize_and_fill(m_raw_coords.size() / 3, true);
 
     delete m_polygons_holder;
-    m_polygons_holder = M_create_polygons_holder();     //  TODO: fix a call to virtual method in the constructor. probably remove copy constructor
+    m_polygons_holder = M_create_polygons_holder();
 
     unsigned int polygons_count = m_raw_coords.size() / 9;
     m_polygons_holder->allocate(polygons_count);
