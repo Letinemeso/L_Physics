@@ -8,9 +8,13 @@ using namespace LPhys;
 void Physics_Module__Ray::expand_border(LST::Border& _border) const
 {
     LST::Border_Construction_Helper helper;
-    helper.consider_point(_border.calculate_offset());
-    helper.consider_point(_border.calculate_limit());
     helper.consider_point(m_current_start);
+
+    if(_border.valid())
+    {
+        helper.consider_point(_border.calculate_offset());
+        helper.consider_point(_border.calculate_limit());
+    }
 
     _border.init(helper);
 }

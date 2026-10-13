@@ -38,17 +38,17 @@ namespace LPhys
 
     public:
         using Filter_Function = LST::Function<bool(const Physics_Module*, const Physics_Module*)>;
-        using Filters_List = LDS::List<Filter_Function>;
+        using Filters = LDS::Vector<Filter_Function>;
 
     private:
-        Filters_List m_filters;
+        Filters m_filters;
 
 	public:
 		virtual ~Broad_Phase_Interface();
 
     public:
         inline void reset_filters() { m_filters.clear(); }
-        inline void add_filter(const Filter_Function& _filter) { m_filters.push_back(_filter); }
+        inline void add_filter(const Filter_Function& _filter) { m_filters.push(_filter); }
 
     public:
         bool passes_filters(const Physics_Module* _first, const Physics_Module* _second) const;

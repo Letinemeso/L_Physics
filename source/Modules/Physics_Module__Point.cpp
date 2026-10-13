@@ -15,6 +15,20 @@ void Physics_Module__Point::set_point(const glm::vec3& _point)
 
 
 
+void Physics_Module__Point::expand_border(LST::Border& _border) const
+{
+    LST::Border_Construction_Helper helper;
+    helper.consider_point(m_current_point);
+
+    if(_border.valid())
+    {
+        helper.consider_point(_border.calculate_offset());
+        helper.consider_point(_border.calculate_limit());
+    }
+
+    _border.init(helper);
+}
+
 bool Physics_Module__Point::may_intersect_with_other(const Physics_Module& _other) const
 {
     return true;
