@@ -124,6 +124,19 @@ glm::vec3 Polygon::calculate_normal(bool _normalize) const
     return result;
 }
 
+LST::Border Polygon::construct_raw_border() const
+{
+    LST::Border_Construction_Helper helper;
+
+    for(unsigned int v_i = 0; v_i < 9; v_i += 3)
+    {
+        for(unsigned int i = 0; i < 3; ++i)
+            helper.consider_point_component(m_raw_coords[v_i + i], i);
+    }
+
+    return LST::Border(helper);
+}
+
 LST::Border Polygon::construct_border() const
 {
     LST::Border_Construction_Helper helper;

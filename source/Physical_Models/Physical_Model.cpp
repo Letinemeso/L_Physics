@@ -18,7 +18,7 @@ void Physical_Model::M_update_border(const glm::mat4x4& _matrix)
     m_border.update(_matrix);
 }
 
-void Physical_Model::M_update_polygons_borders_if_enabled()     //  TODO: repace reconstruction of borders with update
+void Physical_Model::M_update_polygons_borders_if_enabled(const glm::mat4x4& _matrix)
 {
     if(!m_cache_polygons_borders)
         return;
@@ -29,10 +29,16 @@ void Physical_Model::M_update_polygons_borders_if_enabled()     //  TODO: repace
         return;
 
     if(m_polygons_borders_cache.size() != polygons_amount)
-        m_polygons_borders_cache.resize_and_fill(polygons_amount, {});
-
-    for(unsigned int i = 0; i < polygons_amount; ++i)
-        m_polygons_borders_cache[i] = m_polygons_holder->get_polygon(i)->construct_border();
+    {
+        m_polygons_borders_cache.resize(polygons_amount);
+        for(unsigned int i = 0; i < polygons_amount; ++i)
+            m_polygons_borders_cache.push( m_polygons_holder->get_polygon(i)->construct_raw_border() );
+    }
+    else
+    {
+        for(unsigned int i = 0; i < polygons_amount; ++i)
+            m_polygons_borders_cache[i].update(_matrix);
+    }
 }
 
 
@@ -41,13 +47,6 @@ Physical_Model::Physical_Model()
 {
 
 }
-
-Physical_Model::Physical_Model(const Physical_Model& _other)
-{
-    setup(_other.m_raw_coords, _other.m_collision_permissions);
-    copy_real_coordinates(_other);
-}
-
 
 Physical_Model::~Physical_Model()
 {
@@ -86,19 +85,7 @@ void Physical_Model::update(const glm::mat4x4& _matrix)
 
     M_update_border(_matrix);
 
-    M_update_polygons_borders_if_enabled();
-}
-
-void Physical_Model::copy_real_coordinates(const Physical_Model &_other)
-{
-    for(unsigned int i = 0; i < m_polygons_holder->amount(); ++i)
-    {
-        for(unsigned int points_i = 0; points_i < 3; ++points_i)
-            m_polygons_holder->get_polygon(i)[points_i] = _other.m_polygons_holder->get_polygon(i)[points_i];
-    }
-    m_border = _other.m_border;
-
-    M_update_polygons_borders_if_enabled();
+    M_update_polygons_borders_if_enabled(_matrix);
 }
 
 

@@ -75,7 +75,7 @@ namespace LPhys
 	private:
         void M_init_border();
         void M_update_border(const glm::mat4x4& _matrix);
-        void M_update_polygons_borders_if_enabled();
+        void M_update_polygons_borders_if_enabled(const glm::mat4x4& _matrix);
 
 	public:
         inline const LST::Border& border() const { return m_border; }
@@ -83,8 +83,6 @@ namespace LPhys
 
 	public:
         Physical_Model();
-        Physical_Model(const Physical_Model& _other);
-
         virtual ~Physical_Model();
 
     public:
@@ -94,7 +92,6 @@ namespace LPhys
         void setup(const LDS::Vector<float>& _raw_coords, const LDS::Vector<bool>& _collision_permissions);
 
         virtual void update(const glm::mat4x4& _matrix);
-        void copy_real_coordinates(const Physical_Model& _other);
 
     public:
         inline const Polygon_Holder_Base* get_polygons() const { return m_polygons_holder; }
