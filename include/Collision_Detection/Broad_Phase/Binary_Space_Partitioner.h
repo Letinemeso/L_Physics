@@ -9,7 +9,7 @@
 namespace LPhys
 {
 
-    class Binary_Space_Partitioner : public Broad_Phase_Interface   // TODO: replace internal logic with LST::Bounding_Volume_Hierarchy
+    class Binary_Space_Partitioner : public Broad_Phase_Interface
     {
     private:
         LST::Bounding_Volume_Hierarchy m_bvh;

@@ -9,6 +9,25 @@
 using namespace LPhys;
 
 
+SAT_Models_Intersection_3D::Intersecting_Borders_Data SAT_Models_Intersection_3D::M_find_intersecting_borders(const LDS::Vector<LST::Border>& _borders, const LST::Border& _with) const
+{
+    Intersecting_Borders_Data result(_borders.size() / 3 + 1);
+
+    for(unsigned int i = 0; i < _borders.size(); ++i)
+    {
+        const LST::Border& border = _borders[i];
+
+        if(_with.intersects_with(border))
+        {
+            result.borders.push(border);
+            result.indices.push(i);
+        }
+    }
+
+    return result;
+}
+
+
 SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3D::M_calculate_intersection_point(const Polygon& _first, const Polygon& _second) const
 {
     unsigned int intersections_amount = 0;
@@ -252,21 +271,27 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
 {
     Common_Intersection_Data result;
 
-    LST::BVH::Context bvh_context;
-
-    bvh_context.registered_borders.add(_polygons_borders_cache_0);
-    bvh_context.registered_borders.add(_polygons_borders_cache_1);
-
     LST::Border common_border = _border_0 && _border_1;
 
-    LST::BVH::ID_Pairs_Vec pairs = m_bvh.process(bvh_context, common_border);
+    Intersecting_Borders_Data borders_0 = M_find_intersecting_borders(_polygons_borders_cache_0, common_border);
+    Intersecting_Borders_Data borders_1 = M_find_intersecting_borders(_polygons_borders_cache_1, common_border);
+
+    LST::BVH::Context bvh_context;
+
+    bvh_context.registered_borders.add(borders_0.borders);
+    bvh_context.registered_borders.add(borders_1.borders);
+
+    LST::BVH::ID_Pairs_Vec pairs = m_bvh.process(bvh_context);
 
     for(unsigned int i = 0; i < pairs.size(); ++i)
     {
         const LST::BVH::ID_Pair& pair = pairs[i];
 
-        const Polygon& p_0 = *_polygon_holder_0->get_polygon(pair.id_0);
-        const Polygon& p_1 = *_polygon_holder_1->get_polygon(pair.id_1);
+        unsigned int index_0 = borders_0.indices[pair.id_0];
+        unsigned int index_1 = borders_1.indices[pair.id_1];
+
+        const Polygon& p_0 = *_polygon_holder_0->get_polygon(index_0);
+        const Polygon& p_1 = *_polygon_holder_1->get_polygon(index_1);
 
         Polygons_Intersection_Data id = M_check_triangles_intersection(p_0, p_1);
 

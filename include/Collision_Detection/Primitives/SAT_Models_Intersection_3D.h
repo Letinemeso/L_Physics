@@ -83,7 +83,23 @@ namespace LPhys
             }
         };
 
+        struct Intersecting_Borders_Data
+        {
+            LDS::Vector<LST::Border> borders;
+            LDS::Vector<unsigned int> indices;
+
+            Intersecting_Borders_Data(unsigned int _size)
+                : borders(_size), indices(_size)
+            {}
+
+            Intersecting_Borders_Data(Intersecting_Borders_Data&& _other)
+                : borders(LST::move(_other.borders)), indices(LST::move(_other.indices))
+            {}
+        };
+
     private:
+        Intersecting_Borders_Data M_find_intersecting_borders(const LDS::Vector<LST::Border>& _borders, const LST::Border& _with) const;
+
         Polygons_Intersection_Data M_calculate_intersection_point(const Polygon& _first, const Polygon& _second) const;
 
         Axis_Intersection M_check_intersection_on_axis(const glm::vec3& _axis, const Polygon& _first, const Polygon& _second) const;
