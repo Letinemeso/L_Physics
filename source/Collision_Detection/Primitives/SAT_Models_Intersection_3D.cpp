@@ -108,25 +108,42 @@ SAT_Models_Intersection_3D::Axis_Intersection SAT_Models_Intersection_3D::M_chec
     return result;
 }
 
-SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3D::M_check_triangles_intersection(const Polygon& _first, const Polygon& _second) const
+SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3D::M_check_triangles_plane_intersection(const Polygon& _first, const glm::vec3& _first_normal,
+                                                                                                                        const Polygon& _second, const glm::vec3& _second_normal) const
 {
-    glm::vec3 first_normal = LST::Math::cross_product(_first[2] - _first[1], _first[0] - _first[1]);
-    glm::vec3 second_normal = LST::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
+    LDS::Array<glm::vec3, 2> plane_axes;
+    plane_axes.mark_full();
+    plane_axes[0] = _first_normal;
+    plane_axes[1] = _second_normal;
 
-    float normals_dot = LST::Math::dot_product(first_normal, second_normal);
-    if(normals_dot > 0.0f)
-        return {};
+    Polygons_Intersection_Data result;
+    result.depth = LST::Math::Max_Float;
 
-    LST::Math::shrink_vector_to_1(first_normal);
-    LST::Math::shrink_vector_to_1(second_normal);
+    for(unsigned int i = 0; i < plane_axes.size(); ++i)
+    {
+        const glm::vec3& axis = plane_axes[i];
 
-    unsigned int plane_axes_amount = 2;
-    glm::vec3 plane_axes[2];
-    plane_axes[0] = first_normal;
-    plane_axes[1] = second_normal;
+        Axis_Intersection id = M_check_intersection_on_axis(axis, _first, _second);
+        if(!id.intersection)
+            continue;
 
-    glm::vec3 edge_axes[9];
-    unsigned int edge_axes_amount = 0;
+        if(id.depth >= result.depth)
+            continue;
+
+        result.intersection = true;
+
+        result.depth = id.depth;
+        result.normal = axis;
+        if(id.flip_normal)
+            result.normal *= -1.0f;
+    }
+
+    return result;
+}
+
+SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3D::M_check_triangles_edge_intersection(const Polygon& _first, const Polygon& _second) const
+{
+    LDS::Array<glm::vec3, 9> edge_axes;
     for(unsigned int f_i = 0; f_i < 3; ++f_i)
     {
         glm::vec3 f_edge = _first[f_i + 1] - _first[f_i];
@@ -139,66 +156,74 @@ SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3
                 continue;
 
             LST::Math::shrink_vector_to_1(axis);
-            edge_axes[edge_axes_amount] = axis;
-            ++edge_axes_amount;
+            edge_axes.push(axis);
         }
     }
 
-    Polygons_Intersection_Data plane_id;
-    plane_id.depth = std::numeric_limits<float>::max();
+    Polygons_Intersection_Data result;
+    result.depth = LST::Math::Max_Float;
 
-    for(unsigned int i = 0; i < plane_axes_amount; ++i)
-    {
-        const glm::vec3& axis = plane_axes[i];
-
-        Axis_Intersection id = M_check_intersection_on_axis(axis, _first, _second);
-        if(!id.intersection)
-            return plane_id;
-
-        if(id.depth >= plane_id.depth)
-            continue;
-
-        plane_id.depth = id.depth;
-        plane_id.normal = axis;
-        if(id.flip_normal)
-            plane_id.normal *= -1.0f;
-    }
-
-    Polygons_Intersection_Data edge_id;
-    edge_id.depth = std::numeric_limits<float>::max();
-
-    for(unsigned int i = 0; i < edge_axes_amount; ++i)
+    for(unsigned int i = 0; i < edge_axes.size(); ++i)
     {
         const glm::vec3& axis = edge_axes[i];
 
         Axis_Intersection id = M_check_intersection_on_axis(axis, _first, _second);
         if(!id.intersection)
-            return edge_id;
-
-        if(id.depth >= edge_id.depth)
             continue;
 
-        edge_id.depth = id.depth;
-        edge_id.normal = axis;
+        if(id.depth >= result.depth)
+            continue;
+
+        result.intersection = true;
+
+        result.depth = id.depth;
+        result.normal = axis;
         if(id.flip_normal)
-            edge_id.normal *= -1.0f;
+            result.normal *= -1.0f;
     }
 
-    Polygons_Intersection_Data result;
+    return result;
+}
 
-    float edge_depth_multiplied = edge_id.depth * m_plane_contact_priority_ratio;
+SAT_Models_Intersection_3D::Polygons_Intersection_Data& SAT_Models_Intersection_3D::M_select_intersection(Polygons_Intersection_Data& _plane_id, Polygons_Intersection_Data& _edge_id) const
+{
+    if(!_plane_id.intersection)
+        return _edge_id;
+    if(!_edge_id.intersection)
+        return _plane_id;
 
-    if(plane_id.depth < edge_depth_multiplied)
-        result = plane_id;
-    else
-        result = edge_id;
+    float edge_depth_with_priority = _edge_id.depth * m_plane_contact_priority_ratio;
 
-    Polygons_Intersection_Data id = M_calculate_intersection_point(_first, _second);
-    if(!id.intersection)
+    if(_plane_id.depth < edge_depth_with_priority)
+        return _plane_id;
+
+    return _edge_id;
+}
+
+SAT_Models_Intersection_3D::Polygons_Intersection_Data SAT_Models_Intersection_3D::M_check_triangles_intersection(const Polygon& _first, const Polygon& _second) const
+{
+    glm::vec3 first_normal = LST::Math::cross_product(_first[2] - _first[1], _first[0] - _first[1]);
+    glm::vec3 second_normal = LST::Math::cross_product(_second[2] - _second[1], _second[0] - _second[1]);
+
+    float normals_dot = LST::Math::dot_product(first_normal, second_normal);
+    if(normals_dot > 0.0f)
         return {};
 
-    result.point = id.point;
-    result.intersection = true;
+    LST::Math::shrink_vector_to_1(first_normal);
+    LST::Math::shrink_vector_to_1(second_normal);
+
+    Polygons_Intersection_Data plane_id = M_check_triangles_plane_intersection(_first, first_normal, _second, second_normal);
+    Polygons_Intersection_Data edge_id = M_check_triangles_edge_intersection(_first, _second);
+
+    Polygons_Intersection_Data& result = M_select_intersection(plane_id, edge_id);
+    if(!result.intersection)
+        return {};
+
+    Polygons_Intersection_Data intersection_point_calculation_result = M_calculate_intersection_point(_first, _second);
+    if(!intersection_point_calculation_result.intersection)
+        return {};
+
+    result.point = intersection_point_calculation_result.point;
 
     if(LST::Math::dot_product(result.normal, first_normal) < 0.0f)
         result.normal *= -1.0f;
@@ -330,19 +355,46 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
 
 void SAT_Models_Intersection_3D::M_calculate_combined_normal_and_depth(Intersection_Data& _result_id, const Common_Intersection_Data& _cid) const
 {
-    _result_id.normal = {0.0f, 0.0f, 0.0f};
-    _result_id.depth = 0.0f;
+    glm::vec3 combined_pov = {0.0f, 0.0f, 0.0f};    // pov - push out vector
+    // float weights_sum = 0.0f;
+    float max_depth = 0.0f;
 
     for(unsigned int i = 0; i < _cid.normals.size(); ++i)
     {
-        glm::vec3 push_out_vector = -_cid.normals[i] * _cid.depths[i];
+        float depth = _cid.depths[i];
+        if(depth <= 0.0f)
+            continue;
 
-        _result_id.normal += push_out_vector;
-        _result_id.depth += _cid.depths[i];
+        combined_pov += -_cid.normals[i] * depth;
+        // weights_sum += depth;
+
+        if(max_depth < depth)
+            max_depth = depth;
     }
 
-    LST::Math::shrink_vector_to_1(_result_id.normal);
-    _result_id.depth /= (float)_cid.depths.size();
+    float pov_length = LST::Math::vector_length(combined_pov);
+
+    if(pov_length > LST::Math::Float_Precision_Tolerance_Risky)
+    {
+        _result_id.normal = combined_pov / pov_length;
+        _result_id.depth = max_depth;
+        // _result_id.depth = (weights_sum > 0) ? (weights_sum / _cid.normals.size()) : 0.0f;
+    }
+    else
+    {
+        unsigned int max_index = 0;
+        for(unsigned int i = 1; i < _cid.depths.size(); ++i)
+        {
+            if(_cid.depths[max_index] < _cid.depths[i])
+                max_index = i;
+        }
+
+        _result_id.normal = -_cid.normals[max_index];
+        _result_id.depth  = _cid.depths[max_index];
+    }
+
+    if(_result_id.depth > 0.5f)
+        std::cout << "ass" << std::endl;
 }
 
 LDS::Array<unsigned int, 4> SAT_Models_Intersection_3D::M_find_extreme_contacts_ids(const Common_Intersection_Data& _cid, const glm::vec3& _normal) const

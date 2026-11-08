@@ -16,7 +16,7 @@ namespace LPhys
 
     private:
         unsigned int m_min_polygons_for_optimization = 8;   //  if polygons amount on any mesh exceeds this value, optimization algotythm is used (something with space partitioning)
-        float m_plane_contact_priority_ratio = 3.0f;           //  if edge contact has depth difference with plane contact less than this value, plane contact is prioritized
+        float m_plane_contact_priority_ratio = 2.0f;           //  if edge contact has depth difference with plane contact less than this value, plane contact is prioritized
 
     public:
         inline void set_min_polygons_for_optimization(unsigned int _value) { m_min_polygons_for_optimization = _value; }
@@ -103,6 +103,9 @@ namespace LPhys
         Polygons_Intersection_Data M_calculate_intersection_point(const Polygon& _first, const Polygon& _second) const;
 
         Axis_Intersection M_check_intersection_on_axis(const glm::vec3& _axis, const Polygon& _first, const Polygon& _second) const;
+        Polygons_Intersection_Data M_check_triangles_plane_intersection(const Polygon& _first, const glm::vec3& _first_normal, const Polygon& _second, const glm::vec3& _second_normal) const;
+        Polygons_Intersection_Data M_check_triangles_edge_intersection(const Polygon& _first, const Polygon& _second) const;
+        Polygons_Intersection_Data& M_select_intersection(Polygons_Intersection_Data& _plane_id, Polygons_Intersection_Data& _edge_id) const;
         Polygons_Intersection_Data M_check_triangles_intersection(const Polygon& _first, const Polygon& _second) const;
 
         LDS::Vector<LST::Border> M_construct_polygon_borders(const Polygon_Holder_Base* _polygon_holder) const;

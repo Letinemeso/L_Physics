@@ -3,6 +3,7 @@
 #include <vec3.hpp>
 
 #include <Data_Structures/Vector.h>
+#include <Data_Structures/Array.h>
 
 namespace LPhys
 {
@@ -13,8 +14,8 @@ namespace LPhys
     {
     public:
         bool intersection = false;
-        LDS::Vector<glm::vec3> points;
-        LDS::Vector<float> depths_per_point;
+        LDS::Array<glm::vec3, 4> points;
+        LDS::Array<float, 4> depths_per_point;
         glm::vec3 normal{0.0f, 0.0f, 0.0f};
         float depth = 0.0f;
         Physics_Module* first = nullptr;
