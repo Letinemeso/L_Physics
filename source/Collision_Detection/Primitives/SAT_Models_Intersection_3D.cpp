@@ -356,7 +356,7 @@ SAT_Models_Intersection_3D::Common_Intersection_Data SAT_Models_Intersection_3D:
 void SAT_Models_Intersection_3D::M_calculate_combined_normal_and_depth(Intersection_Data& _result_id, const Common_Intersection_Data& _cid) const
 {
     glm::vec3 combined_pov = {0.0f, 0.0f, 0.0f};    // pov - push out vector
-    // float weights_sum = 0.0f;
+    float weights_sum = 0.0f;
     float max_depth = 0.0f;
 
     for(unsigned int i = 0; i < _cid.normals.size(); ++i)
@@ -366,7 +366,7 @@ void SAT_Models_Intersection_3D::M_calculate_combined_normal_and_depth(Intersect
             continue;
 
         combined_pov += -_cid.normals[i] * depth;
-        // weights_sum += depth;
+        weights_sum += depth;
 
         if(max_depth < depth)
             max_depth = depth;
@@ -377,8 +377,7 @@ void SAT_Models_Intersection_3D::M_calculate_combined_normal_and_depth(Intersect
     if(pov_length > LST::Math::Float_Precision_Tolerance_Risky)
     {
         _result_id.normal = combined_pov / pov_length;
-        _result_id.depth = max_depth;
-        // _result_id.depth = (weights_sum > 0) ? (weights_sum / _cid.normals.size()) : 0.0f;
+        _result_id.depth = (weights_sum > 0) ? (weights_sum / _cid.normals.size()) : 0.0f;
     }
     else
     {
