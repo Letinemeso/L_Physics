@@ -392,9 +392,6 @@ void SAT_Models_Intersection_3D::M_calculate_combined_normal_and_depth(Intersect
         _result_id.normal = -_cid.normals[max_index];
         _result_id.depth  = _cid.depths[max_index];
     }
-
-    if(_result_id.depth > 0.5f)
-        std::cout << "ass" << std::endl;
 }
 
 LDS::Array<unsigned int, 4> SAT_Models_Intersection_3D::M_find_extreme_contacts_ids(const Common_Intersection_Data& _cid, const glm::vec3& _normal) const
